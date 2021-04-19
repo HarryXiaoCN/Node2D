@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Node2D</RootNamespace>
-    <StartupObject>Sub Main</StartupObject>
+    <StartupObject>Node2D.Form1</StartupObject>
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 

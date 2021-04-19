@@ -60,7 +60,7 @@ Partial Class node
         '
         Me.ComboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.ComboBox1.FormattingEnabled = True
-        Me.ComboBox1.Items.AddRange(New Object() {"数值", "字符串", "引用", "函数"})
+        Me.ComboBox1.Items.AddRange(New Object() {"值", "引用", "函数"})
         Me.ComboBox1.Location = New System.Drawing.Point(77, 41)
         Me.ComboBox1.Name = "ComboBox1"
         Me.ComboBox1.Size = New System.Drawing.Size(225, 29)
