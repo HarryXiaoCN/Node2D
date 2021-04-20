@@ -28,6 +28,9 @@ Partial Class Form1
         Me.文件退出菜单 = New System.Windows.Forms.ToolStripMenuItem()
         Me.编辑菜单 = New System.Windows.Forms.ToolStripMenuItem()
         Me.编辑启用菜单 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.编辑右键点击创建值节点 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.编辑右键点击创建引用点 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.编辑右键点击创建函数点 = New System.Windows.Forms.ToolStripMenuItem()
         CType(Me.绘制空间, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.菜单栏.SuspendLayout()
         Me.SuspendLayout()
@@ -73,9 +76,30 @@ Partial Class Form1
         '
         '编辑启用菜单
         '
+        Me.编辑启用菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.编辑右键点击创建值节点, Me.编辑右键点击创建引用点, Me.编辑右键点击创建函数点})
         Me.编辑启用菜单.Name = "编辑启用菜单"
-        Me.编辑启用菜单.Size = New System.Drawing.Size(139, 22)
-        Me.编辑启用菜单.Text = "启用编辑(&S)"
+        Me.编辑启用菜单.Size = New System.Drawing.Size(124, 22)
+        Me.编辑启用菜单.Text = "右键点击"
+        '
+        '编辑右键点击创建值节点
+        '
+        Me.编辑右键点击创建值节点.Checked = True
+        Me.编辑右键点击创建值节点.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.编辑右键点击创建值节点.Name = "编辑右键点击创建值节点"
+        Me.编辑右键点击创建值节点.Size = New System.Drawing.Size(136, 22)
+        Me.编辑右键点击创建值节点.Text = "创建值节点"
+        '
+        '编辑右键点击创建引用点
+        '
+        Me.编辑右键点击创建引用点.Name = "编辑右键点击创建引用点"
+        Me.编辑右键点击创建引用点.Size = New System.Drawing.Size(136, 22)
+        Me.编辑右键点击创建引用点.Text = "创建引用点"
+        '
+        '编辑右键点击创建函数点
+        '
+        Me.编辑右键点击创建函数点.Name = "编辑右键点击创建函数点"
+        Me.编辑右键点击创建函数点.Size = New System.Drawing.Size(136, 22)
+        Me.编辑右键点击创建函数点.Text = "创建函数点"
         '
         'Form1
         '
@@ -85,6 +109,7 @@ Partial Class Form1
         Me.ClientSize = New System.Drawing.Size(386, 380)
         Me.Controls.Add(Me.绘制空间)
         Me.Controls.Add(Me.菜单栏)
+        Me.KeyPreview = True
         Me.MainMenuStrip = Me.菜单栏
         Me.Name = "Form1"
         Me.Text = "节点平面"
@@ -102,4 +127,7 @@ Partial Class Form1
     Friend WithEvents 文件退出菜单 As ToolStripMenuItem
     Friend WithEvents 编辑菜单 As ToolStripMenuItem
     Friend WithEvents 编辑启用菜单 As ToolStripMenuItem
+    Friend WithEvents 编辑右键点击创建值节点 As ToolStripMenuItem
+    Friend WithEvents 编辑右键点击创建引用点 As ToolStripMenuItem
+    Friend WithEvents 编辑右键点击创建函数点 As ToolStripMenuItem
 End Class

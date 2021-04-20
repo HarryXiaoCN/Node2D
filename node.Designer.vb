@@ -22,26 +22,27 @@ Partial Class node
     '不要使用代码编辑器修改它。
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Me.TextBox1 = New System.Windows.Forms.TextBox()
+        Me.节点名 = New System.Windows.Forms.TextBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.Label2 = New System.Windows.Forms.Label()
-        Me.ComboBox1 = New System.Windows.Forms.ComboBox()
+        Me.节点类型 = New System.Windows.Forms.ComboBox()
         Me.Label3 = New System.Windows.Forms.Label()
-        Me.TextBox2 = New System.Windows.Forms.TextBox()
+        Me.节点内容 = New System.Windows.Forms.TextBox()
         Me.SuspendLayout()
         '
-        'TextBox1
+        '节点名
         '
-        Me.TextBox1.Font = New System.Drawing.Font("微软雅黑", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.TextBox1.Location = New System.Drawing.Point(77, 6)
-        Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.Size = New System.Drawing.Size(225, 29)
-        Me.TextBox1.TabIndex = 0
+        Me.节点名.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.节点名.Font = New System.Drawing.Font("微软雅黑", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        Me.节点名.Location = New System.Drawing.Point(12, 43)
+        Me.节点名.Name = "节点名"
+        Me.节点名.Size = New System.Drawing.Size(132, 29)
+        Me.节点名.TabIndex = 0
         '
         'Label1
         '
         Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(12, 9)
+        Me.Label1.Location = New System.Drawing.Point(12, 19)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(74, 21)
         Me.Label1.TabIndex = 1
@@ -50,63 +51,71 @@ Partial Class node
         'Label2
         '
         Me.Label2.AutoSize = True
-        Me.Label2.Location = New System.Drawing.Point(28, 44)
+        Me.Label2.Location = New System.Drawing.Point(156, 19)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(58, 21)
         Me.Label2.TabIndex = 2
         Me.Label2.Text = "类型："
         '
-        'ComboBox1
+        '节点类型
         '
-        Me.ComboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.ComboBox1.FormattingEnabled = True
-        Me.ComboBox1.Items.AddRange(New Object() {"值", "引用", "函数"})
-        Me.ComboBox1.Location = New System.Drawing.Point(77, 41)
-        Me.ComboBox1.Name = "ComboBox1"
-        Me.ComboBox1.Size = New System.Drawing.Size(225, 29)
-        Me.ComboBox1.TabIndex = 3
+        Me.节点类型.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.节点类型.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.节点类型.FormattingEnabled = True
+        Me.节点类型.Items.AddRange(New Object() {"值", "引用", "函数"})
+        Me.节点类型.Location = New System.Drawing.Point(156, 43)
+        Me.节点类型.Name = "节点类型"
+        Me.节点类型.Size = New System.Drawing.Size(132, 29)
+        Me.节点类型.TabIndex = 3
         '
         'Label3
         '
         Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(44, 79)
+        Me.Label3.Location = New System.Drawing.Point(12, 75)
         Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(42, 21)
+        Me.Label3.Size = New System.Drawing.Size(58, 21)
         Me.Label3.TabIndex = 4
-        Me.Label3.Text = "值："
+        Me.Label3.Text = "内容："
         '
-        'TextBox2
+        '节点内容
         '
-        Me.TextBox2.Location = New System.Drawing.Point(77, 79)
-        Me.TextBox2.Multiline = True
-        Me.TextBox2.Name = "TextBox2"
-        Me.TextBox2.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.TextBox2.Size = New System.Drawing.Size(225, 147)
-        Me.TextBox2.TabIndex = 5
+        Me.节点内容.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.节点内容.Location = New System.Drawing.Point(12, 99)
+        Me.节点内容.Multiline = True
+        Me.节点内容.Name = "节点内容"
+        Me.节点内容.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.节点内容.Size = New System.Drawing.Size(276, 147)
+        Me.节点内容.TabIndex = 5
         '
         'node
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(10.0!, 21.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(316, 238)
-        Me.Controls.Add(Me.TextBox2)
-        Me.Controls.Add(Me.Label3)
-        Me.Controls.Add(Me.ComboBox1)
+        Me.BackColor = System.Drawing.Color.Gainsboro
+        Me.ClientSize = New System.Drawing.Size(301, 260)
+        Me.Controls.Add(Me.节点内容)
+        Me.Controls.Add(Me.节点类型)
         Me.Controls.Add(Me.Label2)
-        Me.Controls.Add(Me.TextBox1)
+        Me.Controls.Add(Me.节点名)
         Me.Controls.Add(Me.Label1)
+        Me.Controls.Add(Me.Label3)
         Me.Font = New System.Drawing.Font("微软雅黑", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
+        Me.KeyPreview = True
         Me.Name = "node"
+        Me.Opacity = 0.9R
         Me.Text = "节点编辑"
+        Me.TopMost = True
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
 
-    Friend WithEvents TextBox1 As TextBox
+    Friend WithEvents 节点名 As TextBox
     Friend WithEvents Label1 As Label
     Friend WithEvents Label2 As Label
-    Friend WithEvents ComboBox1 As ComboBox
+    Friend WithEvents 节点类型 As ComboBox
     Friend WithEvents Label3 As Label
     Friend WithEvents TextBox2 As TextBox
+    Friend WithEvents 节点内容 As TextBox
 End Class
