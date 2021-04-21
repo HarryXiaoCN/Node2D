@@ -1,4 +1,4 @@
-﻿Public Class node
+﻿Public Class Node
     Public 主域 As 节点平面类
     Private Sub 节点名_TextChanged(sender As Object, e As EventArgs) Handles 节点名.TextChanged
         If 节点名.Text <> 主域.当前编辑节点.名字 Then
@@ -47,11 +47,17 @@
         End If
     End Sub
 
-    Private Sub node_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
+    Private Sub Node_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
         If e.KeyCode = Keys.Escape Then
             If Visible Then
                 Hide()
             End If
+        End If
+    End Sub
+
+    Private Sub Node_KeyPress(sender As Object, e As KeyPressEventArgs) Handles Me.KeyPress
+        If Asc(e.KeyChar) = 27 Then
+            e.Handled = True
         End If
     End Sub
 End Class

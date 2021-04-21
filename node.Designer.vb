@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
-Partial Class node
+Partial Class Node
     Inherits System.Windows.Forms.Form
 
     'Form 重写 Dispose，以清理组件列表。
@@ -87,7 +87,7 @@ Partial Class node
         Me.节点内容.Size = New System.Drawing.Size(276, 147)
         Me.节点内容.TabIndex = 5
         '
-        'node
+        'Node
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(10.0!, 21.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
@@ -102,8 +102,10 @@ Partial Class node
         Me.Font = New System.Drawing.Font("微软雅黑", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.KeyPreview = True
-        Me.Name = "node"
+        Me.Name = "Node"
         Me.Opacity = 0.9R
+        Me.ShowIcon = False
+        Me.ShowInTaskbar = False
         Me.Text = "节点编辑"
         Me.TopMost = True
         Me.ResumeLayout(False)

@@ -3,6 +3,7 @@
 Public Class Form1
     Private 主域 As 节点平面类
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles Me.Load
+        绘制空间.Image = New Bitmap(10, 10)
         主域 = New 节点平面类(Me, 绘制空间)
     End Sub
     Private Sub Form1_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
@@ -63,4 +64,13 @@ Public Class Form1
             主域.节点创建模式 = ""
         End If
     End Sub
+
+    Private Sub 绘制空间_MouseDown(sender As Object, e As MouseEventArgs) Handles 绘制空间.MouseDown
+
+    End Sub
+
+    Private Sub 绘制空间_MouseUp(sender As Object, e As MouseEventArgs) Handles 绘制空间.MouseUp
+
+    End Sub
+
 End Class
