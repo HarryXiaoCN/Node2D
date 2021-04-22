@@ -7,6 +7,7 @@ Public Class 节点平面类
         Public 位置 As Point
         Public 父域 As 节点平面类
         Public 连接 As New List(Of 节点类)
+        Public 空间 As New Dictionary(Of String, 节点平面类)
         Public Event 改变前(node As 节点类)
         Public Event 改变后(node As 节点类)
         Public Sub New(ByRef parent As 节点平面类, nodeName As String, nodeType As String, nodeContent As String, nodePos As Point)
@@ -46,6 +47,13 @@ Public Class 节点平面类
                 RaiseEvent 改变后(Me)
             End Set
         End Property
+        Public Sub 删除()
+            For Each n As 节点类 In 连接
+                n.连接.Remove(Me)
+            Next
+            父域.本域节点.Remove(名字)
+            父域.空间限制.Remove(位置)
+        End Sub
     End Class
     Public 引用域 As New List(Of 节点平面类)
     Public 本域节点 As New Dictionary(Of String, 节点类)
@@ -81,6 +89,7 @@ Public Class 节点平面类
 
     Private 视角拖拽起点 As Point
     Private 视角拖拽 As Boolean
+    Private 节点删除列表 As New List(Of 节点类)
     Private 绘制线程 As Thread
     Private Delegate Sub 绘制更新委托(ByRef 帧 As Image)
     Public Sub New(ByRef mainForm As Form, ByRef drawSpace As PictureBox, Optional mainNode2D As Boolean = True)
@@ -95,31 +104,35 @@ Public Class 节点平面类
             绘制线程.Start()
         End If
     End Sub
-
-    Public Sub 鼠标点击事件(sender As Object, e As MouseEventArgs) Handles 绘制空间.MouseDown
+    Private Sub 鼠标双击事件(sender As Object, e As EventArgs) Handles 绘制空间.DoubleClick
+        If 鼠标移动选中节点 IsNot Nothing Then
+            节点删除列表.Add(鼠标移动选中节点)
+            鼠标移动选中节点 = Nothing
+            当前编辑节点 = Nothing
+            当前按住节点 = Nothing
+            连接发起节点 = Nothing
+        End If
+    End Sub
+    Private Sub 鼠标点击事件(sender As Object, e As MouseEventArgs) Handles 绘制空间.MouseDown
         鼠标实际位置 = e.Location
         鼠标实际位置.Offset(-视角偏移.X, -视角偏移.Y)
         鼠标当前位置 = New Point(鼠标实际位置.X \ 缩放倍数, 鼠标实际位置.Y \ 缩放倍数)
         If e.Button = MouseButtons.Right Then
-            新建节点(本域节点.Count, 鼠标当前位置)
+            新建节点(String.Format("{0}_{1}_{2}", 本域节点.Count, 鼠标当前位置.X, 鼠标当前位置.Y), 鼠标当前位置)
         ElseIf e.Button = MouseButtons.Left Then
             当前按住节点 = 位置到节点(鼠标当前位置)
             If 当前按住节点 IsNot Nothing Then
                 If 连接发起节点 IsNot Nothing Then
                     If 连接有效性判断(当前按住节点, 连接发起节点) Then
-                        If 当前按住节点.类型 <> "值" Then
-                            If 当前按住节点.连接.Contains(连接发起节点) Then
-                                当前按住节点.连接.Remove(连接发起节点)
-                            Else
-                                当前按住节点.连接.Add(连接发起节点)
-                            End If
+                        If 当前按住节点.连接.Contains(连接发起节点) Then
+                            当前按住节点.连接.Remove(连接发起节点)
+                        Else
+                            当前按住节点.连接.Add(连接发起节点)
                         End If
-                        If 连接发起节点.类型 <> "值" Then
-                            If 连接发起节点.连接.Contains(当前按住节点) Then
-                                连接发起节点.连接.Remove(当前按住节点)
-                            Else
-                                连接发起节点.连接.Add(当前按住节点)
-                            End If
+                        If 连接发起节点.连接.Contains(当前按住节点) Then
+                            连接发起节点.连接.Remove(当前按住节点)
+                        Else
+                            连接发起节点.连接.Add(当前按住节点)
                         End If
                         连接发起节点 = Nothing
                     End If
@@ -236,6 +249,10 @@ Public Class 节点平面类
         Do Until 结束标识
 
             If 主窗体.WindowState <> FormWindowState.Minimized And 主窗体.Visible Then
+                For i As Integer = 0 To 节点删除列表.Count - 1
+                    节点删除列表(i).删除()
+                Next
+                节点删除列表.Clear()
                 缓存帧.Dispose()
                 缓存帧 = New Bitmap(绘制空间.Width, 绘制空间.Height)
                 Dim g As Graphics = Graphics.FromImage(缓存帧)
@@ -245,13 +262,13 @@ Public Class 节点平面类
                 g.TextRenderingHint = Text.TextRenderingHint.AntiAlias
 
                 For i As Long = 0 To 本域节点.Count - 1
-                    Select Case 本域节点(i).类型
+                    Select Case 本域节点.Values(i).类型
                         Case "函数"
-                            For Each targetNode As 节点类 In 本域节点(i).连接
+                            For Each targetNode As 节点类 In 本域节点.Values(i).连接
                                 绘制线段(g, 函数节点连接色, 本域节点(i)， targetNode)
                             Next
                         Case "引用"
-                            For Each targetNode As 节点类 In 本域节点(i).连接
+                            For Each targetNode As 节点类 In 本域节点.Values(i).连接
                                 绘制线段(g, 引用节点连接色, 本域节点(i)， targetNode)
                             Next
                     End Select
