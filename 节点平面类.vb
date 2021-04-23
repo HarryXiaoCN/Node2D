@@ -1,4 +1,5 @@
 ﻿Imports System.Threading
+Imports System.Text.RegularExpressions
 Public Class 节点平面类
     Public Class 节点类
         Private name As String
@@ -6,6 +7,7 @@ Public Class 节点平面类
         Private content As String
         Public 位置 As Point
         Public 父域 As 节点平面类
+        Public 引用等级 As Integer '0:一次引用 1:本次引用 2:永久引用
         Public 连接 As New List(Of 节点类)
         Public 空间 As New Dictionary(Of String, 节点平面类)
         Public Event 改变前(node As 节点类)
@@ -191,10 +193,13 @@ Public Class 节点平面类
     Public Function 编辑节点名(name As String, value As String) As Integer
         If 本域节点.ContainsKey(name) Then
             If Not 本域节点.ContainsKey(value) Then
-                Dim 缓存节点 As 节点类 = 本域节点(name)
-                缓存节点.名字 = value
-                本域节点.Remove(name)
-                本域节点.Add(value, 缓存节点)
+                If Regex.IsMatch(value, "^[^+\-*/\\=<> ^()']{1,}$") Then
+                    Dim 缓存节点 As 节点类 = 本域节点(name)
+                    缓存节点.名字 = value
+                    本域节点.Remove(name)
+                    本域节点.Add(value, 缓存节点)
+                    Return 3
+                End If
                 Return 2
             End If
             Return 1

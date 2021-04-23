@@ -14,4 +14,20 @@
     <Import Include="System.Windows.Forms" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Gloabl.Designer.vb">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Gloabl.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Gloabl.resx">
+      <CustomToolNamespace>My.Resources</CustomToolNamespace>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Gloabl.Designer.vb</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

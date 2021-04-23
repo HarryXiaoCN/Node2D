@@ -1,6 +1,7 @@
 ﻿Imports System.Text.RegularExpressions
 Imports Node2D.节点平面类
 Public Class 节点脚本类
+
     Public 主域 As 节点平面类
     Public Function 获得节点(路径 As String) As 节点类
 
@@ -30,23 +31,27 @@ Public Class 节点脚本类
         Next
         Return Join(反馈.ToArray, vbCrLf)
     End Function
+    Public Sub 赋值式运算(targetString As String)
+        Dim nodesString() As String = Split(targetString, " ")
+        '0:赋值节点 1:=
+        For i As Integer = 2 To UBound(nodesString)
+
+        Next
+    End Sub
 
     Private Function 式判断(句 As String, 节点 As 节点类) As String
         If 句.EndsWith("()") Then
             Return "执行式" '默认将句末()前作为函数节点路径
         End If
-        If Regex.IsMatch(句, "^若 [^ ]{1,}$") Or Regex.IsMatch(句, "^若 [^ ]{1,} [^ ]{1,}$") Then
+        If Regex.IsMatch(句, ".{1,}=.{1,}") Then
+            Return "赋值式"
+        End If
+        If Regex.IsMatch(句, "^若 [^ ]{1,} [^ ]{1,}$") Or Regex.IsMatch(句, "^若 [^ ]{1,}$") Then
             Return "判断式"
         End If
-        If Regex.IsMatch(句, "^遍 [^ ]{1,} [^ ]{1,}$") Then
+        If Regex.IsMatch(句, "^遍 [^ ]{1,}$") Then
             Return "循环式"
         End If
-        For i As Integer = 0 To 节点.连接.Count - 1
-            If Regex.IsMatch(句, "^" & 节点.连接(i).名字 & "=[^=]") Then
-                '此时只是获得了路径=
-                Return "赋值式"
-            End If
-        Next
         Return ""
     End Function
     Private Function 解释执行式(行 As Integer, 句 As String, 函数点 As 节点类) As String
