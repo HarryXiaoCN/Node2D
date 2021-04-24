@@ -1,5 +1,6 @@
 ﻿Imports System.Threading
 Imports System.Text.RegularExpressions
+Imports System.IO
 Public Class 节点平面类
     Public Class 节点类
         Private name As String
@@ -9,6 +10,7 @@ Public Class 节点平面类
         Public 父域 As 节点平面类
         Public 引用等级 As Integer '0:一次引用 1:本次引用 2:永久引用
         Public 连接 As New List(Of 节点类)
+        Private 待连接 As New List(Of String)
         Public 空间 As New Dictionary(Of String, 节点平面类)
         Public Event 改变前(node As 节点类)
         Public Event 改变后(node As 节点类)
@@ -18,7 +20,32 @@ Public Class 节点平面类
             type = nodeType
             content = nodeContent
             位置 = nodePos
+            父域.空间限制.Add(位置, Me)
         End Sub
+        Public Sub New(ByRef parent As 节点平面类, nodeString As String)
+            父域 = parent
+            Dim s() As String = Split(nodeString, Chr(1))
+            name = s(0)
+            type = s(1)
+            content = Replace(s(2), Chr(2), vbCrLf)
+            位置 = New Point(Val(s(3)), Val(s(4)))
+            待连接.AddRange(Split(s(5), Chr(2)))
+            父域.本域节点.Add(name, Me)
+            父域.空间限制.Add(位置, Me)
+        End Sub
+        Public Sub 确认连接()
+            For i As Integer = 0 To 待连接.Count - 1
+                连接.Add(父域.本域节点(待连接(i)))
+            Next
+        End Sub
+        Public Overloads Function ToString() As String
+            Dim 连接名集 As New List(Of String)
+            For i As Integer = 0 To 连接.Count - 1
+                连接名集.Add(连接(i).名字)
+            Next
+            Return name & Chr(1) & type & Chr(1) & Replace(content, vbCrLf, Chr(2)) & Chr(1) & 位置.X & Chr(1) & 位置.Y _
+                & Chr(1) & Join(连接名集.ToArray, Chr(2))
+        End Function
         Public Property 名字() As String
             Get
                 Return name
@@ -88,6 +115,7 @@ Public Class 节点平面类
     Public 引用节点连接色 As New Pen(Color.FromArgb(180, 引用节点填充色), 10)
     Public 连接起点颜色 As Color = Color.Purple
     Public WithEvents 绘制空间 As PictureBox
+    Public 版本 As String = "NODE2D.20210424.1"
 
     Private 视角拖拽起点 As Point
     Private 视角拖拽 As Boolean
@@ -105,6 +133,30 @@ Public Class 节点平面类
             绘制线程 = New Thread(AddressOf 绘制)
             绘制线程.Start()
         End If
+    End Sub
+
+    Public Sub 加载(path As String)
+        Dim s() As String = Split(File.ReadAllText(path), vbCrLf)
+        If s(0) = "NODE2D.20210424.1" Then
+            For i = 1 To UBound(s)
+                Dim node As New 节点类(Me, s(i))
+            Next
+            For Each n As 节点类 In 本域节点.Values
+                n.确认连接()
+            Next
+        End If
+    End Sub
+
+    Public Sub 保存(path As String)
+        Dim result As New List(Of String) From {
+            版本
+        }
+
+        For i As Integer = 0 To 本域节点.Count - 1
+            result.Add(本域节点.Values(i).ToString)
+        Next
+
+        File.WriteAllText(path, Join(result.ToArray, vbCrLf))
     End Sub
     Private Sub 鼠标双击事件(sender As Object, e As EventArgs) Handles 绘制空间.DoubleClick
         If 鼠标移动选中节点 IsNot Nothing Then
@@ -244,7 +296,6 @@ Public Class 节点平面类
         If Not 本域节点.ContainsKey(节点名) And Not 空间限制.ContainsKey(位置) And 节点创建模式 <> "" Then
             本域节点.Add(节点名, New 节点类(Me, 节点名, 节点创建模式, "", 位置))
             ' 待添加节点事件钩子
-            空间限制.Add(位置, 本域节点(节点名))
         End If
     End Sub
 
@@ -270,11 +321,11 @@ Public Class 节点平面类
                     Select Case 本域节点.Values(i).类型
                         Case "函数"
                             For Each targetNode As 节点类 In 本域节点.Values(i).连接
-                                绘制线段(g, 函数节点连接色, 本域节点(i)， targetNode)
+                                绘制线段(g, 函数节点连接色, 本域节点.Values(i)， targetNode)
                             Next
                         Case "引用"
                             For Each targetNode As 节点类 In 本域节点.Values(i).连接
-                                绘制线段(g, 引用节点连接色, 本域节点(i)， targetNode)
+                                绘制线段(g, 引用节点连接色, 本域节点.Values(i)， targetNode)
                             Next
                     End Select
                 Next
@@ -399,17 +450,19 @@ Public Class 节点平面类
         g.DrawString(String.Format("{0}:{1}", node.名字, node.内容), 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数)
     End Sub
     Private Function 获得三角形点集(左上基点 As Point) As Point()
-        Dim p As New List(Of Point)
-        p.Add(New Point(左上基点.X * 缩放倍数 + 缩放倍数 * 0.5, 左上基点.Y * 缩放倍数))
-        p.Add(New Point(左上基点.X * 缩放倍数, 左上基点.Y * 缩放倍数 + 缩放倍数))
-        p.Add(New Point(左上基点.X * 缩放倍数 + 缩放倍数, 左上基点.Y * 缩放倍数 + 缩放倍数))
+        Dim p As New List(Of Point) From {
+            New Point(左上基点.X * 缩放倍数 + 缩放倍数 * 0.5, 左上基点.Y * 缩放倍数),
+            New Point(左上基点.X * 缩放倍数, 左上基点.Y * 缩放倍数 + 缩放倍数),
+            New Point(左上基点.X * 缩放倍数 + 缩放倍数, 左上基点.Y * 缩放倍数 + 缩放倍数)
+        }
         Return p.ToArray
     End Function
     Private Function 获得三角形点集_无缩放(左上基点 As Point) As Point()
-        Dim p As New List(Of Point)
-        p.Add(New Point(左上基点.X + 缩放倍数 * 0.5, 左上基点.Y))
-        p.Add(New Point(左上基点.X, 左上基点.Y + 缩放倍数))
-        p.Add(New Point(左上基点.X + 缩放倍数, 左上基点.Y + 缩放倍数))
+        Dim p As New List(Of Point) From {
+            New Point(左上基点.X + 缩放倍数 * 0.5, 左上基点.Y),
+            New Point(左上基点.X, 左上基点.Y + 缩放倍数),
+            New Point(左上基点.X + 缩放倍数, 左上基点.Y + 缩放倍数)
+        }
         Return p.ToArray
     End Function
 End Class

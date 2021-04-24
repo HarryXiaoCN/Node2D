@@ -5,6 +5,8 @@ Public Class Form1
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles Me.Load
         绘制空间.Image = New Bitmap(10, 10)
         主域 = New 节点平面类(Me, 绘制空间)
+        控制台.Show()
+        控制台.Visible = False
     End Sub
     Private Sub Form1_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
         主域.结束标识 = True
@@ -77,5 +79,27 @@ Public Class Form1
 
     End Sub
 
+    Private Sub 运行菜单执行当前节点_Click(sender As Object, e As EventArgs) Handles 运行菜单执行当前节点.Click
+        If 主域.鼠标移动选中节点 IsNot Nothing Then
+            If 主域.鼠标移动选中节点.类型 = "函数" Then
+                Dim 脚本 As New 节点脚本类(主域.鼠标移动选中节点)
+                控制台.控制输出.Text = 脚本.函数解释(主域.鼠标移动选中节点)
+                If 控制台.Visible = False Then 控制台.Visible = True
+            End If
+        End If
+    End Sub
 
+    Private Sub 保存平面_Click(sender As Object, e As EventArgs) Handles 保存平面.Click
+        If SFD.ShowDialog = DialogResult.OK Then
+            主域.保存(SFD.FileName)
+        End If
+    End Sub
+
+    Private Sub 载入平面_Click(sender As Object, e As EventArgs) Handles 载入平面.Click
+        If OFD.ShowDialog = DialogResult.OK Then
+            主域.结束标识 = True
+            主域 = New 节点平面类(Me, 绘制空间)
+            主域.加载(OFD.FileName)
+        End If
+    End Sub
 End Class

@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
-Partial Class console
+Partial Class NodeConsole
     Inherits System.Windows.Forms.Form
 
     'Form 重写 Dispose，以清理组件列表。
@@ -22,31 +22,31 @@ Partial Class console
     '不要使用代码编辑器修改它。
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Me.TextBox1 = New System.Windows.Forms.TextBox()
+        Me.控制输出 = New System.Windows.Forms.TextBox()
         Me.SuspendLayout()
         '
-        'TextBox1
+        '控制输出
         '
-        Me.TextBox1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TextBox1.Location = New System.Drawing.Point(0, 0)
-        Me.TextBox1.Multiline = True
-        Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.TextBox1.Size = New System.Drawing.Size(578, 93)
-        Me.TextBox1.TabIndex = 0
+        Me.控制输出.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.控制输出.Location = New System.Drawing.Point(0, 0)
+        Me.控制输出.Multiline = True
+        Me.控制输出.Name = "控制输出"
+        Me.控制输出.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.控制输出.Size = New System.Drawing.Size(578, 93)
+        Me.控制输出.TabIndex = 0
         '
-        'console
+        'NodeConsole
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 17.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(578, 93)
-        Me.Controls.Add(Me.TextBox1)
-        Me.Name = "console"
+        Me.Controls.Add(Me.控制输出)
+        Me.Name = "NodeConsole"
         Me.Text = "控制台"
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
 
-    Friend WithEvents TextBox1 As TextBox
+    Friend WithEvents 控制输出 As TextBox
 End Class

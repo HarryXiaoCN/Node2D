@@ -52,11 +52,19 @@
             If Visible Then
                 Hide()
             End If
+        ElseIf e.KeyCode = Keys.F5 Then
+            If 主域.鼠标移动选中节点 IsNot Nothing Then
+                If 主域.鼠标移动选中节点.类型 = "函数" Then
+                    Dim 脚本 As New 节点脚本类(主域.鼠标移动选中节点)
+                    控制台.控制输出.Text = 脚本.函数解释(主域.鼠标移动选中节点)
+                    If 控制台.Visible = False Then 控制台.Visible = True
+                End If
+            End If
         End If
     End Sub
 
     Private Sub Node_KeyPress(sender As Object, e As KeyPressEventArgs) Handles Me.KeyPress
-        If Asc(e.KeyChar) = 27 Then
+        If e.KeyChar = Chr(27) Then
             e.Handled = True
         End If
     End Sub

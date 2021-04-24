@@ -25,12 +25,19 @@ Partial Class Form1
         Me.绘制空间 = New System.Windows.Forms.PictureBox()
         Me.菜单栏 = New System.Windows.Forms.MenuStrip()
         Me.文件菜单 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.载入平面 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.保存平面 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator()
         Me.文件退出菜单 = New System.Windows.Forms.ToolStripMenuItem()
         Me.编辑菜单 = New System.Windows.Forms.ToolStripMenuItem()
         Me.编辑启用菜单 = New System.Windows.Forms.ToolStripMenuItem()
         Me.编辑右键点击创建值节点 = New System.Windows.Forms.ToolStripMenuItem()
         Me.编辑右键点击创建引用点 = New System.Windows.Forms.ToolStripMenuItem()
         Me.编辑右键点击创建函数点 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.运行菜单 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.运行菜单执行当前节点 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.SFD = New System.Windows.Forms.SaveFileDialog()
+        Me.OFD = New System.Windows.Forms.OpenFileDialog()
         CType(Me.绘制空间, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.菜单栏.SuspendLayout()
         Me.SuspendLayout()
@@ -47,7 +54,7 @@ Partial Class Form1
         '
         '菜单栏
         '
-        Me.菜单栏.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.文件菜单, Me.编辑菜单})
+        Me.菜单栏.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.文件菜单, Me.编辑菜单, Me.运行菜单})
         Me.菜单栏.Location = New System.Drawing.Point(0, 0)
         Me.菜单栏.Name = "菜单栏"
         Me.菜单栏.Size = New System.Drawing.Size(384, 25)
@@ -56,10 +63,27 @@ Partial Class Form1
         '
         '文件菜单
         '
-        Me.文件菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.文件退出菜单})
+        Me.文件菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.载入平面, Me.保存平面, Me.ToolStripSeparator1, Me.文件退出菜单})
         Me.文件菜单.Name = "文件菜单"
         Me.文件菜单.Size = New System.Drawing.Size(58, 21)
         Me.文件菜单.Text = "文件(&F)"
+        '
+        '载入平面
+        '
+        Me.载入平面.Name = "载入平面"
+        Me.载入平面.Size = New System.Drawing.Size(118, 22)
+        Me.载入平面.Text = "载入(&L)"
+        '
+        '保存平面
+        '
+        Me.保存平面.Name = "保存平面"
+        Me.保存平面.Size = New System.Drawing.Size(118, 22)
+        Me.保存平面.Text = "保存(&S)"
+        '
+        'ToolStripSeparator1
+        '
+        Me.ToolStripSeparator1.Name = "ToolStripSeparator1"
+        Me.ToolStripSeparator1.Size = New System.Drawing.Size(115, 6)
         '
         '文件退出菜单
         '
@@ -101,6 +125,31 @@ Partial Class Form1
         Me.编辑右键点击创建函数点.Size = New System.Drawing.Size(136, 22)
         Me.编辑右键点击创建函数点.Text = "创建函数点"
         '
+        '运行菜单
+        '
+        Me.运行菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.运行菜单执行当前节点})
+        Me.运行菜单.Name = "运行菜单"
+        Me.运行菜单.Size = New System.Drawing.Size(60, 21)
+        Me.运行菜单.Text = "运行(&R)"
+        '
+        '运行菜单执行当前节点
+        '
+        Me.运行菜单执行当前节点.Name = "运行菜单执行当前节点"
+        Me.运行菜单执行当前节点.ShortcutKeys = System.Windows.Forms.Keys.F5
+        Me.运行菜单执行当前节点.Size = New System.Drawing.Size(169, 22)
+        Me.运行菜单执行当前节点.Text = "执行选中节点"
+        '
+        'SFD
+        '
+        Me.SFD.FileName = "新的平面"
+        Me.SFD.Filter = "节点平面|*.n2d"
+        Me.SFD.Title = "保存节点平面"
+        '
+        'OFD
+        '
+        Me.OFD.Filter = "节点平面|*.n2d"
+        Me.OFD.Title = "载入节点平面"
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 17.0!)
@@ -133,4 +182,11 @@ Partial Class Form1
     Friend WithEvents 编辑右键点击创建值节点 As ToolStripMenuItem
     Friend WithEvents 编辑右键点击创建引用点 As ToolStripMenuItem
     Friend WithEvents 编辑右键点击创建函数点 As ToolStripMenuItem
+    Friend WithEvents 运行菜单 As ToolStripMenuItem
+    Friend WithEvents 运行菜单执行当前节点 As ToolStripMenuItem
+    Friend WithEvents 载入平面 As ToolStripMenuItem
+    Friend WithEvents 保存平面 As ToolStripMenuItem
+    Friend WithEvents ToolStripSeparator1 As ToolStripSeparator
+    Friend WithEvents SFD As SaveFileDialog
+    Friend WithEvents OFD As OpenFileDialog
 End Class
