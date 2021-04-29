@@ -27,11 +27,17 @@ Public Class NodeConsole
     End Sub
 
     Private Sub 全选文本_Click(sender As Object, e As EventArgs) Handles 全选文本.Click
-        控制输出.SelectionStart = 0
-        控制输出.SelectionLength = 控制输出.TextLength
+        '控制输出.SelectionStart = 0
+        '控制输出.SelectionLength = 控制输出.TextLength
+        控制输出.SelectAll()
     End Sub
 
     Private Sub 清空文本_Click(sender As Object, e As EventArgs) Handles 清空文本.Click
         控制输出.Text = ""
+    End Sub
+
+    Private Sub NodeConsole_Load(sender As Object, e As EventArgs) Handles Me.Load
+        Top = Screen.PrimaryScreen.Bounds.Height - Height
+        Left = (Screen.PrimaryScreen.Bounds.Width - Width) \ 2
     End Sub
 End Class

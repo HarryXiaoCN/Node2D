@@ -34,12 +34,14 @@ Partial Class NodeConsole
         '控制输出
         '
         Me.控制输出.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.控制输出.ContextMenuStrip = Me.右键菜单
         Me.控制输出.Dock = System.Windows.Forms.DockStyle.Fill
         Me.控制输出.Location = New System.Drawing.Point(0, 0)
         Me.控制输出.Multiline = True
         Me.控制输出.Name = "控制输出"
+        Me.控制输出.ReadOnly = True
         Me.控制输出.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.控制输出.Size = New System.Drawing.Size(578, 93)
+        Me.控制输出.Size = New System.Drawing.Size(784, 161)
         Me.控制输出.TabIndex = 0
         '
         '右键菜单
@@ -73,7 +75,7 @@ Partial Class NodeConsole
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 17.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(578, 93)
+        Me.ClientSize = New System.Drawing.Size(784, 161)
         Me.Controls.Add(Me.控制输出)
         Me.Name = "NodeConsole"
         Me.Text = "控制台"

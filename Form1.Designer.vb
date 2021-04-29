@@ -27,6 +27,8 @@ Partial Class Form1
         Me.文件菜单 = New System.Windows.Forms.ToolStripMenuItem()
         Me.载入平面 = New System.Windows.Forms.ToolStripMenuItem()
         Me.保存平面 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.另存为平面 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.重载平面 = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator()
         Me.文件退出菜单 = New System.Windows.Forms.ToolStripMenuItem()
         Me.编辑菜单 = New System.Windows.Forms.ToolStripMenuItem()
@@ -63,7 +65,7 @@ Partial Class Form1
         '
         '文件菜单
         '
-        Me.文件菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.载入平面, Me.保存平面, Me.ToolStripSeparator1, Me.文件退出菜单})
+        Me.文件菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.载入平面, Me.保存平面, Me.另存为平面, Me.重载平面, Me.ToolStripSeparator1, Me.文件退出菜单})
         Me.文件菜单.Name = "文件菜单"
         Me.文件菜单.Size = New System.Drawing.Size(58, 21)
         Me.文件菜单.Text = "文件(&F)"
@@ -71,24 +73,40 @@ Partial Class Form1
         '载入平面
         '
         Me.载入平面.Name = "载入平面"
-        Me.载入平面.Size = New System.Drawing.Size(118, 22)
+        Me.载入平面.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.L), System.Windows.Forms.Keys)
+        Me.载入平面.Size = New System.Drawing.Size(185, 22)
         Me.载入平面.Text = "载入(&L)"
         '
         '保存平面
         '
         Me.保存平面.Name = "保存平面"
-        Me.保存平面.Size = New System.Drawing.Size(118, 22)
+        Me.保存平面.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.S), System.Windows.Forms.Keys)
+        Me.保存平面.Size = New System.Drawing.Size(185, 22)
         Me.保存平面.Text = "保存(&S)"
+        '
+        '另存为平面
+        '
+        Me.另存为平面.Name = "另存为平面"
+        Me.另存为平面.Size = New System.Drawing.Size(185, 22)
+        Me.另存为平面.Text = "另存为(&A)"
+        '
+        '重载平面
+        '
+        Me.重载平面.Name = "重载平面"
+        Me.重载平面.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.R), System.Windows.Forms.Keys)
+        Me.重载平面.Size = New System.Drawing.Size(185, 22)
+        Me.重载平面.Text = "重载平面(&R)"
+        Me.重载平面.ToolTipText = "重新加载当前平面"
         '
         'ToolStripSeparator1
         '
         Me.ToolStripSeparator1.Name = "ToolStripSeparator1"
-        Me.ToolStripSeparator1.Size = New System.Drawing.Size(115, 6)
+        Me.ToolStripSeparator1.Size = New System.Drawing.Size(182, 6)
         '
         '文件退出菜单
         '
         Me.文件退出菜单.Name = "文件退出菜单"
-        Me.文件退出菜单.Size = New System.Drawing.Size(118, 22)
+        Me.文件退出菜单.Size = New System.Drawing.Size(185, 22)
         Me.文件退出菜单.Text = "退出(&Q)"
         '
         '编辑菜单
@@ -189,4 +207,6 @@ Partial Class Form1
     Friend WithEvents ToolStripSeparator1 As ToolStripSeparator
     Friend WithEvents SFD As SaveFileDialog
     Friend WithEvents OFD As OpenFileDialog
+    Friend WithEvents 另存为平面 As ToolStripMenuItem
+    Friend WithEvents 重载平面 As ToolStripMenuItem
 End Class

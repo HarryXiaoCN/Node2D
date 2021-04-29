@@ -21,6 +21,7 @@ Public Class 节点平面类
             content = nodeContent
             位置 = nodePos
             父域.空间限制.Add(位置, Me)
+            重构空间()
         End Sub
         Public Sub New(ByRef parent As 节点平面类, nodeString As String)
             父域 = parent
@@ -34,6 +35,7 @@ Public Class 节点平面类
             End If
             父域.本域节点.Add(name, Me)
             父域.空间限制.Add(位置, Me)
+            重构空间()
         End Sub
         Public Function 获得子节点(节点名 As String) As 节点类
             For i As Integer = 0 To 连接.Count - 1
@@ -77,15 +79,18 @@ Public Class 节点平面类
             End Set
         End Property
         Private Sub 重构空间()
-            空间.Clear()
-            Dim sT() As String = Split(content, vbCrLf)
-            For i As Integer = 0 To UBound(sT)
-                If File.Exists(sT(i)) Then
-                    空间.Add(Path.GetFileName(sT(i)), New 节点平面类(sT(i)))
-                Else
-                    控制台.添加消息(String.Format("引用节点[{0}]内引用空间""{1}""不存在。", name, sT(i)))
-                End If
-            Next
+            If type = "引用" Then
+                空间.Clear()
+                Dim sT() As String = Split(content, vbCrLf)
+                For i As Integer = 0 To UBound(sT)
+                    Dim filePath As String = 父域.路径 & sT(i)
+                    If File.Exists(filePath) Then
+                        空间.Add(Path.GetFileNameWithoutExtension(filePath), New 节点平面类(filePath))
+                    Else
+                        控制台.添加消息(String.Format("引用节点[{0}]内引用空间""{1}""不存在。", name, filePath))
+                    End If
+                Next
+            End If
         End Sub
         Public Property 内容() As String
             Get
@@ -94,9 +99,7 @@ Public Class 节点平面类
             Set(value As String)
                 RaiseEvent 改变前(Me)
                 content = value
-                If type = "引用" Then
-                    重构空间()
-                End If
+                重构空间()
                 RaiseEvent 改变后(Me)
             End Set
         End Property
@@ -139,6 +142,8 @@ Public Class 节点平面类
     Public 连接起点颜色 As Color = Color.Purple
     Public WithEvents 绘制空间 As PictureBox
     Public 版本 As String = "NODE2D.20210424.1"
+    Public 路径 As String = Application.StartupPath
+    Public 平面名 As String = ""
 
     Private 视角拖拽起点 As Point
     Private 视角拖拽 As Boolean
@@ -153,6 +158,7 @@ Public Class 节点平面类
         节点编辑窗体.Show()
         节点编辑窗体.Hide()
         If 主平面 Then
+            主窗体.Text = "节点平面 - " & 路径
             绘制线程 = New Thread(AddressOf 绘制)
             绘制线程.Start()
         End If
@@ -161,9 +167,15 @@ Public Class 节点平面类
         加载(路径)
     End Sub
 
-    Public Sub 加载(path As String)
-        Dim s() As String = Split(File.ReadAllText(path), vbCrLf)
+    Public Function 获得平面路径() As String
+        Return 路径 & 平面名
+    End Function
+
+    Public Sub 加载(filePath As String)
+        Dim s() As String = Split(File.ReadAllText(filePath), vbCrLf)
         If s(0) = "NODE2D.20210424.1" Then
+            路径 = Path.GetDirectoryName(filePath) & "\"
+            平面名 = Path.GetFileName(filePath)
             Dim p() As String = Split(s(1), " ")
             视角偏移 = New Point(Val(p(0)), Val(p(1)))
             For i = 2 To UBound(s)
@@ -172,6 +184,9 @@ Public Class 节点平面类
             For Each n As 节点类 In 本域节点.Values
                 n.确认连接()
             Next
+            If 主平面 Then
+                主窗体.Text = "节点平面 - " & 路径 & 平面名
+            End If
         End If
     End Sub
 
@@ -395,6 +410,10 @@ Public Class 节点平面类
             End If
             Thread.Sleep(绘制间隔)
         Loop
+        RemoveHandler 绘制空间.DoubleClick, AddressOf 鼠标双击事件
+        RemoveHandler 绘制空间.MouseDown, AddressOf 鼠标点击事件
+        RemoveHandler 绘制空间.MouseUp, AddressOf 鼠标点完事件
+        RemoveHandler 绘制空间.MouseMove, AddressOf 鼠标移动事件
     End Sub
     Private Function 连接有效性判断(n1 As 节点类, n2 As 节点类) As Boolean
         If (n1.类型 = n2.类型 And n1.类型 = "值") Or (n1.名字 = n2.名字) Then

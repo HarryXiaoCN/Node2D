@@ -1,4 +1,5 @@
 ﻿Imports System.ComponentModel
+Imports System.IO
 
 Public Class Form1
     Private 主域 As 节点平面类
@@ -6,7 +7,6 @@ Public Class Form1
         绘制空间.Image = New Bitmap(10, 10)
         主域 = New 节点平面类(Me, 绘制空间)
         控制台.Show()
-        控制台.Visible = False
     End Sub
     Private Sub Form1_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
         主域.结束标识 = True
@@ -90,8 +90,13 @@ Public Class Form1
     End Sub
 
     Private Sub 保存平面_Click(sender As Object, e As EventArgs) Handles 保存平面.Click
-        If SFD.ShowDialog = DialogResult.OK Then
-            主域.保存(SFD.FileName)
+        Dim filePath As String = 主域.获得平面路径
+        If File.Exists(filePath) Then
+            主域.保存(filePath)
+        Else
+            If SFD.ShowDialog = DialogResult.OK Then
+                主域.保存(SFD.FileName)
+            End If
         End If
     End Sub
 
@@ -100,6 +105,21 @@ Public Class Form1
             主域.结束标识 = True
             主域 = New 节点平面类(Me, 绘制空间)
             主域.加载(OFD.FileName)
+        End If
+    End Sub
+
+    Private Sub 另存为平面_Click(sender As Object, e As EventArgs) Handles 另存为平面.Click
+        If SFD.ShowDialog = DialogResult.OK Then
+            主域.保存(SFD.FileName)
+        End If
+    End Sub
+
+    Private Sub 重载平面_Click(sender As Object, e As EventArgs) Handles 重载平面.Click
+        Dim filePath As String = 主域.获得平面路径
+        If File.Exists(filePath) Then
+            主域.结束标识 = True
+            主域 = New 节点平面类(Me, 绘制空间)
+            主域.加载(filePath)
         End If
     End Sub
 End Class

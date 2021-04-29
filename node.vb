@@ -31,9 +31,13 @@
     End Sub
 
     Private Sub 节点名_KeyDown(sender As Object, e As KeyEventArgs) Handles 节点名.KeyDown
-        If e.Control And e.KeyCode = Keys.S Then
-            主域.编辑节点名(主域.当前编辑节点.名字, 节点名.Text)
-            节点名_TextChanged(Nothing, Nothing)
+        If e.Control Then
+            If e.KeyCode = Keys.S Then
+                主域.编辑节点名(主域.当前编辑节点.名字, 节点名.Text)
+                节点名_TextChanged(Nothing, Nothing)
+            ElseIf e.KeyCode = Keys.A Then
+                节点名.SelectAll()
+            End If
         End If
     End Sub
     Private Sub 节点类型_SelectionChangeCommitted(sender As Object, e As EventArgs) Handles 节点类型.SelectionChangeCommitted
@@ -41,9 +45,13 @@
     End Sub
 
     Private Sub 节点内容_KeyDown(sender As Object, e As KeyEventArgs) Handles 节点内容.KeyDown
-        If e.Control And e.KeyCode = Keys.S Then
-            主域.编辑节点内容(主域.当前编辑节点.名字, 节点内容.Text)
-            节点内容_TextChanged(Nothing, Nothing)
+        If e.Control Then
+            If e.KeyCode = Keys.S Then
+                主域.编辑节点内容(主域.当前编辑节点.名字, 节点内容.Text)
+                节点内容_TextChanged(Nothing, Nothing)
+            ElseIf e.KeyCode = Keys.A Then
+                节点内容.SelectAll()
+            End If
         End If
     End Sub
 
