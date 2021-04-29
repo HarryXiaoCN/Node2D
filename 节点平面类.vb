@@ -29,10 +29,20 @@ Public Class 节点平面类
             type = s(1)
             content = Replace(s(2), Chr(2), vbCrLf)
             位置 = New Point(Val(s(3)), Val(s(4)))
-            待连接.AddRange(Split(s(5), Chr(2)))
+            If s(5) <> "" Then
+                待连接.AddRange(Split(s(5), Chr(2)))
+            End If
             父域.本域节点.Add(name, Me)
             父域.空间限制.Add(位置, Me)
         End Sub
+        Public Function 获得子节点(节点名 As String) As 节点类
+            For i As Integer = 0 To 连接.Count - 1
+                If 连接(i).名字 = 节点名 Then
+                    Return 连接(i)
+                End If
+            Next
+            Return Nothing
+        End Function
         Public Sub 确认连接()
             For i As Integer = 0 To 待连接.Count - 1
                 连接.Add(父域.本域节点(待连接(i)))
@@ -66,6 +76,17 @@ Public Class 节点平面类
                 RaiseEvent 改变后(Me)
             End Set
         End Property
+        Private Sub 重构空间()
+            空间.Clear()
+            Dim sT() As String = Split(content, vbCrLf)
+            For i As Integer = 0 To UBound(sT)
+                If File.Exists(sT(i)) Then
+                    空间.Add(Path.GetFileName(sT(i)), New 节点平面类(sT(i)))
+                Else
+                    控制台.添加消息(String.Format("引用节点[{0}]内引用空间""{1}""不存在。", name, sT(i)))
+                End If
+            Next
+        End Sub
         Public Property 内容() As String
             Get
                 Return content
@@ -73,6 +94,9 @@ Public Class 节点平面类
             Set(value As String)
                 RaiseEvent 改变前(Me)
                 content = value
+                If type = "引用" Then
+                    重构空间()
+                End If
                 RaiseEvent 改变后(Me)
             End Set
         End Property
@@ -84,7 +108,6 @@ Public Class 节点平面类
             父域.空间限制.Remove(位置)
         End Sub
     End Class
-    Public 引用域 As New List(Of 节点平面类)
     Public 本域节点 As New Dictionary(Of String, 节点类)
     Public 空间限制 As New Dictionary(Of Point, 节点类)
     Public 主平面 As Boolean
@@ -134,11 +157,16 @@ Public Class 节点平面类
             绘制线程.Start()
         End If
     End Sub
+    Public Sub New(路径 As String)
+        加载(路径)
+    End Sub
 
     Public Sub 加载(path As String)
         Dim s() As String = Split(File.ReadAllText(path), vbCrLf)
         If s(0) = "NODE2D.20210424.1" Then
-            For i = 1 To UBound(s)
+            Dim p() As String = Split(s(1), " ")
+            视角偏移 = New Point(Val(p(0)), Val(p(1)))
+            For i = 2 To UBound(s)
                 Dim node As New 节点类(Me, s(i))
             Next
             For Each n As 节点类 In 本域节点.Values
@@ -151,7 +179,7 @@ Public Class 节点平面类
         Dim result As New List(Of String) From {
             版本
         }
-
+        result.Add(String.Format("{0} {1}", 视角偏移.X, 视角偏移.Y))
         For i As Integer = 0 To 本域节点.Count - 1
             result.Add(本域节点.Values(i).ToString)
         Next
@@ -172,7 +200,7 @@ Public Class 节点平面类
         鼠标实际位置.Offset(-视角偏移.X, -视角偏移.Y)
         鼠标当前位置 = New Point(鼠标实际位置.X \ 缩放倍数, 鼠标实际位置.Y \ 缩放倍数)
         If e.Button = MouseButtons.Right Then
-            新建节点(String.Format("{0}_{1}_{2}", 本域节点.Count, 鼠标当前位置.X, 鼠标当前位置.Y), 鼠标当前位置)
+            新建节点(String.Format("{0}-{1}-{2}", 本域节点.Count, 鼠标当前位置.X, 鼠标当前位置.Y), 鼠标当前位置)
         ElseIf e.Button = MouseButtons.Left Then
             当前按住节点 = 位置到节点(鼠标当前位置)
             If 当前按住节点 IsNot Nothing Then
@@ -188,7 +216,7 @@ Public Class 节点平面类
                         Else
                             连接发起节点.连接.Add(当前按住节点)
                         End If
-                        连接发起节点 = Nothing
+                        '连接发起节点 = Nothing
                     End If
                 End If
                 If 节点编辑窗体.Visible Then 节点编辑窗体.Visible = False
@@ -205,7 +233,7 @@ Public Class 节点平面类
         鼠标当前位置 = New Point(鼠标实际位置.X \ 缩放倍数, 鼠标实际位置.Y \ 缩放倍数)
         If 当前按住节点 IsNot Nothing Then
             If 当前按住节点.位置 = 鼠标当前位置 Then
-                连接发起节点 = 当前按住节点
+                If 连接发起节点 Is Nothing Then 连接发起节点 = 当前按住节点
                 If 节点编辑窗体.Visible Then 节点编辑窗体.Visible = False
             Else
                 编辑节点位置(当前按住节点.名字, 鼠标当前位置)
@@ -245,7 +273,7 @@ Public Class 节点平面类
     Public Function 编辑节点名(name As String, value As String) As Integer
         If 本域节点.ContainsKey(name) Then
             If Not 本域节点.ContainsKey(value) Then
-                If Regex.IsMatch(value, "^[^+\-*/\\=<> ^()']{1,}$") Then
+                If Regex.IsMatch(value, "^[^+\-*/\\=<> ^().']{1,}$") Then
                     Dim 缓存节点 As 节点类 = 本域节点(name)
                     缓存节点.名字 = value
                     本域节点.Remove(name)
@@ -300,7 +328,7 @@ Public Class 节点平面类
     End Sub
 
     Private Sub 绘制()
-
+        On Error Resume Next
         Dim 缓存帧 As New Bitmap(10, 10)
         Do Until 结束标识
 
@@ -406,6 +434,7 @@ Public Class 节点平面类
         End Select
     End Sub
     Private Sub 绘制节点边缘(ByRef g As Graphics, node As 节点类, 位置 As Point, 颜色 As Color, Optional 线宽 As Integer = 2)
+        If node Is Nothing Then Exit Sub
         Dim r As New Rectangle(位置.X * 缩放倍数, 位置.Y * 缩放倍数, 缩放倍数, 缩放倍数)
         Select Case node.类型
             Case "值"

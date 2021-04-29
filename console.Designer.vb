@@ -22,11 +22,18 @@ Partial Class NodeConsole
     '不要使用代码编辑器修改它。
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
         Me.控制输出 = New System.Windows.Forms.TextBox()
+        Me.右键菜单 = New System.Windows.Forms.ContextMenuStrip(Me.components)
+        Me.复制文本 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.全选文本 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.清空文本 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.右键菜单.SuspendLayout()
         Me.SuspendLayout()
         '
         '控制输出
         '
+        Me.控制输出.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.控制输出.Dock = System.Windows.Forms.DockStyle.Fill
         Me.控制输出.Location = New System.Drawing.Point(0, 0)
         Me.控制输出.Multiline = True
@@ -34,6 +41,33 @@ Partial Class NodeConsole
         Me.控制输出.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
         Me.控制输出.Size = New System.Drawing.Size(578, 93)
         Me.控制输出.TabIndex = 0
+        '
+        '右键菜单
+        '
+        Me.右键菜单.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.复制文本, Me.全选文本, Me.清空文本})
+        Me.右键菜单.Name = "右键菜单"
+        Me.右键菜单.Size = New System.Drawing.Size(146, 70)
+        '
+        '复制文本
+        '
+        Me.复制文本.Name = "复制文本"
+        Me.复制文本.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.C), System.Windows.Forms.Keys)
+        Me.复制文本.Size = New System.Drawing.Size(145, 22)
+        Me.复制文本.Text = "复制"
+        '
+        '全选文本
+        '
+        Me.全选文本.Name = "全选文本"
+        Me.全选文本.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.A), System.Windows.Forms.Keys)
+        Me.全选文本.Size = New System.Drawing.Size(145, 22)
+        Me.全选文本.Text = "全选"
+        '
+        '清空文本
+        '
+        Me.清空文本.Name = "清空文本"
+        Me.清空文本.ShortcutKeys = System.Windows.Forms.Keys.Delete
+        Me.清空文本.Size = New System.Drawing.Size(145, 22)
+        Me.清空文本.Text = "清空"
         '
         'NodeConsole
         '
@@ -43,10 +77,15 @@ Partial Class NodeConsole
         Me.Controls.Add(Me.控制输出)
         Me.Name = "NodeConsole"
         Me.Text = "控制台"
+        Me.右键菜单.ResumeLayout(False)
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
 
     Friend WithEvents 控制输出 As TextBox
+    Friend WithEvents 右键菜单 As ContextMenuStrip
+    Friend WithEvents 复制文本 As ToolStripMenuItem
+    Friend WithEvents 全选文本 As ToolStripMenuItem
+    Friend WithEvents 清空文本 As ToolStripMenuItem
 End Class

@@ -55,8 +55,8 @@
         ElseIf e.KeyCode = Keys.F5 Then
             If 主域.鼠标移动选中节点 IsNot Nothing Then
                 If 主域.鼠标移动选中节点.类型 = "函数" Then
-                    Dim 脚本 As New 节点脚本类(主域.鼠标移动选中节点)
-                    控制台.控制输出.Text = 脚本.函数解释(主域.鼠标移动选中节点)
+                    Dim 脚本 As New 节点脚本类
+                    脚本.解释(主域.鼠标移动选中节点)
                     If 控制台.Visible = False Then 控制台.Visible = True
                 End If
             End If

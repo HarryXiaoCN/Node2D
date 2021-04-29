@@ -48,7 +48,7 @@ Partial Class Form1
         Me.绘制空间.Dock = System.Windows.Forms.DockStyle.Fill
         Me.绘制空间.Location = New System.Drawing.Point(0, 25)
         Me.绘制空间.Name = "绘制空间"
-        Me.绘制空间.Size = New System.Drawing.Size(384, 336)
+        Me.绘制空间.Size = New System.Drawing.Size(784, 536)
         Me.绘制空间.TabIndex = 0
         Me.绘制空间.TabStop = False
         '
@@ -57,7 +57,7 @@ Partial Class Form1
         Me.菜单栏.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.文件菜单, Me.编辑菜单, Me.运行菜单})
         Me.菜单栏.Location = New System.Drawing.Point(0, 0)
         Me.菜单栏.Name = "菜单栏"
-        Me.菜单栏.Size = New System.Drawing.Size(384, 25)
+        Me.菜单栏.Size = New System.Drawing.Size(784, 25)
         Me.菜单栏.TabIndex = 1
         Me.菜单栏.Text = "菜单栏"
         '
@@ -155,7 +155,7 @@ Partial Class Form1
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 17.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.White
-        Me.ClientSize = New System.Drawing.Size(384, 361)
+        Me.ClientSize = New System.Drawing.Size(784, 561)
         Me.Controls.Add(Me.绘制空间)
         Me.Controls.Add(Me.菜单栏)
         Me.DoubleBuffered = True

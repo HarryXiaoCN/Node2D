@@ -1,93 +1,233 @@
 ﻿Imports System.Text.RegularExpressions
+Imports System.IO
+Imports System.Threading
 Imports Node2D.节点平面类
 
 Public Module 节点全局
     Public 控制台 As New NodeConsole
+    Public Function BoolToInt(b As Boolean) As Integer
+        If b Then
+            Return 1
+        End If
+        Return 0
+    End Function
 End Module
 Public Class 节点脚本类
 
-    Public 主域 As 节点平面类
-
-    Public Sub New(节点 As 节点类)
-        主域 = 节点.父域
-    End Sub
-
-    Public Function 获得节点(路径 As String, ByRef 搜索域 As 节点平面类, Optional 路径起点 As Long = 0) As 节点类
+    Public Function 获得节点(路径 As String, ByRef 搜索发起节点 As 节点类) As 节点类
         Dim 域() As String = 路径.Split(".")
-        If 搜索域.本域节点.ContainsKey(域(路径起点)) Then
-            If 搜索域.本域节点(域(路径起点)).类型 = "引用" And UBound(域) > 路径起点 + 2 Then
-                If 搜索域.本域节点(域(路径起点)).空间.ContainsKey(域(路径起点 + 1)) Then
-                    Return 获得节点(路径, 搜索域.本域节点(域(路径起点)).空间(域(路径起点 + 1)), 路径起点 + 2)
-                End If
+        Dim 子节点 As 节点类 = 搜索发起节点.获得子节点(域(0))
+        For i As Integer = 1 To UBound(域)
+            If 子节点 Is Nothing Then
                 Return Nothing
+            Else
+                Dim 上个节点 As 节点类 = 子节点
+                子节点 = 子节点.获得子节点(域(i))
+                If 子节点 Is Nothing And 上个节点.类型 = "引用" And i < UBound(域) Then
+                    If 上个节点.空间.ContainsKey(域(i)) Then
+                        If 上个节点.空间(域(i)).本域节点.ContainsKey(域(i + 1)) Then
+                            子节点 = 上个节点.空间(域(i)).本域节点(域(i + 1))
+                            i += 1
+                        End If
+                    End If
+                End If
             End If
-            Return 搜索域.本域节点(域(路径起点))
-        End If
-        Return Nothing
+        Next
+        Return 子节点
     End Function
-    Public Function 函数解释(节点 As 节点类) As String
-        Dim 反馈 As New List(Of String)
+    Public Sub 解释(ByRef 节点 As 节点类)
+        Dim 执行线程 As New Thread(AddressOf 函数解释)
+        执行线程.SetApartmentState(ApartmentState.STA)
+        执行线程.Start(节点)
+    End Sub
+    Private Sub 函数解释(节点 As 节点类)
         Dim 句集() As String = Split(节点.内容, vbCrLf)
         For i As Integer = 0 To UBound(句集)
             If 句集(i) <> "" And Not 句集(i).StartsWith("'") Then
                 Dim 性质 As String = 式判断(句集(i))
                 Select Case 性质
                     Case "执行式"
-                        Dim 执行节点 As 节点类 = 获得节点(句集(i).Substring(0, 句集(i).Length - 2), 主域)
+                        Dim 执行节点 As 节点类 = 获得节点(句集(i).Substring(0, 句集(i).Length - 2), 节点)
                         If 执行节点 IsNot Nothing Then
-                            反馈.Add(函数解释(执行节点))
+                            函数解释(执行节点)
                         End If
-                    Case "判断式"
-
-                    Case "循环式"
-
                     Case "赋值式"
-                        反馈.Add(赋值式运算(句集(i)))
+                        控制台.添加消息(赋值式运算(节点, 句集(i)))
                     Case Else
-                        反馈.Add(String.Format("函数点[{0}]未识别句：{1}", 节点.名字, 句集(i)))
+                        控制台.添加消息(String.Format("函数点[{0}]未识别句：{1}", 节点.名字, 句集(i)))
                 End Select
             End If
         Next
-        Return Join(反馈.ToArray, vbCrLf)
-    End Function
-    Public Function 赋值式运算(targetString As String) As String
-        Dim result As New List(Of String)
+    End Sub
+    Public Function 赋值式运算(ByRef 节点 As 节点类, targetString As String) As String
         '禁用：空格 + . = 换行
         Dim nodesString() As String = Split(targetString, " ")
-        Dim nodes As New Dictionary(Of String, 节点类)
-        '0:赋值节点 1:=
-        Dim targetNode As 节点类 = 获得节点(nodesString(0), 主域)
-        If targetNode Is Nothing Then Return String.Format("被赋值节点[{0}]未找到。", nodesString(0))
-
-        For i As Integer = 2 To UBound(nodesString)
-            Select Case nodesString(i)
-                Case "+"
-                    If Not nodes.ContainsKey(nodesString(i + 1)) Then
-                        nodes.Add(nodesString(i + 1), 获得节点(nodesString(i + 1), 主域))
-                    End If
-                    targetNode.内容 = Val(nodes(nodesString(i - 1)).内容) + Val(nodes(nodesString(i + 1)).内容)
-                Case Else
-                    If Not nodes.ContainsKey(nodesString(i)) Then
-                        nodes.Add(nodesString(i), 获得节点(nodesString(i), 主域))
-                    End If
-            End Select
+        Dim nodes As New List(Of 节点类)
+        For i As Integer = 1 To UBound(nodesString)
+            nodes.Add(获得节点(nodesString(i), 节点))
+            If nodes.Last Is Nothing Then Return String.Format("参与节点[{0}]未找到。", nodesString(i))
         Next
+        Try
+            Select Case nodesString(0).ToLower
+                Case "+", "加", "加法"
+                    If nodesString.Length < 4 Then Return String.Format("加法语句""{0}""过短。", targetString)
+                    nodes(0).内容 = Val(nodes(1).内容) + Val(nodes(2).内容)
+                Case "-", "减", "减法"
+                    If nodesString.Length < 4 Then Return String.Format("减法语句""{0}""过短。", targetString)
+                    nodes(0).内容 = Val(nodes(1).内容) - Val(nodes(2).内容)
+                Case "*", "乘", "乘法"
+                    If nodesString.Length < 4 Then Return String.Format("乘法语句""{0}""过短。", targetString)
+                    nodes(0).内容 = Val(nodes(1).内容) * Val(nodes(2).内容)
+                Case "/", "除", "除法"
+                    If nodesString.Length < 4 Then Return String.Format("除法语句""{0}""过短。", targetString)
+                    nodes(0).内容 = Val(nodes(1).内容) / Val(nodes(2).内容)
+                Case "//", "\", "整除"
+                    If nodesString.Length < 4 Then Return String.Format("整除语句""{0}""过短。", targetString)
+                    nodes(0).内容 = Val(nodes(1).内容) \ Val(nodes(2).内容)
+                Case "mod", "%", "取余"
+                    If nodesString.Length < 4 Then Return String.Format("取余语句""{0}""过短。", targetString)
+                    nodes(0).内容 = Val(nodes(1).内容) Mod Val(nodes(2).内容)
+                Case "^", "**", "幂运算"
+                    If nodesString.Length < 4 Then Return String.Format("幂运算语句""{0}""过短。", targetString)
+                    nodes(0).内容 = Val(nodes(1).内容) ^ Val(nodes(2).内容)
+                Case "&", "拼接"
+                    If nodesString.Length < 4 Then Return String.Format("拼接语句""{0}""过短。", targetString)
+                    nodes(0).内容 = nodes(1).内容 & nodes(2).内容
+                Case ">", "大于"
+                    If nodesString.Length < 4 Then Return String.Format("大于判断语句""{0}""过短。", targetString)
+                    nodes(0).内容 = BoolToInt(Val(nodes(1).内容) > Val(nodes(2).内容))
+                Case "<", "小于"
+                    If nodesString.Length < 4 Then Return String.Format("小于判断语句""{0}""过短。", targetString)
+                    nodes(0).内容 = BoolToInt(Val(nodes(1).内容) < Val(nodes(2).内容))
+                Case ">=", "大于或等于"
+                    If nodesString.Length < 4 Then Return String.Format("大于或等于判断语句""{0}""过短。", targetString)
+                    nodes(0).内容 = BoolToInt(Val(nodes(1).内容) >= Val(nodes(2).内容))
+                Case "<=", "小于或等于"
+                    If nodesString.Length < 4 Then Return String.Format("小于或等于判断语句""{0}""过短。", targetString)
+                    nodes(0).内容 = BoolToInt(Val(nodes(1).内容) <= Val(nodes(2).内容))
+                Case "==", "等于"
+                    If nodesString.Length < 4 Then Return String.Format("等于判断语句""{0}""过短。", targetString)
+                    nodes(0).内容 = BoolToInt(nodes(1).内容 = nodes(2).内容)
+                Case "!=", "<>", "不等于"
+                    If nodesString.Length < 4 Then Return String.Format("不等于判断语句""{0}""过短。", targetString)
+                    nodes(0).内容 = BoolToInt(nodes(1).内容 <> nodes(2).内容)
+                Case "and", "与"
+                    If nodesString.Length < 4 Then Return String.Format("与运算语句""{0}""过短。", targetString)
+                    nodes(0).内容 = BoolToInt(CBool(Val(nodes(1).内容)) And CBool(Val(nodes(2).内容)))
+                Case "or", "或"
+                    If nodesString.Length < 4 Then Return String.Format("或运算语句""{0}""过短。", targetString)
+                    nodes(0).内容 = BoolToInt(CBool(Val(nodes(1).内容)) Or CBool(Val(nodes(2).内容)))
+                Case "!", "not", "非"
+                    If nodesString.Length < 3 Then Return String.Format("非运算语句""{0}""过短。", targetString)
+                    nodes(0).内容 = BoolToInt(Not CBool(Val(nodes(1).内容)))
+                Case "xor", "异或"
+                    If nodesString.Length < 4 Then Return String.Format("异或运算语句""{0}""过短。", targetString)
+                    nodes(0).内容 = BoolToInt(CBool(Val(nodes(1).内容)) Xor CBool(Val(nodes(2).内容)))
+                Case "in", "indexof", "存在"
+                    If nodesString.Length < 4 Then Return String.Format("存在语句""{0}""过短。", targetString)
+                    nodes(0).内容 = nodes(1).内容.IndexOf(nodes(2).内容)
+                Case ":", "切片"
+                    Select Case nodesString.Length
+                        Case 4
+                            nodes(0).内容 = nodes(1).内容.Substring(Val(nodes(2).内容))
+                        Case 5
+                            nodes(0).内容 = nodes(1).内容.Substring(Val(nodes(2).内容), Val(nodes(3).内容))
+                        Case Else
+                            Return String.Format("切片语句""{0}""过短。", targetString)
+                    End Select
+                Case "=", "赋值"
+                    If nodesString.Length < 3 Then Return String.Format("赋值语句""{0}""过短。", targetString)
+                    nodes(0).内容 = nodes(1).内容
+                Case "int", "取整"
+                    If nodesString.Length < 3 Then Return String.Format("取整语句""{0}""过短。", targetString)
+                    nodes(0).内容 = Int(Val(nodes(1).内容))
+                Case "len", "长度"
+                    If nodesString.Length < 3 Then Return String.Format("取整语句""{0}""过短。", targetString)
+                    nodes(0).内容 = nodes(1).内容.Length
+                Case "tolower", "lcase", "小写化"
+                    If nodesString.Length < 3 Then Return String.Format("小写化语句""{0}""过短。", targetString)
+                    nodes(0).内容 = nodes(1).内容.ToLower
+                Case "toupper", "ucase", "大写化"
+                    If nodesString.Length < 3 Then Return String.Format("大写化语句""{0}""过短。", targetString)
+                    nodes(0).内容 = nodes(1).内容.ToUpper
+                Case "x", "横坐标"
+                    If nodesString.Length < 3 Then Return String.Format("取横坐标语句""{0}""过短。", targetString)
+                    nodes(0).内容 = nodes(1).位置.X
+                Case "y", "纵坐标"
+                    If nodesString.Length < 3 Then Return String.Format("取纵坐标语句""{0}""过短。", targetString)
+                    nodes(0).内容 = nodes(1).位置.Y
+                Case "name", "名字"
+                    If nodesString.Length < 3 Then Return String.Format("取得名字语句""{0}""过短。", targetString)
+                    nodes(0).内容 = nodes(1).名字
+                Case "val", "float", "数化"
+                    If nodesString.Length < 3 Then Return String.Format("数化语句""{0}""过短。", targetString)
+                    nodes(0).内容 = Val(nodes(1).名字)
+                Case "readtxt", "读文本"
+                    If nodesString.Length < 3 Then Return String.Format("读文本语句""{0}""过短。", targetString)
+                    If File.Exists(nodes(1).内容) Then
+                        nodes(0).内容 = File.ReadAllText(nodes(1).内容)
+                    Else
+                        Return String.Format("读文本失败，路径""{0}""不存在。", nodes(1).内容)
+                    End If
+                Case "writetxt", "写文本"
+                    If nodesString.Length < 3 Then Return String.Format("存文本语句""{0}""过短。", targetString)
+                    File.WriteAllText(nodes(0).内容, nodes(1).内容)
+                Case "readclipboard", "读剪切板"
+                    If nodesString.Length < 2 Then Return String.Format("读剪切板语句""{0}""过短。", targetString)
+                    nodes(0).内容 = Clipboard.GetText
+                Case "writeclipboard", "写剪切板"
+                    If nodesString.Length < 2 Then Return String.Format("写剪切板语句""{0}""过短。", targetString)
+                    Clipboard.Clear()
+                    Clipboard.SetText(nodes(0).内容)
+                Case "sleep", "睡眠"
+                    If nodesString.Length < 2 Then Return String.Format("睡眠语句""{0}""过短。", targetString)
+                    Thread.Sleep(Val(nodes(0).内容))
+                Case "if", "若", "如果"
+                    Select Case nodesString.Length
+                        Case 3
+                            If Val(nodes(0).内容) Then
+                                函数解释(nodes(1))
+                            End If
+                        Case 4
+                            If Val(nodes(0).内容) Then
+                                函数解释(nodes(1))
+                            Else
+                                函数解释(nodes(2))
+                            End If
+                        Case Else
+                            Return String.Format("判断语句""{0}""过短。", targetString)
+                    End Select
+                Case "for", "遍历", "循环", "遍"
+                    Select Case nodesString.Length
+                        Case 5
+                            For i As Long = Val(nodes(1).内容) To Val(nodes(2).内容)
+                                nodes(0).内容 = i
+                                函数解释(nodes(3))
+                            Next
+                        Case 6
+                            For i As Long = Val(nodes(1).内容) To Val(nodes(2).内容) Step Val(nodes(3).内容)
+                                nodes(0).内容 = i
+                                函数解释(nodes(4))
+                            Next
+                        Case Else
+                            Return String.Format("判断语句""{0}""过短。", targetString)
+                    End Select
+                Case Else
+                    Return String.Format("处理法则【{0}】未找到。", nodesString(0))
+            End Select
+        Catch ex As Exception
+            Return String.Format("处理法则【{0}】错误：{1}(语句：{2})", nodesString(0), ex.Message, targetString)
+        End Try
 
-        Return Join(result.ToArray, vbCrLf)
+        Return ""
     End Function
 
     Private Function 式判断(句 As String) As String
         If 句.EndsWith("()") Then
             Return "执行式" '默认将句末()前作为函数节点路径
         End If
-        If Regex.IsMatch(句, ".{1,}=.{1,}") Then
+        If Regex.IsMatch(句, ".{1,} .{1,}") Then
             Return "赋值式"
-        End If
-        If Regex.IsMatch(句, "^若 [^ ]{1,} [^ ]{1,}$") Or Regex.IsMatch(句, "^若 [^ ]{1,}$") Then
-            Return "判断式"
-        End If
-        If Regex.IsMatch(句, "^遍 [^ ]{1,}$") Then
-            Return "循环式"
         End If
         Return ""
     End Function
