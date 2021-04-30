@@ -78,7 +78,9 @@ Partial Class NodeConsole
         Me.ClientSize = New System.Drawing.Size(784, 161)
         Me.Controls.Add(Me.控制输出)
         Me.Name = "NodeConsole"
+        Me.Opacity = 0.8R
         Me.Text = "控制台"
+        Me.TopMost = True
         Me.右键菜单.ResumeLayout(False)
         Me.ResumeLayout(False)
         Me.PerformLayout()

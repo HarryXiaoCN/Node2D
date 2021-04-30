@@ -117,7 +117,7 @@ Public Class 节点平面类
     Public 结束标识 As Boolean
     Public 绘制间隔 As Long = 15
     Public 缩放倍数 As Integer = 50
-    Public 主窗体 As Form
+    Public 主窗体 As Form1
     Public 鼠标移动选中节点 As 节点类
     Public 当前编辑节点 As 节点类
     Public 当前按住节点 As 节点类
@@ -150,7 +150,7 @@ Public Class 节点平面类
     Private 节点删除列表 As New List(Of 节点类)
     Private 绘制线程 As Thread
     Private Delegate Sub 绘制更新委托(ByRef 帧 As Image)
-    Public Sub New(ByRef mainForm As Form, ByRef drawSpace As PictureBox, Optional mainNode2D As Boolean = True)
+    Public Sub New(ByRef mainForm As Form1, ByRef drawSpace As PictureBox, Optional mainNode2D As Boolean = True)
         主窗体 = mainForm
         绘制空间 = drawSpace
         主平面 = mainNode2D
@@ -170,12 +170,18 @@ Public Class 节点平面类
     Public Function 获得平面路径() As String
         Return 路径 & 平面名
     End Function
+    Public Sub 路径赋予(filePath As String)
+        路径 = Path.GetDirectoryName(filePath) & "\"
+        平面名 = Path.GetFileName(filePath)
+        If 主平面 Then
+            主窗体.Text = "节点平面 - " & 路径 & 平面名
+        End If
+    End Sub
 
     Public Sub 加载(filePath As String)
         Dim s() As String = Split(File.ReadAllText(filePath), vbCrLf)
         If s(0) = "NODE2D.20210424.1" Then
-            路径 = Path.GetDirectoryName(filePath) & "\"
-            平面名 = Path.GetFileName(filePath)
+            路径赋予(filePath)
             Dim p() As String = Split(s(1), " ")
             视角偏移 = New Point(Val(p(0)), Val(p(1)))
             For i = 2 To UBound(s)
@@ -184,9 +190,6 @@ Public Class 节点平面类
             For Each n As 节点类 In 本域节点.Values
                 n.确认连接()
             Next
-            If 主平面 Then
-                主窗体.Text = "节点平面 - " & 路径 & 平面名
-            End If
         End If
     End Sub
 
