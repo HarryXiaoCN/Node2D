@@ -8,7 +8,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationManifest>My Project\app.manifest</ApplicationManifest>
     <Authors>HarryXiaoCN</Authors>
-    <Version>0.0.1.1</Version>
+    <Version>0.0.1.2</Version>
     <Description>以节点形式可视化程序数据空间</Description>
     <Copyright>Copyright (C) 2021 HarryXiaoCN</Copyright>
   </PropertyGroup>
