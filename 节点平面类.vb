@@ -83,11 +83,16 @@ Public Class 节点平面类
                 空间.Clear()
                 Dim sT() As String = Split(content, vbCrLf)
                 For i As Integer = 0 To UBound(sT)
-                    Dim filePath As String = 父域.路径 & sT(i)
+                    Dim filePath As String = Path.GetFullPath(sT(i), 父域.路径)
                     If File.Exists(filePath) Then
-                        空间.Add(Path.GetFileNameWithoutExtension(filePath), New 节点平面类(filePath))
+                        Dim fileName As String = Path.GetFileNameWithoutExtension(filePath)
+                        If 空间.ContainsKey(fileName) Then
+                            控制台.添加消息(String.Format("引用节点[{0}]内第{2}行：引用空间""{1}""已存在。", name, filePath, i + 1))
+                        Else
+                            空间.Add(fileName, New 节点平面类(filePath))
+                        End If
                     Else
-                        控制台.添加消息(String.Format("引用节点[{0}]内引用空间""{1}""不存在。", name, filePath))
+                        控制台.添加消息(String.Format("引用节点[{0}]内第{2}行：引用空间""{1}""不存在。", name, filePath, i + 1))
                     End If
                 Next
             End If
@@ -171,7 +176,10 @@ Public Class 节点平面类
         Return 路径 & 平面名
     End Function
     Public Sub 路径赋予(filePath As String)
-        路径 = Path.GetDirectoryName(filePath) & "\"
+        路径 = Path.GetDirectoryName(filePath)
+        If Not 路径.EndsWith("\") Then
+            路径 &= "\"
+        End If
         平面名 = Path.GetFileName(filePath)
         If 主平面 Then
             主窗体.Text = "节点平面 - " & 路径 & 平面名
@@ -193,7 +201,7 @@ Public Class 节点平面类
         End If
     End Sub
 
-    Public Sub 保存(path As String)
+    Public Sub 保存(filePath As String)
         Dim result As New List(Of String) From {
             版本
         }
@@ -202,7 +210,8 @@ Public Class 节点平面类
             result.Add(本域节点.Values(i).ToString)
         Next
 
-        File.WriteAllText(path, Join(result.ToArray, vbCrLf))
+        File.WriteAllText(filePath, Join(result.ToArray, vbCrLf))
+        路径赋予(filePath)
     End Sub
     Private Sub 鼠标双击事件(sender As Object, e As EventArgs) Handles 绘制空间.DoubleClick
         If 鼠标移动选中节点 IsNot Nothing Then
@@ -213,10 +222,19 @@ Public Class 节点平面类
             连接发起节点 = Nothing
         End If
     End Sub
-    Private Sub 鼠标点击事件(sender As Object, e As MouseEventArgs) Handles 绘制空间.MouseDown
-        鼠标实际位置 = e.Location
+    Private Sub 鼠标位置获取(p As Point)
+        鼠标实际位置 = p
         鼠标实际位置.Offset(-视角偏移.X, -视角偏移.Y)
         鼠标当前位置 = New Point(鼠标实际位置.X \ 缩放倍数, 鼠标实际位置.Y \ 缩放倍数)
+        If 鼠标实际位置.X < 0 Then
+            鼠标当前位置.X -= 1
+        End If
+        If 鼠标实际位置.Y < 0 Then
+            鼠标当前位置.Y -= 1
+        End If
+    End Sub
+    Private Sub 鼠标点击事件(sender As Object, e As MouseEventArgs) Handles 绘制空间.MouseDown
+        鼠标位置获取(e.Location)
         If e.Button = MouseButtons.Right Then
             新建节点(String.Format("{0}-{1}-{2}", 本域节点.Count, 鼠标当前位置.X, 鼠标当前位置.Y), 鼠标当前位置)
         ElseIf e.Button = MouseButtons.Left Then
@@ -246,9 +264,7 @@ Public Class 节点平面类
         End If
     End Sub
     Private Sub 鼠标点完事件(sender As Object, e As MouseEventArgs) Handles 绘制空间.MouseUp
-        鼠标实际位置 = e.Location
-        鼠标实际位置.Offset(-视角偏移.X, -视角偏移.Y)
-        鼠标当前位置 = New Point(鼠标实际位置.X \ 缩放倍数, 鼠标实际位置.Y \ 缩放倍数)
+        鼠标位置获取(e.Location)
         If 当前按住节点 IsNot Nothing Then
             If 当前按住节点.位置 = 鼠标当前位置 Then
                 If 连接发起节点 Is Nothing Then 连接发起节点 = 当前按住节点
@@ -262,9 +278,7 @@ Public Class 节点平面类
     End Sub
 
     Private Sub 鼠标移动事件(sender As Object, e As MouseEventArgs) Handles 绘制空间.MouseMove
-        鼠标实际位置 = e.Location
-        鼠标实际位置.Offset(-视角偏移.X, -视角偏移.Y)
-        鼠标当前位置 = New Point(鼠标实际位置.X \ 缩放倍数, 鼠标实际位置.Y \ 缩放倍数)
+        鼠标位置获取(e.Location)
         If 视角拖拽 Then
             视角偏移.Offset(e.Location - 视角拖拽起点)
             视角拖拽起点 = e.Location

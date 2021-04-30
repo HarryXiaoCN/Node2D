@@ -128,7 +128,6 @@ Public Class Form1
         Else
             If SFD.ShowDialog = DialogResult.OK Then
                 主域.保存(SFD.FileName)
-                主域.路径赋予(SFD.FileName)
             End If
         End If
     End Sub
@@ -144,7 +143,6 @@ Public Class Form1
     Private Sub 另存为平面_Click(sender As Object, e As EventArgs) Handles 另存为平面.Click
         If SFD.ShowDialog = DialogResult.OK Then
             主域.保存(SFD.FileName)
-            主域.路径赋予(SFD.FileName)
         End If
     End Sub
 
