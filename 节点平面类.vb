@@ -234,7 +234,7 @@ Public Class 节点平面类
         路径赋予(filePath)
         Dim p() As String = Split(s(1), " ")
         视角偏移 = New Point(Val(p(0)), Val(p(1)))
-        For i = 4 To UBound(s)
+        For i = 2 To UBound(s)
             Dim node As New 节点类(Me, s(i))
         Next
         For Each n As 节点类 In 本域节点.Values
