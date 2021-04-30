@@ -25,6 +25,7 @@ Partial Class Form1
         Me.绘制空间 = New System.Windows.Forms.PictureBox()
         Me.菜单栏 = New System.Windows.Forms.MenuStrip()
         Me.文件菜单 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.新建平面 = New System.Windows.Forms.ToolStripMenuItem()
         Me.载入平面 = New System.Windows.Forms.ToolStripMenuItem()
         Me.保存平面 = New System.Windows.Forms.ToolStripMenuItem()
         Me.另存为平面 = New System.Windows.Forms.ToolStripMenuItem()
@@ -38,10 +39,12 @@ Partial Class Form1
         Me.编辑右键点击创建函数点 = New System.Windows.Forms.ToolStripMenuItem()
         Me.运行菜单 = New System.Windows.Forms.ToolStripMenuItem()
         Me.运行菜单执行当前节点 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripSeparator2 = New System.Windows.Forms.ToolStripSeparator()
+        Me.控制台每次运行时清空 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripSeparator3 = New System.Windows.Forms.ToolStripSeparator()
+        Me.打开全局引用窗体 = New System.Windows.Forms.ToolStripMenuItem()
         Me.SFD = New System.Windows.Forms.SaveFileDialog()
         Me.OFD = New System.Windows.Forms.OpenFileDialog()
-        Me.控制台每次运行时清空 = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ToolStripSeparator2 = New System.Windows.Forms.ToolStripSeparator()
         CType(Me.绘制空间, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.菜单栏.SuspendLayout()
         Me.SuspendLayout()
@@ -67,48 +70,55 @@ Partial Class Form1
         '
         '文件菜单
         '
-        Me.文件菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.载入平面, Me.保存平面, Me.另存为平面, Me.重载平面, Me.ToolStripSeparator1, Me.文件退出菜单})
+        Me.文件菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.新建平面, Me.载入平面, Me.保存平面, Me.另存为平面, Me.重载平面, Me.ToolStripSeparator1, Me.文件退出菜单})
         Me.文件菜单.Name = "文件菜单"
         Me.文件菜单.Size = New System.Drawing.Size(58, 21)
         Me.文件菜单.Text = "文件(&F)"
+        '
+        '新建平面
+        '
+        Me.新建平面.Name = "新建平面"
+        Me.新建平面.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.N), System.Windows.Forms.Keys)
+        Me.新建平面.Size = New System.Drawing.Size(165, 22)
+        Me.新建平面.Text = "新建(&N)"
         '
         '载入平面
         '
         Me.载入平面.Name = "载入平面"
         Me.载入平面.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.L), System.Windows.Forms.Keys)
-        Me.载入平面.Size = New System.Drawing.Size(161, 22)
+        Me.载入平面.Size = New System.Drawing.Size(165, 22)
         Me.载入平面.Text = "载入(&L)"
         '
         '保存平面
         '
         Me.保存平面.Name = "保存平面"
         Me.保存平面.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.S), System.Windows.Forms.Keys)
-        Me.保存平面.Size = New System.Drawing.Size(161, 22)
+        Me.保存平面.Size = New System.Drawing.Size(165, 22)
         Me.保存平面.Text = "保存(&S)"
         '
         '另存为平面
         '
         Me.另存为平面.Name = "另存为平面"
-        Me.另存为平面.Size = New System.Drawing.Size(161, 22)
+        Me.另存为平面.Size = New System.Drawing.Size(165, 22)
         Me.另存为平面.Text = "另存为(&A)"
         '
         '重载平面
         '
         Me.重载平面.Name = "重载平面"
         Me.重载平面.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.R), System.Windows.Forms.Keys)
-        Me.重载平面.Size = New System.Drawing.Size(161, 22)
+        Me.重载平面.Size = New System.Drawing.Size(165, 22)
         Me.重载平面.Text = "重载(&R)"
         Me.重载平面.ToolTipText = "重新加载当前平面"
         '
         'ToolStripSeparator1
         '
         Me.ToolStripSeparator1.Name = "ToolStripSeparator1"
-        Me.ToolStripSeparator1.Size = New System.Drawing.Size(158, 6)
+        Me.ToolStripSeparator1.Size = New System.Drawing.Size(162, 6)
         '
         '文件退出菜单
         '
         Me.文件退出菜单.Name = "文件退出菜单"
-        Me.文件退出菜单.Size = New System.Drawing.Size(161, 22)
+        Me.文件退出菜单.Size = New System.Drawing.Size(165, 22)
         Me.文件退出菜单.Text = "退出(&Q)"
         '
         '编辑菜单
@@ -147,7 +157,7 @@ Partial Class Form1
         '
         '运行菜单
         '
-        Me.运行菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.运行菜单执行当前节点, Me.ToolStripSeparator2, Me.控制台每次运行时清空})
+        Me.运行菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.运行菜单执行当前节点, Me.ToolStripSeparator2, Me.控制台每次运行时清空, Me.ToolStripSeparator3, Me.打开全局引用窗体})
         Me.运行菜单.Name = "运行菜单"
         Me.运行菜单.Size = New System.Drawing.Size(60, 21)
         Me.运行菜单.Text = "运行(&R)"
@@ -156,8 +166,32 @@ Partial Class Form1
         '
         Me.运行菜单执行当前节点.Name = "运行菜单执行当前节点"
         Me.运行菜单执行当前节点.ShortcutKeys = System.Windows.Forms.Keys.F5
-        Me.运行菜单执行当前节点.Size = New System.Drawing.Size(176, 22)
+        Me.运行菜单执行当前节点.Size = New System.Drawing.Size(177, 22)
         Me.运行菜单执行当前节点.Text = "执行选中节点"
+        '
+        'ToolStripSeparator2
+        '
+        Me.ToolStripSeparator2.Name = "ToolStripSeparator2"
+        Me.ToolStripSeparator2.Size = New System.Drawing.Size(174, 6)
+        '
+        '控制台每次运行时清空
+        '
+        Me.控制台每次运行时清空.Name = "控制台每次运行时清空"
+        Me.控制台每次运行时清空.Size = New System.Drawing.Size(177, 22)
+        Me.控制台每次运行时清空.Text = "控制台自动清空(&C)"
+        Me.控制台每次运行时清空.ToolTipText = "每次函数节点执行时清空"
+        '
+        'ToolStripSeparator3
+        '
+        Me.ToolStripSeparator3.Name = "ToolStripSeparator3"
+        Me.ToolStripSeparator3.Size = New System.Drawing.Size(174, 6)
+        '
+        '打开全局引用窗体
+        '
+        Me.打开全局引用窗体.Name = "打开全局引用窗体"
+        Me.打开全局引用窗体.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.I), System.Windows.Forms.Keys)
+        Me.打开全局引用窗体.Size = New System.Drawing.Size(177, 22)
+        Me.打开全局引用窗体.Text = "全局引用(&I)"
         '
         'SFD
         '
@@ -169,18 +203,6 @@ Partial Class Form1
         '
         Me.OFD.Filter = "节点平面|*.n2d"
         Me.OFD.Title = "载入节点平面"
-        '
-        '控制台每次运行时清空
-        '
-        Me.控制台每次运行时清空.Name = "控制台每次运行时清空"
-        Me.控制台每次运行时清空.Size = New System.Drawing.Size(176, 22)
-        Me.控制台每次运行时清空.Text = "控制台自动清空(&C)"
-        Me.控制台每次运行时清空.ToolTipText = "每次函数节点执行时清空"
-        '
-        'ToolStripSeparator2
-        '
-        Me.ToolStripSeparator2.Name = "ToolStripSeparator2"
-        Me.ToolStripSeparator2.Size = New System.Drawing.Size(173, 6)
         '
         'Form1
         '
@@ -225,4 +247,7 @@ Partial Class Form1
     Friend WithEvents 重载平面 As ToolStripMenuItem
     Friend WithEvents ToolStripSeparator2 As ToolStripSeparator
     Friend WithEvents 控制台每次运行时清空 As ToolStripMenuItem
+    Friend WithEvents ToolStripSeparator3 As ToolStripSeparator
+    Friend WithEvents 打开全局引用窗体 As ToolStripMenuItem
+    Friend WithEvents 新建平面 As ToolStripMenuItem
 End Class

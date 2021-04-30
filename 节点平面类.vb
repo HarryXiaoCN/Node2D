@@ -10,7 +10,7 @@ Public Class 节点平面类
         Public 父域 As 节点平面类
         Public 引用等级 As Integer '0:一次引用 1:本次引用 2:永久引用
         Public 连接 As New List(Of 节点类)
-        Private 待连接 As New List(Of String)
+        Private ReadOnly 待连接 As New List(Of String)
         Public 空间 As New Dictionary(Of String, 节点平面类)
         Public Event 改变前(node As 节点类)
         Public Event 改变后(node As 节点类)
@@ -41,6 +41,11 @@ Public Class 节点平面类
             For i As Integer = 0 To 连接.Count - 1
                 If 连接(i).名字 = 节点名 Then
                     Return 连接(i)
+                End If
+            Next
+            For i As Integer = 0 To 父域.全局窗体.全局节点列表.Items.Count - 1
+                If 父域.全局窗体.全局节点列表.Items(i) = 节点名 And 父域.本域节点.ContainsKey(节点名) Then
+                    Return 父域.本域节点(节点名)
                 End If
             Next
             Return Nothing
@@ -89,7 +94,11 @@ Public Class 节点平面类
                         If 空间.ContainsKey(fileName) Then
                             控制台.添加消息(String.Format("引用节点[{0}]内第{2}行：引用空间""{1}""已存在。", name, filePath, i + 1))
                         Else
-                            空间.Add(fileName, New 节点平面类(filePath))
+                            Try
+                                空间.Add(fileName, New 节点平面类(filePath))
+                            Catch ex As Exception
+                                控制台.添加消息(String.Format("引用节点[{0}]内第{1}行：初始化引用平面[{2}]错误，原因：{3}", name, i + 1, filePath, ex.Message))
+                            End Try
                         End If
                     Else
                         控制台.添加消息(String.Format("引用节点[{0}]内第{2}行：引用空间""{1}""不存在。", name, filePath, i + 1))
@@ -118,11 +127,13 @@ Public Class 节点平面类
     End Class
     Public 本域节点 As New Dictionary(Of String, 节点类)
     Public 空间限制 As New Dictionary(Of Point, 节点类)
+    Public 全局平面 As New Dictionary(Of String, 节点平面类)
     Public 主平面 As Boolean
     Public 结束标识 As Boolean
     Public 绘制间隔 As Long = 15
     Public 缩放倍数 As Integer = 50
     Public 主窗体 As Form1
+    Public 全局窗体 As New GlobalImportForm
     Public 鼠标移动选中节点 As 节点类
     Public 当前编辑节点 As 节点类
     Public 当前按住节点 As 节点类
@@ -146,22 +157,22 @@ Public Class 节点平面类
     Public 引用节点连接色 As New Pen(Color.FromArgb(180, 引用节点填充色), 10)
     Public 连接起点颜色 As Color = Color.Purple
     Public WithEvents 绘制空间 As PictureBox
-    Public 版本 As String = "NODE2D.20210424.1"
+    Public 版本 As String = "NODE2D.20210430.1"
     Public 路径 As String = Application.StartupPath
     Public 平面名 As String = ""
 
     Private 视角拖拽起点 As Point
     Private 视角拖拽 As Boolean
-    Private 节点删除列表 As New List(Of 节点类)
-    Private 绘制线程 As Thread
+    Private ReadOnly 节点删除列表 As New List(Of 节点类)
+    Private ReadOnly 绘制线程 As Thread
     Private Delegate Sub 绘制更新委托(ByRef 帧 As Image)
     Public Sub New(ByRef mainForm As Form1, ByRef drawSpace As PictureBox, Optional mainNode2D As Boolean = True)
         主窗体 = mainForm
         绘制空间 = drawSpace
         主平面 = mainNode2D
         节点编辑窗体.主域 = Me
-        节点编辑窗体.Show()
-        节点编辑窗体.Hide()
+        '节点编辑窗体.Show()
+        '节点编辑窗体.Hide()
         If 主平面 Then
             主窗体.Text = "节点平面 - " & 路径
             绘制线程 = New Thread(AddressOf 绘制)
@@ -189,15 +200,65 @@ Public Class 节点平面类
     Public Sub 加载(filePath As String)
         Dim s() As String = Split(File.ReadAllText(filePath), vbCrLf)
         If s(0) = "NODE2D.20210424.1" Then
+            Load_NODE2D_20210424_1(filePath, s)
+        ElseIf s(0) = "NODE2D.20210430.1" Then
             路径赋予(filePath)
             Dim p() As String = Split(s(1), " ")
             视角偏移 = New Point(Val(p(0)), Val(p(1)))
-            For i = 2 To UBound(s)
+            Dim gS() As String = Split(s(2), Chr(1))
+            全局窗体.全局平面列表.Items.AddRange(gS)
+            For i As Integer = 0 To UBound(gS)
+                Dim readPath As String = Path.GetFullPath(gS(i), 路径)
+                If File.Exists(readPath) Then
+                    Dim fileName As String = Path.GetFileNameWithoutExtension(readPath)
+                    If Not 全局平面.ContainsKey(fileName) Then
+                        Try
+                            全局平面.Add(fileName, New 节点平面类(readPath))
+                        Catch ex As Exception
+                            控制台.添加消息(String.Format("添加全局平面[{0}]时错误，原因：{1}", gS(i), ex.Message))
+                        End Try
+                    End If
+                End If
+            Next
+            Dim nS() As String = Split(s(3), Chr(1))
+            全局窗体.全局节点列表.Items.AddRange(nS)
+            For i = 4 To UBound(s)
                 Dim node As New 节点类(Me, s(i))
             Next
             For Each n As 节点类 In 本域节点.Values
                 n.确认连接()
             Next
+        End If
+    End Sub
+    Private Sub Load_NODE2D_20210424_1(filePath As String, s() As String)
+        路径赋予(filePath)
+        Dim p() As String = Split(s(1), " ")
+        视角偏移 = New Point(Val(p(0)), Val(p(1)))
+        For i = 4 To UBound(s)
+            Dim node As New 节点类(Me, s(i))
+        Next
+        For Each n As 节点类 In 本域节点.Values
+            n.确认连接()
+        Next
+    End Sub
+    Public Sub 添加全局平面(filePath As String)
+        Dim readPath As String = Path.GetFullPath(filePath, 路径)
+        If File.Exists(readPath) Then
+            Dim fileName As String = Path.GetFileNameWithoutExtension(readPath)
+            Try
+                全局平面.Add(fileName, New 节点平面类(readPath))
+                全局窗体.全局平面列表.Items.Add(filePath)
+            Catch ex As Exception
+                控制台.添加消息(String.Format("添加全局平面[{0}]时错误，原因：{1}", filePath, ex.Message))
+            End Try
+        Else
+            控制台.添加消息(String.Format("未找到全局平面[{0}]（{1}），确认平面路径后重载当前平面", filePath, readPath))
+        End If
+    End Sub
+    Public Sub 移除全局平面()
+        If 全局窗体.全局平面列表.SelectedIndex >= 0 And 全局窗体.全局平面列表.SelectedIndex < 全局窗体.全局平面列表.Items.Count Then
+            全局平面.Remove(全局窗体.全局平面列表.Items(全局窗体.全局平面列表.SelectedIndex))
+            全局窗体.全局平面列表.Items.RemoveAt(全局窗体.全局平面列表.SelectedIndex)
         End If
     End Sub
 
@@ -206,6 +267,12 @@ Public Class 节点平面类
             版本
         }
         result.Add(String.Format("{0} {1}", 视角偏移.X, 视角偏移.Y))
+        Dim 全局平面路径(全局窗体.全局平面列表.Items.Count - 1) As String
+        全局窗体.全局平面列表.Items.CopyTo(全局平面路径, 0)
+        result.Add(Join(全局平面路径.ToArray, Chr(1)))
+        Dim 全局节点路径(全局窗体.全局节点列表.Items.Count - 1) As String
+        全局窗体.全局节点列表.Items.CopyTo(全局节点路径, 0)
+        result.Add(Join(全局节点路径.ToArray, Chr(1)))
         For i As Integer = 0 To 本域节点.Count - 1
             result.Add(本域节点.Values(i).ToString)
         Next
@@ -427,17 +494,16 @@ Public Class 节点平面类
             End If
             Thread.Sleep(绘制间隔)
         Loop
+        全局平面.Clear()
+        本域节点.Clear()
+        节点编辑窗体.Close()
+        全局窗体.Close()
         RemoveHandler 绘制空间.DoubleClick, AddressOf 鼠标双击事件
         RemoveHandler 绘制空间.MouseDown, AddressOf 鼠标点击事件
         RemoveHandler 绘制空间.MouseUp, AddressOf 鼠标点完事件
         RemoveHandler 绘制空间.MouseMove, AddressOf 鼠标移动事件
     End Sub
-    Private Function 连接有效性判断(n1 As 节点类, n2 As 节点类) As Boolean
-        If (n1.类型 = n2.类型 And n1.类型 = "值") Or (n1.名字 = n2.名字) Then
-            Return False
-        End If
-        Return True
-    End Function
+
 
     Private Sub 绘制更新(ByRef 帧 As Image)
         Dim d As New 绘制更新委托(AddressOf 绘制更新操作)

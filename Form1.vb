@@ -45,16 +45,8 @@ Public Class Form1
         End
     End Sub
 
-    Private Sub 绘制空间_Click(sender As Object, e As EventArgs) Handles 绘制空间.Click
-
-    End Sub
-
     Private Sub 文件退出菜单_Click(sender As Object, e As EventArgs) Handles 文件退出菜单.Click
         Close()
-    End Sub
-
-    Private Sub 绘制空间_MouseMove(sender As Object, e As MouseEventArgs) Handles 绘制空间.MouseMove
-
     End Sub
 
     Private Sub 编辑右键点击创建值节点_Click(sender As Object, e As EventArgs) Handles 编辑右键点击创建值节点.Click
@@ -94,18 +86,6 @@ Public Class Form1
         If Not (编辑右键点击创建值节点.Checked Or 编辑右键点击创建引用点.Checked Or 编辑右键点击创建函数点.Checked) Then
             主域.节点创建模式 = ""
         End If
-    End Sub
-
-    Private Sub 绘制空间_MouseDown(sender As Object, e As MouseEventArgs) Handles 绘制空间.MouseDown
-
-    End Sub
-
-    Private Sub 绘制空间_MouseUp(sender As Object, e As MouseEventArgs) Handles 绘制空间.MouseUp
-
-    End Sub
-
-    Private Sub Form1_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
-
     End Sub
 
     Private Sub 运行菜单执行当前节点_Click(sender As Object, e As EventArgs) Handles 运行菜单执行当前节点.Click
@@ -157,5 +137,14 @@ Public Class Form1
 
     Private Sub 控制台每次运行时清空_Click(sender As Object, e As EventArgs) Handles 控制台每次运行时清空.Click
         控制台每次运行时清空.Checked = Not 控制台每次运行时清空.Checked
+    End Sub
+
+    Private Sub 打开全局引用窗体_Click(sender As Object, e As EventArgs) Handles 打开全局引用窗体.Click
+        主域.全局窗体.Visible = True
+    End Sub
+
+    Private Sub 新建平面_Click(sender As Object, e As EventArgs) Handles 新建平面.Click
+        主域.结束标识 = True
+        主域 = New 节点平面类(Me, 绘制空间)
     End Sub
 End Class

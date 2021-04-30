@@ -1,5 +1,6 @@
 ﻿Public Class Node
     Public 主域 As 节点平面类
+    Private 避免咚 As Boolean
     Private Sub 节点名_TextChanged(sender As Object, e As EventArgs) Handles 节点名.TextChanged
         If 节点名.Text <> 主域.当前编辑节点.名字 Then
             If 主域.本域节点.ContainsKey(节点名.Text) Then
@@ -38,6 +39,7 @@
             ElseIf e.KeyCode = Keys.A Then
                 节点名.SelectAll()
             End If
+            避免咚 = True
         End If
     End Sub
     Private Sub 节点类型_SelectionChangeCommitted(sender As Object, e As EventArgs) Handles 节点类型.SelectionChangeCommitted
@@ -52,6 +54,7 @@
             ElseIf e.KeyCode = Keys.A Then
                 节点内容.SelectAll()
             End If
+            避免咚 = True
         End If
     End Sub
 
@@ -77,6 +80,20 @@
     Private Sub Node_KeyPress(sender As Object, e As KeyPressEventArgs) Handles Me.KeyPress
         If e.KeyChar = Chr(27) Then
             e.Handled = True
+        End If
+    End Sub
+
+    Private Sub 节点名_KeyPress(sender As Object, e As KeyPressEventArgs) Handles 节点名.KeyPress
+        If 避免咚 Then
+            e.Handled = True
+            避免咚 = False
+        End If
+    End Sub
+
+    Private Sub 节点内容_KeyPress(sender As Object, e As KeyPressEventArgs) Handles 节点内容.KeyPress
+        If 避免咚 Then
+            e.Handled = True
+            避免咚 = False
         End If
     End Sub
 End Class

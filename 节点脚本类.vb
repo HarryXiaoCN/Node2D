@@ -4,30 +4,55 @@ Imports System.Threading
 Imports Node2D.节点平面类
 
 Public Module 节点全局
-    Public 控制台 As New NodeConsole
+    Public ReadOnly 控制台 As New NodeConsole
     Public Function BoolToInt(b As Boolean) As Integer
         If b Then
             Return 1
         End If
         Return 0
     End Function
-End Module
-Public Class 节点脚本类
-
+    Public Function 式判断(句 As String) As String
+        If 句.EndsWith("()") Then
+            Return "执行式" '默认将句末()前作为函数节点路径
+        End If
+        If Regex.IsMatch(句, ".{1,} .{1,}") Then
+            Return "赋值式"
+        End If
+        Return ""
+    End Function
     Public Function 获得节点(路径 As String, ByRef 搜索发起节点 As 节点类) As 节点类
         Dim 域() As String = 路径.Split(".")
+        Dim 起点 As Integer = 1
         Dim 子节点 As 节点类 = 搜索发起节点.获得子节点(域(0))
-        For i As Integer = 1 To UBound(域)
+        If 子节点 Is Nothing Then
+            If 搜索发起节点.父域.全局平面.ContainsKey(域(0)) Then
+                If 搜索发起节点.父域.全局平面(域(0)).本域节点.ContainsKey(域(1)) Then
+                    子节点 = 搜索发起节点.父域.全局平面(域(0)).本域节点(域(1))
+                    起点 += 1
+                End If
+            End If
+        End If
+        For i As Integer = 起点 To UBound(域)
             If 子节点 Is Nothing Then
                 Return Nothing
             Else
                 Dim 上个节点 As 节点类 = 子节点
                 子节点 = 子节点.获得子节点(域(i))
-                If 子节点 Is Nothing And 上个节点.类型 = "引用" And i < UBound(域) Then
-                    If 上个节点.空间.ContainsKey(域(i)) Then
-                        If 上个节点.空间(域(i)).本域节点.ContainsKey(域(i + 1)) Then
-                            子节点 = 上个节点.空间(域(i)).本域节点(域(i + 1))
-                            i += 1
+                If 子节点 Is Nothing And i < UBound(域) Then
+                    If 上个节点.类型 = "引用" Then
+                        If 上个节点.空间.ContainsKey(域(i)) Then
+                            If 上个节点.空间(域(i)).本域节点.ContainsKey(域(i + 1)) Then
+                                子节点 = 上个节点.空间(域(i)).本域节点(域(i + 1))
+                                i += 1
+                            End If
+                        End If
+                    End If
+                    If 子节点 Is Nothing Then
+                        If 搜索发起节点.父域.全局平面.ContainsKey(域(i)) Then
+                            If 搜索发起节点.父域.全局平面(域(i)).本域节点.ContainsKey(域(i + 1)) Then
+                                子节点 = 上个节点.空间(域(i)).本域节点(域(i + 1))
+                                i += 1
+                            End If
                         End If
                     End If
                 End If
@@ -35,6 +60,14 @@ Public Class 节点脚本类
         Next
         Return 子节点
     End Function
+    Public Function 连接有效性判断(n1 As 节点类, n2 As 节点类) As Boolean
+        If (n1.类型 = n2.类型 And n1.类型 = "值") Or (n1.名字 = n2.名字) Then
+            Return False
+        End If
+        Return True
+    End Function
+End Module
+Public Class 节点脚本类
     Public Sub 解释(ByRef 节点 As 节点类)
         Dim 执行线程 As New Thread(AddressOf 函数解释)
         执行线程.SetApartmentState(ApartmentState.STA)
@@ -222,13 +255,4 @@ Public Class 节点脚本类
         Return ""
     End Function
 
-    Private Function 式判断(句 As String) As String
-        If 句.EndsWith("()") Then
-            Return "执行式" '默认将句末()前作为函数节点路径
-        End If
-        If Regex.IsMatch(句, ".{1,} .{1,}") Then
-            Return "赋值式"
-        End If
-        Return ""
-    End Function
 End Class

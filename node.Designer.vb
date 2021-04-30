@@ -106,6 +106,7 @@ Partial Class Node
         Me.Opacity = 0.9R
         Me.ShowIcon = False
         Me.ShowInTaskbar = False
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.Manual
         Me.Text = "节点编辑"
         Me.TopMost = True
         Me.ResumeLayout(False)
