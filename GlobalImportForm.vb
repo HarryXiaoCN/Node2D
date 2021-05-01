@@ -2,6 +2,14 @@
 
 Public Class GlobalImportForm
     Public 父域 As 节点平面类
+    Public Sub New(parent As 节点平面类)
+
+        ' 此调用是设计器所必需的。
+        InitializeComponent()
+
+        ' 在 InitializeComponent() 调用之后添加任何初始化。
+        父域 = parent
+    End Sub
     Private Sub GlobalImportForm_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
         Visible = False
         e.Cancel = True

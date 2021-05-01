@@ -133,7 +133,7 @@ Public Class 节点平面类
     Public 绘制间隔 As Long = 15
     Public 缩放倍数 As Integer = 50
     Public 主窗体 As Form1
-    Public 全局窗体 As New GlobalImportForm
+    Public 全局窗体 As New GlobalImportForm(Me)
     Public 鼠标移动选中节点 As 节点类
     Public 当前编辑节点 As 节点类
     Public 当前按住节点 As 节点类
@@ -205,23 +205,27 @@ Public Class 节点平面类
             路径赋予(filePath)
             Dim p() As String = Split(s(1), " ")
             视角偏移 = New Point(Val(p(0)), Val(p(1)))
-            Dim gS() As String = Split(s(2), Chr(1))
-            全局窗体.全局平面列表.Items.AddRange(gS)
-            For i As Integer = 0 To UBound(gS)
-                Dim readPath As String = Path.GetFullPath(gS(i), 路径)
-                If File.Exists(readPath) Then
-                    Dim fileName As String = Path.GetFileNameWithoutExtension(readPath)
-                    If Not 全局平面.ContainsKey(fileName) Then
-                        Try
-                            全局平面.Add(fileName, New 节点平面类(readPath))
-                        Catch ex As Exception
-                            控制台.添加消息(String.Format("添加全局平面[{0}]时错误，原因：{1}", gS(i), ex.Message))
-                        End Try
+            If s(2) <> "" Then
+                Dim gS() As String = Split(s(2), Chr(1))
+                全局窗体.全局平面列表.Items.AddRange(gS)
+                For i As Integer = 0 To UBound(gS)
+                    Dim readPath As String = Path.GetFullPath(gS(i), 路径)
+                    If File.Exists(readPath) Then
+                        Dim fileName As String = Path.GetFileNameWithoutExtension(readPath)
+                        If Not 全局平面.ContainsKey(fileName) Then
+                            Try
+                                全局平面.Add(fileName, New 节点平面类(readPath))
+                            Catch ex As Exception
+                                控制台.添加消息(String.Format("添加全局平面[{0}]时错误，原因：{1}", gS(i), ex.Message))
+                            End Try
+                        End If
                     End If
-                End If
-            Next
-            Dim nS() As String = Split(s(3), Chr(1))
-            全局窗体.全局节点列表.Items.AddRange(nS)
+                Next
+            End If
+            If s(3) <> "" Then
+                Dim nS() As String = Split(s(3), Chr(1))
+                全局窗体.全局节点列表.Items.AddRange(nS)
+            End If
             For i = 4 To UBound(s)
                 Dim node As New 节点类(Me, s(i))
             Next
@@ -252,7 +256,7 @@ Public Class 节点平面类
                 控制台.添加消息(String.Format("添加全局平面[{0}]时错误，原因：{1}", filePath, ex.Message))
             End Try
         Else
-            控制台.添加消息(String.Format("未找到全局平面[{0}]（{1}），确认平面路径后重载当前平面", filePath, readPath))
+            控制台.添加消息(String.Format("未找到全局平面[{0}]（{1}），添加平面失败。", filePath, readPath))
         End If
     End Sub
     Public Sub 移除全局平面()

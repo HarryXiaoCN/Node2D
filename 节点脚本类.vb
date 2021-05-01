@@ -12,13 +12,10 @@ Public Module 节点全局
         Return 0
     End Function
     Public Function 式判断(句 As String) As String
-        If 句.EndsWith("()") Then
-            Return "执行式" '默认将句末()前作为函数节点路径
-        End If
         If Regex.IsMatch(句, ".{1,} .{1,}") Then
             Return "赋值式"
         End If
-        Return ""
+        Return "执行式"
     End Function
     Public Function 获得节点(路径 As String, ByRef 搜索发起节点 As 节点类) As 节点类
         Dim 域() As String = 路径.Split(".")
@@ -80,7 +77,12 @@ Public Class 节点脚本类
                 Dim 性质 As String = 式判断(句集(i))
                 Select Case 性质
                     Case "执行式"
-                        Dim 执行节点 As 节点类 = 获得节点(句集(i).Substring(0, 句集(i).Length - 2), 节点)
+                        Dim 执行节点 As 节点类
+                        If 句集(i).EndsWith("()") Then
+                            执行节点 = 获得节点(句集(i).Substring(0, 句集(i).Length - 2), 节点)
+                        Else
+                            执行节点 = 获得节点(句集(i), 节点)
+                        End If
                         If 执行节点 IsNot Nothing Then
                             函数解释(执行节点)
                         End If
