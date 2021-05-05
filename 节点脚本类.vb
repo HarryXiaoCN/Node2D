@@ -83,10 +83,16 @@ Public Class 节点脚本类
                         Else
                             执行节点 = 获得节点(句集(i), 节点)
                         End If
-                        If 执行节点 IsNot Nothing Then
-                            函数解释(执行节点)
+                        If 执行节点 Is Nothing Then
+                            控制台.添加消息(String.Format("函数节点[{0}]第{1}行：未找到欲执行节点[{2}]。", 节点.名字, i, 句集(i)))
+                        Else
+                            If 执行节点.类型 = "函数" Then
+                                函数解释(执行节点)
+                            Else
+                                控制台.添加消息(String.Format("函数节点[{0}]第{1}行：节点[{2}]不是函数节点，无法执行。", 节点.名字, i, 句集(i)))
+                            End If
                         End If
-                    Case "赋值式"
+                            Case "赋值式"
                         控制台.添加消息(赋值式运算(节点, 句集(i), i + 1))
                     Case Else
                         控制台.添加消息(String.Format("函数节点[{0}]未识别句：{1}", 节点.名字, 句集(i)))
@@ -247,6 +253,36 @@ Public Class 节点脚本类
                         Case Else
                             Return String.Format("函数节点[{1}]第{2}行：判断语句""{0}""过短。", targetString, 节点.名字, 行)
                     End Select
+                Case "call", "调用"
+                    Dim 调用节点 As 节点类 = 获得节点(nodes(0).内容, 节点)
+                    If 调用节点 Is Nothing Then
+                        Return String.Format("函数节点[{0}]第{1}行：根据节点[{2}]的内容""{3}""未找到对应欲调用节点。", 节点.名字, 行, nodes(0).名字, nodes(0).内容)
+                    Else
+                        If 调用节点.类型 = "函数" Then
+                            函数解释(调用节点)
+                        Else
+                            Return String.Format("函数节点[{0}]第{1}行：节点[{2}]不是函数节点，无法执行。", 节点.名字, 行, 调用节点.名字)
+                        End If
+                    End If
+                Case "m-run", "多线程运行", "并行"
+                    If nodes(0).类型 = "函数" Then
+                        Dim t As New Thread(AddressOf 函数解释)
+                        t.Start(nodes(0))
+                    Else
+                        Return String.Format("函数节点[{0}]第{1}行：节点[{2}]不是函数节点，无法执行。", 节点.名字, 行, nodes(0).名字)
+                    End If
+                Case "m-call", "多线程调用", "调用"
+                    Dim 调用节点 As 节点类 = 获得节点(nodes(0).内容, 节点)
+                    If 调用节点 Is Nothing Then
+                        Return String.Format("函数节点[{0}]第{1}行：根据节点[{2}]的内容""{3}""未找到对应欲调用节点。", 节点.名字, 行, nodes(0).名字, nodes(0).内容)
+                    Else
+                        If 调用节点.类型 = "函数" Then
+                            Dim t As New Thread(AddressOf 函数解释)
+                            t.Start(调用节点)
+                        Else
+                            Return String.Format("函数节点[{0}]第{1}行：节点[{2}]不是函数节点，无法执行。", 节点.名字, 行, 调用节点.名字)
+                        End If
+                    End If
                 Case Else
                     Return String.Format("函数节点[{1}]第{2}行：处理法则【{0}】未找到。", nodesString(0), 节点.名字, 行)
             End Select
