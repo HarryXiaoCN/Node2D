@@ -271,7 +271,7 @@ Public Class 节点脚本类
                     Else
                         Return String.Format("函数节点[{0}]第{1}行：节点[{2}]不是函数节点，无法执行。", 节点.名字, 行, nodes(0).名字)
                     End If
-                Case "m-call", "多线程调用", "调用"
+                Case "m-call", "多线程调用", "并用"
                     Dim 调用节点 As 节点类 = 获得节点(nodes(0).内容, 节点)
                     If 调用节点 Is Nothing Then
                         Return String.Format("函数节点[{0}]第{1}行：根据节点[{2}]的内容""{3}""未找到对应欲调用节点。", 节点.名字, 行, nodes(0).名字, nodes(0).内容)
