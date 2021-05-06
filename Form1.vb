@@ -4,6 +4,7 @@ Imports System.IO
 Public Class Form1
     Private 主域 As 节点平面类
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles Me.Load
+        控制台 = New NodeConsole(Me)
         加载设置文件()
         绘制空间.Image = New Bitmap(10, 10)
         主域 = New 节点平面类(Me, 绘制空间)
@@ -21,18 +22,23 @@ Public Class Form1
     End Sub
     Private Sub 保存设置文件()
         Dim 设置 As New List(Of String) From {
-            "控制台每次执行自动清空=" & 控制台每次运行时清空.Enabled
+            "控制台每次执行自动清空=" & 控制台每次运行时清空.Checked,
+            "控制台消息增加时间戳=" & 控制台输出时间戳.Checked
         }
         File.WriteAllText("程序设置.ini", Join(设置.ToArray, vbCrLf))
     End Sub
     Private Sub 设置解释(s As String)
         If s.IndexOf("=") <> -1 Then
             Dim sT() As String = Split(s, "=")
+            Dim sBool As Boolean
+            If sT(1).ToLower = "true" Or sT(1) = "1" Then
+                sBool = True
+            End If
             Select Case sT(0).ToLower
                 Case "控制台每次执行自动清空"
-                    If sT(1).ToLower = "true" Or sT(1) = "1" Then
-                        控制台每次运行时清空.Checked = True
-                    End If
+                    控制台每次运行时清空.Checked = sBool
+                Case "控制台消息增加时间戳"
+                    控制台输出时间戳.Checked = sBool
             End Select
         End If
     End Sub
@@ -146,5 +152,9 @@ Public Class Form1
     Private Sub 新建平面_Click(sender As Object, e As EventArgs) Handles 新建平面.Click
         主域.结束标识 = True
         主域 = New 节点平面类(Me, 绘制空间)
+    End Sub
+
+    Private Sub 控制台输出时间戳_Click(sender As Object, e As EventArgs) Handles 控制台输出时间戳.Click
+        控制台输出时间戳.Checked = Not 控制台输出时间戳.Checked
     End Sub
 End Class

@@ -45,6 +45,7 @@ Partial Class Form1
         Me.打开全局引用窗体 = New System.Windows.Forms.ToolStripMenuItem()
         Me.SFD = New System.Windows.Forms.SaveFileDialog()
         Me.OFD = New System.Windows.Forms.OpenFileDialog()
+        Me.控制台输出时间戳 = New System.Windows.Forms.ToolStripMenuItem()
         CType(Me.绘制空间, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.菜单栏.SuspendLayout()
         Me.SuspendLayout()
@@ -157,7 +158,7 @@ Partial Class Form1
         '
         '运行菜单
         '
-        Me.运行菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.运行菜单执行当前节点, Me.ToolStripSeparator2, Me.控制台每次运行时清空, Me.ToolStripSeparator3, Me.打开全局引用窗体})
+        Me.运行菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.运行菜单执行当前节点, Me.ToolStripSeparator2, Me.控制台每次运行时清空, Me.控制台输出时间戳, Me.ToolStripSeparator3, Me.打开全局引用窗体})
         Me.运行菜单.Name = "运行菜单"
         Me.运行菜单.Size = New System.Drawing.Size(60, 21)
         Me.运行菜单.Text = "运行(&R)"
@@ -203,6 +204,12 @@ Partial Class Form1
         '
         Me.OFD.Filter = "节点平面|*.n2d"
         Me.OFD.Title = "载入节点平面"
+        '
+        '控制台输出时间戳
+        '
+        Me.控制台输出时间戳.Name = "控制台输出时间戳"
+        Me.控制台输出时间戳.Size = New System.Drawing.Size(177, 22)
+        Me.控制台输出时间戳.Text = "控制台消息时间(&T)"
         '
         'Form1
         '
@@ -250,4 +257,5 @@ Partial Class Form1
     Friend WithEvents ToolStripSeparator3 As ToolStripSeparator
     Friend WithEvents 打开全局引用窗体 As ToolStripMenuItem
     Friend WithEvents 新建平面 As ToolStripMenuItem
+    Friend WithEvents 控制台输出时间戳 As ToolStripMenuItem
 End Class

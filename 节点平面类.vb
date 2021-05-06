@@ -6,6 +6,7 @@ Public Class 节点平面类
         Private name As String
         Private type As String
         Private content As String
+        Public 高亮 As Boolean
         Public 位置 As Point
         Public 父域 As 节点平面类
         Public 引用等级 As Integer '0:一次引用 1:本次引用 2:永久引用
@@ -80,6 +81,7 @@ Public Class 节点平面类
             Set(value As String)
                 RaiseEvent 改变前(Me)
                 type = value
+                重构空间()
                 RaiseEvent 改变后(Me)
             End Set
         End Property
@@ -150,6 +152,7 @@ Public Class 节点平面类
     Public 连接颜色_有效 As New Pen(Color.FromArgb(180, Color.LightGreen), 10)
     Public 连接颜色_待定 As New Pen(Color.FromArgb(180, Color.Gray), 10)
     Public 连接颜色_无效 As New Pen(Color.FromArgb(180, Color.OrangeRed), 10)
+    Public 节点高亮色 As Color = Color.LightPink
     Public 函数节点填充色 As Color = Color.LimeGreen
     Public 引用节点填充色 As Color = Color.DeepSkyBlue
     Public 值节点填充颜色 As Color = Color.Gold
@@ -178,6 +181,11 @@ Public Class 节点平面类
             绘制线程 = New Thread(AddressOf 绘制)
             绘制线程.Start()
         End If
+    End Sub
+    Public Sub New(节点集() As String)
+        For i As Integer = 0 To UBound(节点集)
+            新建节点(i, 节点集(i), New Point(i, i \ 100))
+        Next
     End Sub
     Public Sub New(路径 As String)
         加载(路径)
@@ -376,7 +384,7 @@ Public Class 节点平面类
     Public Function 编辑节点名(name As String, value As String) As Integer
         If 本域节点.ContainsKey(name) Then
             If Not 本域节点.ContainsKey(value) Then
-                If Regex.IsMatch(value, "^[^+\-*/\\=<> ^().']{1,}$") Then
+                If Regex.IsMatch(value, "^[^+\-*/\\=<>^().'\s]{1,}$") Then
                     Dim 缓存节点 As 节点类 = 本域节点(name)
                     缓存节点.名字 = value
                     本域节点.Remove(name)
@@ -427,6 +435,11 @@ Public Class 节点平面类
         If Not 本域节点.ContainsKey(节点名) And Not 空间限制.ContainsKey(位置) And 节点创建模式 <> "" Then
             本域节点.Add(节点名, New 节点类(Me, 节点名, 节点创建模式, "", 位置))
             ' 待添加节点事件钩子
+        End If
+    End Sub
+    Public Sub 新建节点(节点名 As String, 内容 As String, 位置 As Point)
+        If Not 本域节点.ContainsKey(节点名) And Not 空间限制.ContainsKey(位置) Then
+            本域节点.Add(节点名, New 节点类(Me, 节点名, "值", 内容, 位置))
         End If
     End Sub
 
@@ -570,17 +583,21 @@ Public Class 节点平面类
     End Sub
     Private Sub 绘制节点(ByRef g As Graphics, node As 节点类)
         Dim r As New Rectangle(node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数, 缩放倍数, 缩放倍数)
+        Dim 边缘色 As Pen = Pens.Black
+        If node.高亮 Then
+            边缘色 = New Pen(节点高亮色, 3)
+        End If
         Select Case node.类型
             Case "值"
                 g.FillRectangle(New SolidBrush(值节点填充颜色), r)
-                g.DrawRectangle(Pens.Black, r)
+                g.DrawRectangle(边缘色, r)
             Case "引用"
                 Dim 三角形路径() As Point = 获得三角形点集(node.位置)
                 g.FillPolygon(New SolidBrush(引用节点填充色), 三角形路径)
-                g.DrawPolygon(Pens.Black, 三角形路径)
+                g.DrawPolygon(边缘色, 三角形路径)
             Case "函数"
                 g.FillEllipse(New SolidBrush(函数节点填充色), r)
-                g.DrawEllipse(Pens.Black, r)
+                g.DrawEllipse(边缘色, r)
         End Select
         g.DrawString(String.Format("{0}:{1}", node.名字, node.内容), 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数)
     End Sub

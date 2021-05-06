@@ -2,6 +2,15 @@
 
 Public Class NodeConsole
     Private Delegate Sub 添加消息委托(info As String)
+    Public 父窗体 As Form1
+    Public Sub New(ByRef parent As Form1)
+
+        ' 此调用是设计器所必需的。
+        InitializeComponent()
+
+        ' 在 InitializeComponent() 调用之后添加任何初始化。
+        父窗体 = parent
+    End Sub
 
     Public Sub 添加消息(info As String)
         Dim d As New 添加消息委托(AddressOf 添加消息执行)
@@ -10,7 +19,11 @@ Public Class NodeConsole
     Private Sub 添加消息执行(info As String)
         If info <> "" Then
             控制输出.SelectionStart = 控制输出.TextLength
-            控制输出.SelectedText = info & vbCrLf
+            If 父窗体.控制台输出时间戳.Checked Then
+                控制输出.SelectedText = String.Format("{0}: {1}", Now.ToString("yyyy-MM-dd HH:mm:ss.fff"), info) & vbCrLf
+            Else
+                控制输出.SelectedText = info & vbCrLf
+            End If
         End If
     End Sub
     Private Sub NodeConsole_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing

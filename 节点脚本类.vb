@@ -4,7 +4,14 @@ Imports System.Threading
 Imports Node2D.节点平面类
 
 Public Module 节点全局
-    Public ReadOnly 控制台 As New NodeConsole
+    Public 控制台 As NodeConsole
+    Public Function 节点遍历(ByRef 平面 As 节点平面类) As String
+        Dim r As New List(Of String)
+        For i As Long = 0 To 平面.本域节点.Count - 1
+            r.Add(String.Format("{0} {1} {2}", i, 平面.本域节点.Values(i).名字, 平面.本域节点.Values(i).类型))
+        Next
+        Return Join(r.ToArray, vbCrLf)
+    End Function
     Public Function BoolToInt(b As Boolean) As Integer
         If b Then
             Return 1
@@ -84,15 +91,15 @@ Public Class 节点脚本类
                             执行节点 = 获得节点(句集(i), 节点)
                         End If
                         If 执行节点 Is Nothing Then
-                            控制台.添加消息(String.Format("函数节点[{0}]第{1}行：未找到欲执行节点[{2}]。", 节点.名字, i, 句集(i)))
+                            控制台.添加消息(String.Format("函数节点[{0}]第{1}行：未找到欲执行节点[{2}]。", 节点.名字, i + 1, 句集(i)))
                         Else
                             If 执行节点.类型 = "函数" Then
                                 函数解释(执行节点)
                             Else
-                                控制台.添加消息(String.Format("函数节点[{0}]第{1}行：节点[{2}]不是函数节点，无法执行。", 节点.名字, i, 句集(i)))
+                                控制台.添加消息(String.Format("函数节点[{0}]第{1}行：节点[{2}]不是函数节点，无法执行。", 节点.名字, i + 1, 句集(i)))
                             End If
                         End If
-                            Case "赋值式"
+                    Case "赋值式"
                         控制台.添加消息(赋值式运算(节点, 句集(i), i + 1))
                     Case Else
                         控制台.添加消息(String.Format("函数节点[{0}]未识别句：{1}", 节点.名字, 句集(i)))
@@ -100,6 +107,7 @@ Public Class 节点脚本类
             End If
         Next
     End Sub
+
     Public Function 赋值式运算(ByRef 节点 As 节点类, targetString As String, 行 As Long) As String
         '禁用：空格 + . = 换行
         Dim nodesString() As String = Split(targetString, " ")
@@ -174,7 +182,7 @@ Public Class 节点脚本类
                         Case 5
                             nodes(0).内容 = nodes(1).内容.Substring(Val(nodes(2).内容), Val(nodes(3).内容))
                         Case Else
-                            Return String.Format("函数节点[{1}]第{2}行：切片语句""{0}""过短。", targetString, 节点.名字, 行)
+                            Return String.Format("函数节点[{1}]第{2}行：切片语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
                     End Select
                 Case "=", "赋值"
                     If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：赋值语句""{0}""过短。", targetString, 节点.名字, 行)
@@ -236,7 +244,7 @@ Public Class 节点脚本类
                                 函数解释(nodes(2))
                             End If
                         Case Else
-                            Return String.Format("函数节点[{1}]第{2}行：判断语句""{0}""过短。", targetString, 节点.名字, 行)
+                            Return String.Format("函数节点[{1}]第{2}行：判断语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
                     End Select
                 Case "for", "遍历", "循环", "遍"
                     Select Case nodesString.Length
@@ -251,10 +259,11 @@ Public Class 节点脚本类
                                 函数解释(nodes(4))
                             Next
                         Case Else
-                            Return String.Format("函数节点[{1}]第{2}行：判断语句""{0}""过短。", targetString, 节点.名字, 行)
+                            Return String.Format("函数节点[{1}]第{2}行：循环语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
                     End Select
                 Case "call", "调用"
-                    Dim 调用节点 As 节点类 = 获得节点(nodes(0).内容, 节点)
+                    If nodesString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：调用语句""{0}""过短。", targetString, 节点.名字, 行)
+                    Dim 调用节点 As 节点类 = 获得节点(nodes(0).内容, nodes(0))
                     If 调用节点 Is Nothing Then
                         Return String.Format("函数节点[{0}]第{1}行：根据节点[{2}]的内容""{3}""未找到对应欲调用节点。", 节点.名字, 行, nodes(0).名字, nodes(0).内容)
                     Else
@@ -265,6 +274,7 @@ Public Class 节点脚本类
                         End If
                     End If
                 Case "m-run", "多线程运行", "并行"
+                    If nodesString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：并行语句""{0}""过短。", targetString, 节点.名字, 行)
                     If nodes(0).类型 = "函数" Then
                         Dim t As New Thread(AddressOf 函数解释)
                         t.Start(nodes(0))
@@ -272,7 +282,8 @@ Public Class 节点脚本类
                         Return String.Format("函数节点[{0}]第{1}行：节点[{2}]不是函数节点，无法执行。", 节点.名字, 行, nodes(0).名字)
                     End If
                 Case "m-call", "多线程调用", "并用"
-                    Dim 调用节点 As 节点类 = 获得节点(nodes(0).内容, 节点)
+                    If nodesString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：并用语句""{0}""过短。", targetString, 节点.名字, 行)
+                    Dim 调用节点 As 节点类 = 获得节点(nodes(0).内容, nodes(0))
                     If 调用节点 Is Nothing Then
                         Return String.Format("函数节点[{0}]第{1}行：根据节点[{2}]的内容""{3}""未找到对应欲调用节点。", 节点.名字, 行, nodes(0).名字, nodes(0).内容)
                     Else
@@ -283,6 +294,97 @@ Public Class 节点脚本类
                             Return String.Format("函数节点[{0}]第{1}行：节点[{2}]不是函数节点，无法执行。", 节点.名字, 行, 调用节点.名字)
                         End If
                     End If
+                Case "split", "分拆"
+                    Select Case nodesString.Length
+                        Case 4
+                            nodes(0).父域 = New 节点平面类(Split(nodes(1).内容, nodes(2).内容))
+                        Case 5
+                            If nodes(0).空间.ContainsKey(nodes(1).内容) Then
+                                nodes(0).空间(nodes(1).内容) = New 节点平面类(Split(nodes(2).内容, nodes(3).内容))
+                            Else
+                                Return String.Format("函数节点[{0}]第{1}行：分拆结果存放引用节点[{2}]的引用空间[{3}]未找到。", 节点.名字, 行, nodes(0).名字, nodes(1).名字)
+                            End If
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：分拆语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
+                    End Select
+                Case "n-count", "节点数量"
+                    Select Case nodesString.Length
+                        Case 2
+                            nodes(0).内容 = 节点.父域.本域节点.Count
+                        Case 3
+                            nodes(0).内容 = nodes(1).父域.本域节点.Count
+                        Case 4
+                            If nodes(1).空间.ContainsKey(nodes(2).内容) Then
+                                nodes(0).内容 = nodes(1).空间(nodes(2).内容).本域节点.Count
+                            Else
+                                Return String.Format("函数节点[{0}]第{1}行：欲统计平面缺失，引用节点[{2}]的引用空间[{3}]未找到。", 节点.名字, 行, nodes(1).名字, nodes(2).名字)
+                            End If
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：平面内节点数量获取语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
+                    End Select
+                Case "n-for", "节点遍历"
+                    Select Case nodesString.Length
+                        Case 2
+                            nodes(0).内容 = 节点遍历(节点.父域)
+                        Case 3
+                            nodes(0).内容 = 节点遍历(nodes(1).父域)
+                        Case 4
+                            If nodes(1).空间.ContainsKey(nodes(2).内容) Then
+                                nodes(0).内容 = 节点遍历(nodes(1).空间(nodes(2).内容))
+                            Else
+                                Return String.Format("函数节点[{0}]第{1}行：欲遍历平面缺失，引用节点[{2}]的引用空间[{3}]未找到。", 节点.名字, 行, nodes(1).名字, nodes(2).名字)
+                            End If
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：平面内节点遍历语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
+                    End Select
+                Case "select", "选取"
+                    If nodesString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：选取语句""{0}""过短。", targetString, 节点.名字, 行)
+                    控制台.添加消息("请用鼠标左击某节点完成选取操作……")
+                    节点.高亮 = True
+                    Do While 节点.父域.当前按住节点 Is Nothing
+                        Thread.Sleep(10)
+                    Loop
+                    节点.高亮 = False
+                    nodes(0).内容 = 节点.父域.当前按住节点.名字
+                Case "type", "类型"
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：获取节点类型语句""{0}""过短。", targetString, 节点.名字, 行)
+                    nodes(0).内容 = nodes(1).类型
+                Case "copytype", "复制类型"
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：复制节点类型语句""{0}""过短。", targetString, 节点.名字, 行)
+                    nodes(0).类型 = nodes(1).类型
+                Case "settype", "设置类型"
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：设置节点类型语句""{0}""过短。", targetString, 节点.名字, 行)
+                    Select Case nodes(1).内容
+                        Case "值", "0"
+                            nodes(0).类型 = "值"
+                        Case "引用", "1"
+                            nodes(0).类型 = "引用"
+                        Case "函数", "2"
+                            nodes(0).类型 = "函数"
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：无节点类型""{0}""。", nodes(1).内容, 节点.名字, 行)
+                    End Select
+                Case "setpos", "设置位置"
+                    If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：设置节点位置语句""{0}""过短。", targetString, 节点.名字, 行)
+                    Dim 新位置 As New Point(Val(nodes(1).内容), Val(nodes(2).内容))
+                    Dim 设置结果 As Integer = nodes(0).父域.编辑节点位置(nodes(0).名字, 新位置)
+                    Select Case 设置结果
+                        Case 0
+                            Return String.Format("函数节点[{1}]第{2}行：节点""{0}""未找到。", nodes(0).名字, 节点.名字, 行)
+                        Case 1
+                            Return String.Format("函数节点[{1}]第{2}行：目标位置""{0}""已有节点存在！", 新位置.ToString, 节点.名字, 行)
+                    End Select
+                Case "setname", "设置名字"
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：设置节点名字语句""{0}""过短。", targetString, 节点.名字, 行)
+                    Dim 设置结果 As Integer = nodes(0).父域.编辑节点名(nodes(0).名字, nodes(1).内容)
+                    Select Case 设置结果
+                        Case 0
+                            Return String.Format("函数节点[{1}]第{2}行：节点""{0}""未找到。", nodes(0).名字, 节点.名字, 行)
+                        Case 1
+                            Return String.Format("函数节点[{1}]第{2}行：新名字""{0}""已有节点使用！", nodes(1).内容, 节点.名字, 行)
+                        Case 2
+                            Return String.Format("函数节点[{1}]第{2}行：新名字""{0}""不合法！", nodes(1).内容, 节点.名字, 行)
+                    End Select
                 Case Else
                     Return String.Format("函数节点[{1}]第{2}行：处理法则【{0}】未找到。", nodesString(0), 节点.名字, 行)
             End Select
