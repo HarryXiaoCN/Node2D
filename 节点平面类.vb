@@ -584,7 +584,7 @@ Public Class 节点平面类
     End Sub
     Private Sub 绘制节点(ByRef g As Graphics, node As 节点类)
         Dim r As New Rectangle(node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数, 缩放倍数, 缩放倍数)
-        Dim 边缘色 As Pen = Pens.Black
+        Dim 边缘色 As New Pen(Color.White, 3)
         If node.高亮 Then
             边缘色 = New Pen(节点高亮色, 3)
         End If

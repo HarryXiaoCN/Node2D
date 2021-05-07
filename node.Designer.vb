@@ -38,6 +38,7 @@ Partial Class Node
         Me.节点名.Name = "节点名"
         Me.节点名.Size = New System.Drawing.Size(132, 29)
         Me.节点名.TabIndex = 0
+        Me.节点名.TabStop = False
         '
         'Label1
         '
@@ -67,6 +68,7 @@ Partial Class Node
         Me.节点类型.Name = "节点类型"
         Me.节点类型.Size = New System.Drawing.Size(132, 29)
         Me.节点类型.TabIndex = 3
+        Me.节点类型.TabStop = False
         '
         'Label3
         '
@@ -86,6 +88,7 @@ Partial Class Node
         Me.节点内容.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
         Me.节点内容.Size = New System.Drawing.Size(282, 128)
         Me.节点内容.TabIndex = 5
+        Me.节点内容.TabStop = False
         '
         'Node
         '
