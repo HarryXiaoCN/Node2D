@@ -23,6 +23,7 @@ Partial Class NodeConsole
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(NodeConsole))
         Me.控制输出 = New System.Windows.Forms.TextBox()
         Me.右键菜单 = New System.Windows.Forms.ContextMenuStrip(Me.components)
         Me.复制文本 = New System.Windows.Forms.ToolStripMenuItem()
@@ -77,6 +78,7 @@ Partial Class NodeConsole
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(784, 161)
         Me.Controls.Add(Me.控制输出)
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "NodeConsole"
         Me.Opacity = 0.8R
         Me.Text = "控制台"

@@ -22,6 +22,7 @@ Partial Class Form1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
         Me.绘制空间 = New System.Windows.Forms.PictureBox()
         Me.菜单栏 = New System.Windows.Forms.MenuStrip()
         Me.文件菜单 = New System.Windows.Forms.ToolStripMenuItem()
@@ -41,11 +42,15 @@ Partial Class Form1
         Me.运行菜单执行当前节点 = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator2 = New System.Windows.Forms.ToolStripSeparator()
         Me.控制台每次运行时清空 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.控制台输出时间戳 = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator3 = New System.Windows.Forms.ToolStripSeparator()
         Me.打开全局引用窗体 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.帮助菜单 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.帮助主页 = New System.Windows.Forms.ToolStripMenuItem()
         Me.SFD = New System.Windows.Forms.SaveFileDialog()
         Me.OFD = New System.Windows.Forms.OpenFileDialog()
-        Me.控制台输出时间戳 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripSeparator4 = New System.Windows.Forms.ToolStripSeparator()
+        Me.程序版本 = New System.Windows.Forms.ToolStripMenuItem()
         CType(Me.绘制空间, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.菜单栏.SuspendLayout()
         Me.SuspendLayout()
@@ -62,7 +67,7 @@ Partial Class Form1
         '
         '菜单栏
         '
-        Me.菜单栏.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.文件菜单, Me.编辑菜单, Me.运行菜单})
+        Me.菜单栏.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.文件菜单, Me.编辑菜单, Me.运行菜单, Me.帮助菜单})
         Me.菜单栏.Location = New System.Drawing.Point(0, 0)
         Me.菜单栏.Name = "菜单栏"
         Me.菜单栏.Size = New System.Drawing.Size(784, 25)
@@ -182,6 +187,12 @@ Partial Class Form1
         Me.控制台每次运行时清空.Text = "控制台自动清空(&C)"
         Me.控制台每次运行时清空.ToolTipText = "每次函数节点执行时清空"
         '
+        '控制台输出时间戳
+        '
+        Me.控制台输出时间戳.Name = "控制台输出时间戳"
+        Me.控制台输出时间戳.Size = New System.Drawing.Size(177, 22)
+        Me.控制台输出时间戳.Text = "控制台消息时间(&T)"
+        '
         'ToolStripSeparator3
         '
         Me.ToolStripSeparator3.Name = "ToolStripSeparator3"
@@ -194,6 +205,19 @@ Partial Class Form1
         Me.打开全局引用窗体.Size = New System.Drawing.Size(177, 22)
         Me.打开全局引用窗体.Text = "全局引用(&I)"
         '
+        '帮助菜单
+        '
+        Me.帮助菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.帮助主页, Me.ToolStripSeparator4, Me.程序版本})
+        Me.帮助菜单.Name = "帮助菜单"
+        Me.帮助菜单.Size = New System.Drawing.Size(61, 21)
+        Me.帮助菜单.Text = "帮助(&H)"
+        '
+        '帮助主页
+        '
+        Me.帮助主页.Name = "帮助主页"
+        Me.帮助主页.Size = New System.Drawing.Size(136, 22)
+        Me.帮助主页.Text = "主页(&I)"
+        '
         'SFD
         '
         Me.SFD.FileName = "新的平面"
@@ -205,11 +229,17 @@ Partial Class Form1
         Me.OFD.Filter = "节点平面|*.n2d"
         Me.OFD.Title = "载入节点平面"
         '
-        '控制台输出时间戳
+        'ToolStripSeparator4
         '
-        Me.控制台输出时间戳.Name = "控制台输出时间戳"
-        Me.控制台输出时间戳.Size = New System.Drawing.Size(177, 22)
-        Me.控制台输出时间戳.Text = "控制台消息时间(&T)"
+        Me.ToolStripSeparator4.Name = "ToolStripSeparator4"
+        Me.ToolStripSeparator4.Size = New System.Drawing.Size(133, 6)
+        '
+        '程序版本
+        '
+        Me.程序版本.Enabled = False
+        Me.程序版本.Name = "程序版本"
+        Me.程序版本.Size = New System.Drawing.Size(136, 22)
+        Me.程序版本.Text = "版本：未知"
         '
         'Form1
         '
@@ -220,6 +250,7 @@ Partial Class Form1
         Me.Controls.Add(Me.绘制空间)
         Me.Controls.Add(Me.菜单栏)
         Me.DoubleBuffered = True
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.KeyPreview = True
         Me.MainMenuStrip = Me.菜单栏
         Me.MinimumSize = New System.Drawing.Size(400, 400)
@@ -258,4 +289,8 @@ Partial Class Form1
     Friend WithEvents 打开全局引用窗体 As ToolStripMenuItem
     Friend WithEvents 新建平面 As ToolStripMenuItem
     Friend WithEvents 控制台输出时间戳 As ToolStripMenuItem
+    Friend WithEvents 帮助菜单 As ToolStripMenuItem
+    Friend WithEvents 帮助主页 As ToolStripMenuItem
+    Friend WithEvents ToolStripSeparator4 As ToolStripSeparator
+    Friend WithEvents 程序版本 As ToolStripMenuItem
 End Class

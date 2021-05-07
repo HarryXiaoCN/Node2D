@@ -8,9 +8,11 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationManifest>My Project\app.manifest</ApplicationManifest>
     <Authors>HarryXiaoCN</Authors>
-    <Version>0.0.1.6</Version>
+    <Version>0.0.1.7</Version>
     <Description>以节点形式可视化程序数据空间</Description>
     <Copyright>Copyright (C) 2021 HarryXiaoCN</Copyright>
+    <PackageIcon>node2d_logo.png</PackageIcon>
+    <ApplicationIcon>node2d_logo.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,6 +35,13 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Gloabl.Designer.vb</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="node2d_logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

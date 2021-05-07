@@ -34,7 +34,7 @@ Partial Class Node
         '
         Me.节点名.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.节点名.Font = New System.Drawing.Font("微软雅黑", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point)
-        Me.节点名.Location = New System.Drawing.Point(12, 43)
+        Me.节点名.Location = New System.Drawing.Point(12, 34)
         Me.节点名.Name = "节点名"
         Me.节点名.Size = New System.Drawing.Size(132, 29)
         Me.节点名.TabIndex = 0
@@ -42,7 +42,7 @@ Partial Class Node
         'Label1
         '
         Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(12, 19)
+        Me.Label1.Location = New System.Drawing.Point(12, 9)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(74, 21)
         Me.Label1.TabIndex = 1
@@ -51,7 +51,7 @@ Partial Class Node
         'Label2
         '
         Me.Label2.AutoSize = True
-        Me.Label2.Location = New System.Drawing.Point(156, 19)
+        Me.Label2.Location = New System.Drawing.Point(162, 9)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(58, 21)
         Me.Label2.TabIndex = 2
@@ -63,7 +63,7 @@ Partial Class Node
         Me.节点类型.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.节点类型.FormattingEnabled = True
         Me.节点类型.Items.AddRange(New Object() {"值", "引用", "函数"})
-        Me.节点类型.Location = New System.Drawing.Point(156, 43)
+        Me.节点类型.Location = New System.Drawing.Point(162, 33)
         Me.节点类型.Name = "节点类型"
         Me.节点类型.Size = New System.Drawing.Size(132, 29)
         Me.节点类型.TabIndex = 3
@@ -71,7 +71,7 @@ Partial Class Node
         'Label3
         '
         Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(12, 75)
+        Me.Label3.Location = New System.Drawing.Point(12, 66)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(58, 21)
         Me.Label3.TabIndex = 4
@@ -80,11 +80,11 @@ Partial Class Node
         '节点内容
         '
         Me.节点内容.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.节点内容.Location = New System.Drawing.Point(12, 99)
+        Me.节点内容.Location = New System.Drawing.Point(12, 90)
         Me.节点内容.Multiline = True
         Me.节点内容.Name = "节点内容"
         Me.节点内容.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.节点内容.Size = New System.Drawing.Size(276, 147)
+        Me.节点内容.Size = New System.Drawing.Size(282, 128)
         Me.节点内容.TabIndex = 5
         '
         'Node
@@ -92,7 +92,7 @@ Partial Class Node
         Me.AutoScaleDimensions = New System.Drawing.SizeF(10.0!, 21.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.Gainsboro
-        Me.ClientSize = New System.Drawing.Size(301, 260)
+        Me.ClientSize = New System.Drawing.Size(306, 230)
         Me.Controls.Add(Me.节点内容)
         Me.Controls.Add(Me.节点类型)
         Me.Controls.Add(Me.Label2)

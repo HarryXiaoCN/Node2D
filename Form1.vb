@@ -4,6 +4,7 @@ Imports System.IO
 Public Class Form1
     Private 主域 As 节点平面类
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles Me.Load
+        程序版本.Text = "版本：" & Application.ProductVersion
         控制台 = New NodeConsole(Me)
         加载设置文件()
         绘制空间.Image = New Bitmap(10, 10)
@@ -156,5 +157,9 @@ Public Class Form1
 
     Private Sub 控制台输出时间戳_Click(sender As Object, e As EventArgs) Handles 控制台输出时间戳.Click
         控制台输出时间戳.Checked = Not 控制台输出时间戳.Checked
+    End Sub
+
+    Private Sub 帮助主页_Click(sender As Object, e As EventArgs) Handles 帮助主页.Click
+        Process.Start("explorer.exe", "http://harryxiao.cn/node2d.html")
     End Sub
 End Class

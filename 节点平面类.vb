@@ -135,13 +135,14 @@ Public Class 节点平面类
     Public 绘制间隔 As Long = 15
     Public 缩放倍数 As Integer = 50
     Public 主窗体 As Form1
+    Public 节点编辑窗体 As New Node
     Public 全局窗体 As New GlobalImportForm(Me)
+    Public 候选窗体 As New Alternative(Me)
     Public 鼠标移动选中节点 As 节点类
     Public 当前编辑节点 As 节点类
     Public 当前按住节点 As 节点类
     Public 连接发起节点 As 节点类
     Public 节点创建模式 As String = "值"
-    Public 节点编辑窗体 As New Node
     Public 鼠标当前位置 As Point
     Public 鼠标实际位置 As Point
 
