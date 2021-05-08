@@ -365,21 +365,21 @@ Public Class 节点脚本类
                 Case "type", "类型"
                     If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：获取节点类型语句""{0}""过短。", targetString, 节点.名字, 行)
                     nodes(0).内容 = nodes(1).类型
-                'Case "copytype", "复制类型"
-                '    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：复制节点类型语句""{0}""过短。", targetString, 节点.名字, 行)
-                '    nodes(0).类型 = nodes(1).类型
-                'Case "settype", "设置类型"
-                '    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：设置节点类型语句""{0}""过短。", targetString, 节点.名字, 行)
-                '    Select Case nodes(1).内容
-                '        Case "值", "0"
-                '            nodes(0).类型 = "值"
-                '        Case "引用", "1"
-                '            nodes(0).类型 = "引用"
-                '        Case "函数", "2"
-                '            nodes(0).类型 = "函数"
-                '        Case Else
-                '            Return String.Format("函数节点[{1}]第{2}行：无节点类型""{0}""。", nodes(1).内容, 节点.名字, 行)
-                '    End Select
+                Case "copytype", "复制类型"
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：复制节点类型语句""{0}""过短。", targetString, 节点.名字, 行)
+                    nodes(0).类型 = nodes(1).类型
+                Case "settype", "设置类型"
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：设置节点类型语句""{0}""过短。", targetString, 节点.名字, 行)
+                    Select Case nodes(1).内容
+                        Case "值", "0"
+                            nodes(0).类型 = "值"
+                        Case "引用", "1"
+                            nodes(0).类型 = "引用"
+                        Case "函数", "2"
+                            nodes(0).类型 = "函数"
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：无节点类型""{0}""。", nodes(1).内容, 节点.名字, 行)
+                    End Select
                 Case "setpos", "设置位置"
                     If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：设置节点位置语句""{0}""过短。", targetString, 节点.名字, 行)
                     Dim 新位置 As New Point(Val(nodes(1).内容), Val(nodes(2).内容))
@@ -401,6 +401,25 @@ Public Class 节点脚本类
                         Case 2
                             Return String.Format("函数节点[{1}]第{2}行：新名字""{0}""不合法！", nodes(1).内容, 节点.名字, 行)
                     End Select
+                Case "netsend", "网络发送", "出口"
+                    If nodesString.Length < 5 Then Return String.Format("函数节点[{1}]第{2}行：出口语句""{0}""过短。", targetString, 节点.名字, 行)
+                    If nodes(0).类型 = "接口" Then
+                        If nodes(0).接口类型 = "网络出口" Then
+                            If nodes(0).网络接口 Is Nothing Then
+                                Return String.Format("函数节点[{1}]第{2}行：接口节点[{0}]套接字缺失，请检查该接口内容是否正确。", nodes(0).名字, 节点.名字, 行)
+                            Else
+                                Try
+                                    nodes(0).发送数据(nodes(1).内容, nodes(2).内容, nodes(3).内容)
+                                Catch ex As Exception
+                                    Return String.Format("函数节点[{1}]第{2}行：接口节点[{0}]发送数据出错：{3}。", nodes(0).名字, 节点.名字, 行, ex.Message)
+                                End Try
+                            End If
+                        Else
+                            Return String.Format("函数节点[{1}]第{2}行：接口节点[{0}]不是出口节点。", nodes(0).名字, 节点.名字, 行)
+                        End If
+                    Else
+                        Return String.Format("函数节点[{1}]第{2}行：节点[{0}]不是接口节点。", nodes(0).名字, 节点.名字, 行)
+                    End If
                 Case Else
                     Return String.Format("函数节点[{1}]第{2}行：处理法则【{0}】未找到。", nodesString(0), 节点.名字, 行)
             End Select

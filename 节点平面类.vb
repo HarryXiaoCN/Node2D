@@ -1,17 +1,28 @@
 ﻿Imports System.Threading
 Imports System.Text.RegularExpressions
 Imports System.IO
+Imports System.Net
+Imports System.Net.Sockets
+Imports System.Text
 Public Class 节点平面类
     Public Class 节点类
         Private name As String
         Private type As String
         Private content As String
+        Private 接口数据缓存节点 As 节点类
+        Private 接口大小控制节点 As 节点类
+        Private 接口进入触发节点 As 节点类
+        Private 接口线程 As Thread = Nothing
+        Private ReadOnly 待连接 As New List(Of String)
+
+        Public 网络接口 As Socket = Nothing
+        Public 接口类型 As String = ""
+        Public 接口开启 As Boolean
         Public 高亮 As Boolean
         Public 位置 As Point
         Public 父域 As 节点平面类
         Public 引用等级 As Integer '0:一次引用 1:本次引用 2:永久引用
         Public 连接 As New List(Of 节点类)
-        Private ReadOnly 待连接 As New List(Of String)
         Public 空间 As New Dictionary(Of String, 节点平面类)
         Public Event 改变前(node As 节点类)
         Public Event 改变后(node As 节点类)
@@ -23,6 +34,7 @@ Public Class 节点平面类
             位置 = nodePos
             父域.空间限制.Add(位置, Me)
             重构空间()
+            重构接口()
         End Sub
         Public Sub New(ByRef parent As 节点平面类, nodeString As String)
             父域 = parent
@@ -37,6 +49,87 @@ Public Class 节点平面类
             父域.本域节点.Add(name, Me)
             父域.空间限制.Add(位置, Me)
             重构空间()
+            重构接口()
+        End Sub
+        Public Sub 重构接口()
+            If type = "接口" And content <> "" Then
+                Dim s() As String = Split(content, vbCrLf)
+                Select Case s(0).ToLower
+                    Case "listen", "接入", "入口", "监听"
+                        接口类型 = "网络入口"
+                        If s.Length < 5 Then
+                            控制台.添加消息(String.Format("接口节点[{0}]：内容过短。", name))
+                            Exit Sub
+                        End If
+                        接口数据缓存节点 = 获得节点(s(2), Me)
+                        If 接口数据缓存节点 Is Nothing Then
+                            控制台.添加消息(String.Format("接口节点[{0}]：数据缓存节点[{1}]未找到。", name, s(2)))
+                            Exit Sub
+                        End If
+                        接口大小控制节点 = 获得节点(s(3), Me)
+                        If 接口大小控制节点 Is Nothing Then
+                            控制台.添加消息(String.Format("接口节点[{0}]：缓存大小控制节点[{1}]未找到。", name, s(3)))
+                            Exit Sub
+                        End If
+                        接口进入触发节点 = 获得节点(s(4), Me)
+                        If 接口大小控制节点 Is Nothing Then
+                            控制台.添加消息(String.Format("接口节点[{0}]：进入触发节点[{1}]未找到。", name, s(4)))
+                            Exit Sub
+                        End If
+                        接口释放()
+                        网络接口 = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+                        Try
+                            网络接口.Bind(New IPEndPoint(IPAddress.Parse("0.0.0.0"), Val(s(1))))
+                            网络接口.Listen()
+                            接口线程 = New Thread(AddressOf 接口过程)
+                            接口线程.Start()
+                        Catch ex As Exception
+                            网络接口 = Nothing
+                            接口线程 = Nothing
+                            控制台.添加消息(String.Format("接口节点[{0}]：接口初始化错误：{1}。", name, ex.Message))
+                        End Try
+                    Case "send", "接出", "出口", "发送"
+                        接口类型 = "网络出口"
+                    Case Else
+                        控制台.添加消息(String.Format("接口节点[{0}]：未知的接口类型""{1}""。", name, s(0)))
+                End Select
+            End If
+        End Sub
+        Public Sub 发送数据(rIP As String, port As String, 内容 As String)
+            接口释放()
+            网络接口 = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+            网络接口.Connect(rIP, port)
+            网络接口.Send(Encoding.UTF8.GetBytes(内容))
+        End Sub
+        Private Sub 接口过程()
+            Dim 脚本 As New 节点脚本类
+            接口开启 = True
+            Try
+                While type = "接口" And 接口开启
+                    Dim s As Socket = 网络接口.Accept
+                    Dim b(Val(接口大小控制节点.内容)) As Byte
+                    s.Receive(b)
+                    接口数据缓存节点.内容 = Encoding.UTF8.GetString(b)
+                    脚本.解释(接口进入触发节点)
+                    Try
+                        s.Shutdown(SocketShutdown.Both)
+                        s.Close()
+                    Catch ex As Exception
+
+                    End Try
+                End While
+            Catch ex As Exception
+                控制台.添加消息(String.Format("接口节点[{0}]：接口线程终止，原因：{1}。", name, ex.Message))
+            End Try
+        End Sub
+        Public Sub 接口释放()
+            On Error Resume Next
+            接口开启 = False
+            If 网络接口 IsNot Nothing Then
+                网络接口.Shutdown(SocketShutdown.Both)
+                网络接口.Close()
+                网络接口 = Nothing
+            End If
         End Sub
         Public Function 获得子节点(节点名 As String) As 节点类
             For i As Integer = 0 To 连接.Count - 1
@@ -92,10 +185,24 @@ Public Class 节点平面类
             Set(value As String)
                 RaiseEvent 改变前(Me)
                 type = value
+                重构连接()
                 重构空间()
+                重构接口()
                 RaiseEvent 改变后(Me)
             End Set
         End Property
+        Private Sub 重构连接()
+            If type = "值" Then
+                For i As Integer = 0 To 连接.Count - 1
+                    If 连接(i).类型 = "值" Then
+                        连接(i).连接.Remove(Me)
+                        连接.RemoveAt(i)
+                        i -= 1
+                        If i >= 连接.Count - 1 Then Exit Sub
+                    End If
+                Next
+            End If
+        End Sub
         Private Sub 重构空间()
             If type = "引用" Then
                 空间.Clear()
@@ -129,10 +236,12 @@ Public Class 节点平面类
                 RaiseEvent 改变前(Me)
                 content = value
                 重构空间()
+                重构接口()
                 RaiseEvent 改变后(Me)
             End Set
         End Property
         Public Sub 删除()
+            接口释放()
             For Each n As 节点类 In 连接
                 n.连接.Remove(Me)
             Next
