@@ -44,7 +44,7 @@ Public Class Form1
         End If
     End Sub
     Private Sub Form1_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
-        主域.结束标识 = True
+        主域.结束()
         保存设置文件()
     End Sub
 
@@ -61,6 +61,7 @@ Public Class Form1
         If 编辑右键点击创建值节点.Checked Then
             编辑右键点击创建引用点.Checked = False
             编辑右键点击创建函数点.Checked = False
+            编辑右键点击创建接口点.Checked = False
             主域.节点创建模式 = "值"
         Else
             检查编辑右键点击创建节点全空情况()
@@ -72,6 +73,7 @@ Public Class Form1
         If 编辑右键点击创建函数点.Checked Then
             编辑右键点击创建引用点.Checked = False
             编辑右键点击创建值节点.Checked = False
+            编辑右键点击创建接口点.Checked = False
             主域.节点创建模式 = "函数"
         Else
             检查编辑右键点击创建节点全空情况()
@@ -83,14 +85,27 @@ Public Class Form1
         If 编辑右键点击创建引用点.Checked Then
             编辑右键点击创建函数点.Checked = False
             编辑右键点击创建值节点.Checked = False
+            编辑右键点击创建接口点.Checked = False
             主域.节点创建模式 = "引用"
         Else
             检查编辑右键点击创建节点全空情况()
         End If
     End Sub
 
+    Private Sub 编辑右键点击创建接口点_Click(sender As Object, e As EventArgs) Handles 编辑右键点击创建接口点.Click
+        编辑右键点击创建接口点.Checked = Not 编辑右键点击创建接口点.Checked
+        If 编辑右键点击创建接口点.Checked Then
+            编辑右键点击创建引用点.Checked = False
+            编辑右键点击创建函数点.Checked = False
+            编辑右键点击创建值节点.Checked = False
+            主域.节点创建模式 = "接口"
+        Else
+            检查编辑右键点击创建节点全空情况()
+        End If
+    End Sub
+
     Private Sub 检查编辑右键点击创建节点全空情况()
-        If Not (编辑右键点击创建值节点.Checked Or 编辑右键点击创建引用点.Checked Or 编辑右键点击创建函数点.Checked) Then
+        If Not (编辑右键点击创建值节点.Checked Or 编辑右键点击创建引用点.Checked Or 编辑右键点击创建函数点.Checked Or 编辑右键点击创建接口点.Checked) Then
             主域.节点创建模式 = ""
         End If
     End Sub
@@ -121,7 +136,7 @@ Public Class Form1
 
     Private Sub 载入平面_Click(sender As Object, e As EventArgs) Handles 载入平面.Click
         If OFD.ShowDialog = DialogResult.OK Then
-            主域.结束标识 = True
+            主域.结束()
             主域 = New 节点平面类(Me, 绘制空间)
             主域.加载(OFD.FileName)
         End If
@@ -136,7 +151,7 @@ Public Class Form1
     Private Sub 重载平面_Click(sender As Object, e As EventArgs) Handles 重载平面.Click
         Dim filePath As String = 主域.获得平面路径
         If File.Exists(filePath) Then
-            主域.结束标识 = True
+            主域.结束()
             主域 = New 节点平面类(Me, 绘制空间)
             主域.加载(filePath)
         End If
@@ -151,7 +166,7 @@ Public Class Form1
     End Sub
 
     Private Sub 新建平面_Click(sender As Object, e As EventArgs) Handles 新建平面.Click
-        主域.结束标识 = True
+        主域.结束()
         主域 = New 节点平面类(Me, 绘制空间)
     End Sub
 

@@ -43,17 +43,19 @@
             End If
         Next
         For i As Integer = 0 To 源平面.本域节点.Count - 1
-            If Not 候选表.Items.Contains(源平面.本域节点.Keys(i)) Then
+            If 前缀集.Last = "" And Not 候选表.Items.Contains(源平面.本域节点.Keys(i)) Then
                 候选表.Items.Add(源平面.本域节点.Keys(i))
             End If
         Next
         For i As Integer = 0 To 源平面.全局平面.Count - 1
-            If Not 候选表.Items.Contains(源平面.全局平面.Keys(i)) Then
+            If 前缀集.Last = "" And Not 候选表.Items.Contains(源平面.全局平面.Keys(i)) Then
                 候选表.Items.Add(源平面.全局平面.Keys(i))
             End If
         Next
         If 候选表.Items.Count > 0 Then
             候选表.SelectedIndex = 0
+        ElseIf Visible Then
+            Hide()
         End If
     End Sub
     Private Sub 源节点候选表构建(前缀集() As String, 源节点 As 节点平面类.节点类)
@@ -82,41 +84,45 @@
             End If
         Next
         For i As Integer = 0 To 源节点.连接.Count - 1
-            If Not 候选表.Items.Contains(源节点.连接(i).名字) Then
+            If 前缀集.Last = "" And Not 候选表.Items.Contains(源节点.连接(i).名字) Then
                 候选表.Items.Add(源节点.连接(i).名字)
             End If
         Next
         If 源节点.类型 = "引用" Then
             For i As Integer = 0 To 源节点.空间.Count - 1
-                If Not 候选表.Items.Contains(源节点.空间.Keys(i)) Then
+                If 前缀集.Last = "" And Not 候选表.Items.Contains(源节点.空间.Keys(i)) Then
                     候选表.Items.Add(源节点.空间.Keys(i))
                 End If
             Next
         End If
         For i As Integer = 0 To 源节点.父域.全局窗体.全局节点列表.Items.Count - 1
-            If 源节点.父域.本域节点.ContainsKey(源节点.父域.全局窗体.全局节点列表.Items(i)) Then
+            If 前缀集.Last = "" And 源节点.父域.本域节点.ContainsKey(源节点.父域.全局窗体.全局节点列表.Items(i)) Then
                 If Not 候选表.Items.Contains(源节点.父域.全局窗体.全局节点列表.Items(i)) Then
                     候选表.Items.Add(源节点.父域.全局窗体.全局节点列表.Items(i))
                 End If
             End If
         Next
         For i As Integer = 0 To 源节点.父域.全局平面.Count - 1
-            If Not 候选表.Items.Contains(源节点.父域.全局平面.Keys(i)) Then
+            If 前缀集.Last = "" And Not 候选表.Items.Contains(源节点.父域.全局平面.Keys(i)) Then
                 候选表.Items.Add(源节点.父域.全局平面.Keys(i))
             End If
         Next
         If 候选表.Items.Count > 0 Then
             候选表.SelectedIndex = 0
+        ElseIf Visible Then
+            Hide()
         End If
     End Sub
     Public Sub 出现()
-        Top = 编辑面.Top + 编辑面.Height
-        If Top + Height > Screen.PrimaryScreen.Bounds.Height Then
-            Top = 编辑面.Top - Height
+        If 候选表.Items.Count > 0 Then
+            Top = 编辑面.Top + 编辑面.Height
+            If Top + Height > Screen.PrimaryScreen.Bounds.Height Then
+                Top = 编辑面.Top - Height
+            End If
+            Left = 编辑面.Left
+            Visible = True
+            编辑面.Focus()
         End If
-        Left = 编辑面.Left
-        Visible = True
-        编辑面.Focus()
     End Sub
     Private Sub 编辑窗体隐藏(sender As Object, e As EventArgs) Handles 编辑面.VisibleChanged
         If Not 编辑面.Visible Then
@@ -135,9 +141,9 @@
                     编辑面.节点内容.SelectionStart = 空格距离
                 End If
                 编辑面.节点内容.SelectionLength = 插入点缓存 - 编辑面.节点内容.SelectionStart
-                编辑面.节点内容.SelectedText = 内容 & 后缀
-                Visible = False
             End If
+            编辑面.节点内容.SelectedText = 内容 & 后缀
+            Visible = False
         Else
             编辑面.节点内容.SelectedText = 后缀
         End If
@@ -150,7 +156,7 @@
     End Sub
     Public Sub 编辑窗体内容键盘弹起(sender As Object, e As KeyEventArgs) Handles 编辑面.KeyUp
         Select Case e.KeyCode
-            Case Keys.Tab, Keys.Decimal, Keys.OemPeriod, Keys.Enter, Keys.Space
+            Case Keys.Tab, Keys.Decimal, Keys.OemPeriod, Keys.Enter, Keys.Space, Keys.Up, Keys.Down
 
             Case Else
                 候选构建(获得前缀(编辑面.节点内容))
@@ -167,7 +173,12 @@
                 候选构建(获得前缀(编辑面.节点内容))
                 出现()
             Case Keys.Tab
-                插入内容(候选表.SelectedItem, "")
+                If Visible Then
+                    插入内容(候选表.SelectedItem, "")
+                Else
+                    候选构建(获得前缀(编辑面.节点内容))
+                    出现()
+                End If
             Case Keys.Enter
                 插入内容(候选表.SelectedItem, vbCrLf)
             Case Keys.Up

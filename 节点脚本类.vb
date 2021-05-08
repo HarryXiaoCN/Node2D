@@ -11,12 +11,12 @@ Public Module 节点全局
         For i As Long = 0 To UBound(s)
             句首长 = 已长
             已长 += s(i).Length + 1
-            If 已长 >= 文本域.SelectionStart Then
+            If 已长 > 文本域.SelectionStart Then
                 '行 = i
                 Dim s2() As String = Split(s(i), " ")
                 For j As Long = 0 To UBound(s2)
                     句内已长 += s2(j).Length + 1
-                    If 句首长 + 句内已长 >= 文本域.SelectionStart Then
+                    If 句首长 + 句内已长 > 文本域.SelectionStart Then
                         前缀 = s2(j)
                         Exit For
                     End If
@@ -405,15 +405,11 @@ Public Class 节点脚本类
                     If nodesString.Length < 5 Then Return String.Format("函数节点[{1}]第{2}行：出口语句""{0}""过短。", targetString, 节点.名字, 行)
                     If nodes(0).类型 = "接口" Then
                         If nodes(0).接口类型 = "网络出口" Then
-                            If nodes(0).网络接口 Is Nothing Then
-                                Return String.Format("函数节点[{1}]第{2}行：接口节点[{0}]套接字缺失，请检查该接口内容是否正确。", nodes(0).名字, 节点.名字, 行)
-                            Else
-                                Try
-                                    nodes(0).发送数据(nodes(1).内容, nodes(2).内容, nodes(3).内容)
-                                Catch ex As Exception
-                                    Return String.Format("函数节点[{1}]第{2}行：接口节点[{0}]发送数据出错：{3}。", nodes(0).名字, 节点.名字, 行, ex.Message)
-                                End Try
-                            End If
+                            Try
+                                nodes(0).发送数据(nodes(1).内容, nodes(2).内容, nodes(3).内容)
+                            Catch ex As Exception
+                                Return String.Format("函数节点[{1}]第{2}行：接口节点[{0}]发送数据出错：{3}。", nodes(0).名字, 节点.名字, 行, ex.Message)
+                            End Try
                         Else
                             Return String.Format("函数节点[{1}]第{2}行：接口节点[{0}]不是出口节点。", nodes(0).名字, 节点.名字, 行)
                         End If

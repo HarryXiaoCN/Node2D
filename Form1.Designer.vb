@@ -47,10 +47,11 @@ Partial Class Form1
         Me.打开全局引用窗体 = New System.Windows.Forms.ToolStripMenuItem()
         Me.帮助菜单 = New System.Windows.Forms.ToolStripMenuItem()
         Me.帮助主页 = New System.Windows.Forms.ToolStripMenuItem()
-        Me.SFD = New System.Windows.Forms.SaveFileDialog()
-        Me.OFD = New System.Windows.Forms.OpenFileDialog()
         Me.ToolStripSeparator4 = New System.Windows.Forms.ToolStripSeparator()
         Me.程序版本 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.SFD = New System.Windows.Forms.SaveFileDialog()
+        Me.OFD = New System.Windows.Forms.OpenFileDialog()
+        Me.编辑右键点击创建接口点 = New System.Windows.Forms.ToolStripMenuItem()
         CType(Me.绘制空间, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.菜单栏.SuspendLayout()
         Me.SuspendLayout()
@@ -136,7 +137,7 @@ Partial Class Form1
         '
         '编辑启用菜单
         '
-        Me.编辑启用菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.编辑右键点击创建值节点, Me.编辑右键点击创建引用点, Me.编辑右键点击创建函数点})
+        Me.编辑启用菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.编辑右键点击创建值节点, Me.编辑右键点击创建引用点, Me.编辑右键点击创建函数点, Me.编辑右键点击创建接口点})
         Me.编辑启用菜单.Name = "编辑启用菜单"
         Me.编辑启用菜单.Size = New System.Drawing.Size(124, 22)
         Me.编辑启用菜单.Text = "右键点击"
@@ -218,17 +219,6 @@ Partial Class Form1
         Me.帮助主页.Size = New System.Drawing.Size(136, 22)
         Me.帮助主页.Text = "主页(&I)"
         '
-        'SFD
-        '
-        Me.SFD.FileName = "新的平面"
-        Me.SFD.Filter = "节点平面|*.n2d"
-        Me.SFD.Title = "保存节点平面"
-        '
-        'OFD
-        '
-        Me.OFD.Filter = "节点平面|*.n2d"
-        Me.OFD.Title = "载入节点平面"
-        '
         'ToolStripSeparator4
         '
         Me.ToolStripSeparator4.Name = "ToolStripSeparator4"
@@ -240,6 +230,23 @@ Partial Class Form1
         Me.程序版本.Name = "程序版本"
         Me.程序版本.Size = New System.Drawing.Size(136, 22)
         Me.程序版本.Text = "版本：未知"
+        '
+        'SFD
+        '
+        Me.SFD.FileName = "新的平面"
+        Me.SFD.Filter = "节点平面|*.n2d"
+        Me.SFD.Title = "保存节点平面"
+        '
+        'OFD
+        '
+        Me.OFD.Filter = "节点平面|*.n2d"
+        Me.OFD.Title = "载入节点平面"
+        '
+        '编辑右键点击创建接口点
+        '
+        Me.编辑右键点击创建接口点.Name = "编辑右键点击创建接口点"
+        Me.编辑右键点击创建接口点.Size = New System.Drawing.Size(136, 22)
+        Me.编辑右键点击创建接口点.Text = "创建接口点"
         '
         'Form1
         '
@@ -293,4 +300,5 @@ Partial Class Form1
     Friend WithEvents 帮助主页 As ToolStripMenuItem
     Friend WithEvents ToolStripSeparator4 As ToolStripSeparator
     Friend WithEvents 程序版本 As ToolStripMenuItem
+    Friend WithEvents 编辑右键点击创建接口点 As ToolStripMenuItem
 End Class

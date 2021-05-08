@@ -9,6 +9,7 @@ Public Class 节点平面类
         Private name As String
         Private type As String
         Private content As String
+        Private 接口端口控制节点 As 节点类
         Private 接口数据缓存节点 As 节点类
         Private 接口大小控制节点 As 节点类
         Private 接口进入触发节点 As 节点类
@@ -34,7 +35,6 @@ Public Class 节点平面类
             位置 = nodePos
             父域.空间限制.Add(位置, Me)
             重构空间()
-            重构接口()
         End Sub
         Public Sub New(ByRef parent As 节点平面类, nodeString As String)
             父域 = parent
@@ -49,7 +49,6 @@ Public Class 节点平面类
             父域.本域节点.Add(name, Me)
             父域.空间限制.Add(位置, Me)
             重构空间()
-            重构接口()
         End Sub
         Public Sub 重构接口()
             If type = "接口" And content <> "" Then
@@ -61,25 +60,30 @@ Public Class 节点平面类
                             控制台.添加消息(String.Format("接口节点[{0}]：内容过短。", name))
                             Exit Sub
                         End If
-                        接口数据缓存节点 = 获得节点(s(2), Me)
-                        If 接口数据缓存节点 Is Nothing Then
-                            控制台.添加消息(String.Format("接口节点[{0}]：数据缓存节点[{1}]未找到。", name, s(2)))
+                        接口端口控制节点 = 获得节点(s(1), Me)
+                        If 接口端口控制节点 Is Nothing Then
+                            控制台.添加消息(String.Format("接口节点[{0}]：端口控制节点[{1}]未找到。", name, s(1)))
                             Exit Sub
                         End If
-                        接口大小控制节点 = 获得节点(s(3), Me)
+                        接口大小控制节点 = 获得节点(s(2), Me)
                         If 接口大小控制节点 Is Nothing Then
-                            控制台.添加消息(String.Format("接口节点[{0}]：缓存大小控制节点[{1}]未找到。", name, s(3)))
+                            控制台.添加消息(String.Format("接口节点[{0}]：缓存大小控制节点[{1}]未找到。", name, s(2)))
+                            Exit Sub
+                        End If
+                        接口数据缓存节点 = 获得节点(s(3), Me)
+                        If 接口数据缓存节点 Is Nothing Then
+                            控制台.添加消息(String.Format("接口节点[{0}]：数据缓存节点[{1}]未找到。", name, s(3)))
                             Exit Sub
                         End If
                         接口进入触发节点 = 获得节点(s(4), Me)
-                        If 接口大小控制节点 Is Nothing Then
+                        If 接口进入触发节点 Is Nothing Then
                             控制台.添加消息(String.Format("接口节点[{0}]：进入触发节点[{1}]未找到。", name, s(4)))
                             Exit Sub
                         End If
                         接口释放()
                         网络接口 = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
                         Try
-                            网络接口.Bind(New IPEndPoint(IPAddress.Parse("0.0.0.0"), Val(s(1))))
+                            网络接口.Bind(New IPEndPoint(IPAddress.Parse("0.0.0.0"), Val(接口端口控制节点.内容)))
                             网络接口.Listen()
                             接口线程 = New Thread(AddressOf 接口过程)
                             接口线程.Start()
@@ -105,11 +109,11 @@ Public Class 节点平面类
             Dim 脚本 As New 节点脚本类
             接口开启 = True
             Try
-                While type = "接口" And 接口开启
+                While type = "接口" And 接口开启 And Not 父域.结束标识
                     Dim s As Socket = 网络接口.Accept
                     Dim b(Val(接口大小控制节点.内容)) As Byte
                     s.Receive(b)
-                    接口数据缓存节点.内容 = Encoding.UTF8.GetString(b)
+                    接口数据缓存节点.内容 = Replace(Encoding.UTF8.GetString(b), vbNullChar, "")
                     脚本.解释(接口进入触发节点)
                     Try
                         s.Shutdown(SocketShutdown.Both)
@@ -159,6 +163,7 @@ Public Class 节点平面类
             For i As Integer = 0 To 待连接.Count - 1
                 连接.Add(父域.本域节点(待连接(i)))
             Next
+            重构接口()
         End Sub
         Public Overloads Function ToString() As String
             Dim 连接名集 As New List(Of String)
@@ -254,6 +259,7 @@ Public Class 节点平面类
     Public 全局平面 As New Dictionary(Of String, 节点平面类)
     Public 主平面 As Boolean
     Public 结束标识 As Boolean
+    Public 清理完成 As Boolean
     Public 绘制间隔 As Long = 15
     Public 缩放倍数 As Integer = 50
     Public 主窗体 As Form1
@@ -314,6 +320,13 @@ Public Class 节点平面类
     End Sub
     Public Sub New(路径 As String)
         加载(路径)
+    End Sub
+    Public Sub 结束()
+        结束标识 = True
+        Do Until 清理完成
+            Application.DoEvents()
+            Thread.Sleep(10)
+        Loop
     End Sub
 
     Public Function 获得平面路径() As String
@@ -635,22 +648,37 @@ Public Class 节点平面类
                     End If
                 End If
                 g.Dispose()
-
                 绘制更新(缓存帧.Clone)
             End If
             Thread.Sleep(绘制间隔)
         Loop
-        全局平面.Clear()
-        本域节点.Clear()
-        节点编辑窗体.Close()
-        全局窗体.Close()
+        资源回收()
         RemoveHandler 绘制空间.DoubleClick, AddressOf 鼠标双击事件
         RemoveHandler 绘制空间.MouseDown, AddressOf 鼠标点击事件
         RemoveHandler 绘制空间.MouseUp, AddressOf 鼠标点完事件
         RemoveHandler 绘制空间.MouseMove, AddressOf 鼠标移动事件
+        清理完成 = True
     End Sub
-
-
+    Public Sub 资源回收()
+        For i As Integer = 0 To 全局平面.Count - 1
+            全局平面.Values(i).资源回收()
+        Next
+        全局平面.Clear()
+        For i As Integer = 0 To 本域节点.Count - 1
+            Select Case 本域节点.Values(i).类型
+                Case "引用"
+                    For j As Integer = 0 To 本域节点.Values(i).空间.Count - 1
+                        本域节点.Values(i).空间.Values(j).资源回收()
+                    Next
+                    本域节点.Values(i).空间.Clear()
+                Case "接口"
+                    本域节点.Values(i).接口释放()
+            End Select
+        Next
+        本域节点.Clear()
+        节点编辑窗体.Close()
+        全局窗体.Close()
+    End Sub
     Private Sub 绘制更新(ByRef 帧 As Image)
         Dim d As New 绘制更新委托(AddressOf 绘制更新操作)
         主窗体.Invoke(d, 帧)

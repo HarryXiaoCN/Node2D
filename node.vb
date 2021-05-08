@@ -40,6 +40,10 @@
                 节点名.SelectAll()
             End If
             避免咚 = True
+        Else
+            If e.KeyCode = Keys.Tab Then
+                节点内容.Focus()
+            End If
         End If
     End Sub
     Private Sub 节点类型_SelectionChangeCommitted(sender As Object, e As EventArgs) Handles 节点类型.SelectionChangeCommitted
@@ -61,7 +65,11 @@
     Private Sub Node_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
         If e.KeyCode = Keys.Escape Then
             If Visible Then
-                Hide()
+                If 主域.候选窗体.Visible Then
+                    主域.候选窗体.Visible = False
+                Else
+                    Hide()
+                End If
             End If
         ElseIf e.KeyCode = Keys.F5 Then
             If 主域.鼠标移动选中节点 IsNot Nothing Then
