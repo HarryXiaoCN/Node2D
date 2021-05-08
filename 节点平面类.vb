@@ -51,6 +51,17 @@ Public Class 节点平面类
             Next
             Return Nothing
         End Function
+        Public Function 获得子平面(平面名 As String) As 节点平面类
+            If 类型 = "引用" Then
+                If 空间.ContainsKey(平面名) Then
+                    Return 空间(平面名)
+                End If
+            End If
+            If 父域.全局平面.ContainsKey(平面名) Then
+                Return 父域.全局平面(平面名)
+            End If
+            Return Nothing
+        End Function
         Public Sub 确认连接()
             For i As Integer = 0 To 待连接.Count - 1
                 连接.Add(父域.本域节点(待连接(i)))
@@ -88,24 +99,26 @@ Public Class 节点平面类
         Private Sub 重构空间()
             If type = "引用" Then
                 空间.Clear()
-                Dim sT() As String = Split(content, vbCrLf)
-                For i As Integer = 0 To UBound(sT)
-                    Dim filePath As String = Path.GetFullPath(sT(i), 父域.路径)
-                    If File.Exists(filePath) Then
-                        Dim fileName As String = Path.GetFileNameWithoutExtension(filePath)
-                        If 空间.ContainsKey(fileName) Then
-                            控制台.添加消息(String.Format("引用节点[{0}]内第{2}行：引用空间""{1}""已存在。", name, filePath, i + 1))
+                If content <> "" Then
+                    Dim sT() As String = Split(content, vbCrLf)
+                    For i As Integer = 0 To UBound(sT)
+                        Dim filePath As String = Path.GetFullPath(sT(i), 父域.路径)
+                        If File.Exists(filePath) Then
+                            Dim fileName As String = Path.GetFileNameWithoutExtension(filePath)
+                            If 空间.ContainsKey(fileName) Then
+                                控制台.添加消息(String.Format("引用节点[{0}]内第{2}行：引用空间""{1}""已存在。", name, filePath, i + 1))
+                            Else
+                                Try
+                                    空间.Add(fileName, New 节点平面类(filePath))
+                                Catch ex As Exception
+                                    控制台.添加消息(String.Format("引用节点[{0}]内第{1}行：初始化引用平面[{2}]错误，原因：{3}", name, i + 1, filePath, ex.Message))
+                                End Try
+                            End If
                         Else
-                            Try
-                                空间.Add(fileName, New 节点平面类(filePath))
-                            Catch ex As Exception
-                                控制台.添加消息(String.Format("引用节点[{0}]内第{1}行：初始化引用平面[{2}]错误，原因：{3}", name, i + 1, filePath, ex.Message))
-                            End Try
+                            控制台.添加消息(String.Format("引用节点[{0}]内第{2}行：引用空间""{1}""不存在。", name, filePath, i + 1))
                         End If
-                    Else
-                        控制台.添加消息(String.Format("引用节点[{0}]内第{2}行：引用空间""{1}""不存在。", name, filePath, i + 1))
-                    End If
-                Next
+                    Next
+                End If
             End If
         End Sub
         Public Property 内容() As String
@@ -157,8 +170,10 @@ Public Class 节点平面类
     Public 函数节点填充色 As Color = Color.LimeGreen
     Public 引用节点填充色 As Color = Color.DeepSkyBlue
     Public 值节点填充颜色 As Color = Color.Gold
+    Public 接口点填充颜色 As Color = Color.PaleVioletRed
     Public 函数节点连接色 As New Pen(Color.FromArgb(180, 函数节点填充色), 10)
     Public 引用节点连接色 As New Pen(Color.FromArgb(180, 引用节点填充色), 10)
+    Public 接口节点连接色 As New Pen(Color.FromArgb(180, 接口点填充颜色), 10)
     Public 连接起点颜色 As Color = Color.Purple
     Public WithEvents 绘制空间 As PictureBox
     Public 版本 As String = "NODE2D.20210430.1"
@@ -472,6 +487,10 @@ Public Class 节点平面类
                             For Each targetNode As 节点类 In 本域节点.Values(i).连接
                                 绘制线段(g, 引用节点连接色, 本域节点.Values(i)， targetNode)
                             Next
+                        Case "接口"
+                            For Each targetNode As 节点类 In 本域节点.Values(i).连接
+                                绘制线段(g, 接口节点连接色, 本域节点.Values(i)， targetNode)
+                            Next
                     End Select
                 Next
                 For i As Long = 0 To 本域节点.Count - 1
@@ -551,6 +570,8 @@ Public Class 节点平面类
                 g.DrawPolygon(New Pen(颜色, 线宽), 获得三角形点集(node.位置))
             Case "函数"
                 g.DrawEllipse(New Pen(颜色, 线宽), r)
+            Case "接口"
+                g.DrawPolygon(New Pen(颜色, 线宽), 获得六边形点集(node.位置))
         End Select
     End Sub
     Private Sub 绘制节点边缘(ByRef g As Graphics, node As 节点类, 位置 As Point, 颜色 As Color, Optional 线宽 As Integer = 2)
@@ -563,6 +584,8 @@ Public Class 节点平面类
                 g.DrawPolygon(New Pen(颜色, 线宽), 获得三角形点集(位置))
             Case "函数"
                 g.DrawEllipse(New Pen(颜色, 线宽), r)
+            Case "接口"
+                g.DrawPolygon(New Pen(颜色, 线宽), 获得六边形点集(位置))
         End Select
     End Sub
     Private Sub 绘制节点(ByRef g As Graphics, node As 节点类, 位置 As Point, 填充笔刷 As Brush, 图形边缘 As Pen)
@@ -579,6 +602,10 @@ Public Class 节点平面类
             Case "函数"
                 g.FillEllipse(填充笔刷, r)
                 g.DrawEllipse(图形边缘, r)
+            Case "接口"
+                Dim 六边形路径() As Point = 获得六边形点集_无缩放(位置)
+                g.FillPolygon(填充笔刷, 六边形路径)
+                g.DrawPolygon(图形边缘, 六边形路径)
         End Select
         g.DrawString(String.Format("{0}:{1}", node.名字, node.内容), 主窗体.Font, Brushes.Black, 位置.X, 位置.Y)
     End Sub
@@ -599,9 +626,53 @@ Public Class 节点平面类
             Case "函数"
                 g.FillEllipse(New SolidBrush(函数节点填充色), r)
                 g.DrawEllipse(边缘色, r)
+            Case "接口"
+                Dim 六边形路径() As Point = 获得六边形点集(node.位置)
+                g.FillPolygon(New SolidBrush(接口点填充颜色), 六边形路径)
+                g.DrawPolygon(边缘色, 六边形路径)
         End Select
         g.DrawString(String.Format("{0}:{1}", node.名字, node.内容), 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数)
     End Sub
+    Private Function 获得六边形点集(左上基点 As Point) As Point()
+        Dim v As Integer = 缩放倍数 / 2 * Math.Sin(30 * Math.PI / 180)
+        'Dim p As New List(Of Point) From {
+        '    New Point(左上基点.X * 缩放倍数, 左上基点.Y * 缩放倍数 + 缩放倍数 \ 2),
+        '    New Point(左上基点.X * 缩放倍数 + v, 左上基点.Y * 缩放倍数 + 缩放倍数),
+        '    New Point(左上基点.X * 缩放倍数 + 缩放倍数 - v, 左上基点.Y * 缩放倍数 + 缩放倍数),
+        '    New Point(左上基点.X * 缩放倍数 + 缩放倍数, 左上基点.Y * 缩放倍数 + 缩放倍数 \ 2),
+        '    New Point(左上基点.X * 缩放倍数 + 缩放倍数 - v, 左上基点.Y * 缩放倍数),
+        '    New Point(左上基点.X * 缩放倍数 + v, 左上基点.Y * 缩放倍数)
+        '}
+        Dim p As New List(Of Point) From {
+            New Point(左上基点.X * 缩放倍数 + 缩放倍数 \ 2, 左上基点.Y * 缩放倍数),
+            New Point(左上基点.X * 缩放倍数 + 缩放倍数, 左上基点.Y * 缩放倍数 + v),
+            New Point(左上基点.X * 缩放倍数 + 缩放倍数, 左上基点.Y * 缩放倍数 + 缩放倍数 - v),
+            New Point(左上基点.X * 缩放倍数 + 缩放倍数 \ 2, 左上基点.Y * 缩放倍数 + 缩放倍数),
+            New Point(左上基点.X * 缩放倍数, 左上基点.Y * 缩放倍数 + 缩放倍数 - v),
+            New Point(左上基点.X * 缩放倍数, 左上基点.Y * 缩放倍数 + v)
+        }
+        Return p.ToArray
+    End Function
+    Private Function 获得六边形点集_无缩放(左上基点 As Point) As Point()
+        Dim v As Integer = 缩放倍数 / 2 * Math.Sin(30 * Math.PI / 180)
+        'Dim p As New List(Of Point) From {
+        '    New Point(左上基点.X, 左上基点.Y + 缩放倍数 \ 2),
+        '    New Point(左上基点.X + v, 左上基点.Y + 缩放倍数),
+        '    New Point(左上基点.X + 缩放倍数 - v, 左上基点.Y + 缩放倍数),
+        '    New Point(左上基点.X + 缩放倍数, 左上基点.Y + 缩放倍数 \ 2),
+        '    New Point(左上基点.X + 缩放倍数 - v, 左上基点.Y),
+        '    New Point(左上基点.X + v, 左上基点.Y)
+        '}
+        Dim p As New List(Of Point) From {
+            New Point(左上基点.X + 缩放倍数 \ 2, 左上基点.Y),
+            New Point(左上基点.X + 缩放倍数, 左上基点.Y + v),
+            New Point(左上基点.X + 缩放倍数, 左上基点.Y + 缩放倍数 - v),
+            New Point(左上基点.X + 缩放倍数 \ 2, 左上基点.Y + 缩放倍数),
+            New Point(左上基点.X, 左上基点.Y + 缩放倍数 - v),
+            New Point(左上基点.X, 左上基点.Y + v)
+        }
+        Return p.ToArray
+    End Function
     Private Function 获得三角形点集(左上基点 As Point) As Point()
         Dim p As New List(Of Point) From {
             New Point(左上基点.X * 缩放倍数 + 缩放倍数 * 0.5, 左上基点.Y * 缩放倍数),

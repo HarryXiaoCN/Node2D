@@ -5,6 +5,27 @@ Imports Node2D.节点平面类
 
 Public Module 节点全局
     Public 控制台 As NodeConsole
+    Public Function 获得前缀(文本域 As TextBox) As String
+        Dim s() As String = Split(文本域.Text, vbCrLf)
+        Dim 已长 As Long, 前缀 As String = "", 句首长 As Long, 句内已长 As Long ', 行 As Long
+        For i As Long = 0 To UBound(s)
+            句首长 = 已长
+            已长 += s(i).Length + 1
+            If 已长 >= 文本域.SelectionStart Then
+                '行 = i
+                Dim s2() As String = Split(s(i), " ")
+                For j As Long = 0 To UBound(s2)
+                    句内已长 += s2(j).Length + 1
+                    If 句首长 + 句内已长 >= 文本域.SelectionStart Then
+                        前缀 = s2(j)
+                        Exit For
+                    End If
+                Next
+                Exit For
+            End If
+        Next
+        Return 前缀
+    End Function
     Public Function 节点遍历(ByRef 平面 As 节点平面类) As String
         Dim r As New List(Of String)
         For i As Long = 0 To 平面.本域节点.Count - 1
@@ -24,42 +45,37 @@ Public Module 节点全局
         End If
         Return "执行式"
     End Function
+    Public Function 获得平面(路径 As String, ByRef 搜索发起节点 As 节点类) As 节点平面类
+        Dim 域() As String = 路径.Split(".")
+        Dim 子平面 As 节点平面类 = 搜索发起节点.获得子平面(域(0))
+        Dim 子节点 As 节点类 = 搜索发起节点
+        For i As Integer = 0 To UBound(域) - 1
+            If 子平面 Is Nothing Then
+                子节点 = 子节点.获得子节点(域(i))
+                If 子节点 Is Nothing Then Return Nothing
+                子平面 = 子节点.获得子平面(域(i + 1))
+                i += 1
+            Else
+                子平面 = 子节点.获得子平面(域(i))
+            End If
+        Next
+        Return 子平面
+    End Function
     Public Function 获得节点(路径 As String, ByRef 搜索发起节点 As 节点类) As 节点类
         Dim 域() As String = 路径.Split(".")
-        Dim 起点 As Integer = 1
         Dim 子节点 As 节点类 = 搜索发起节点.获得子节点(域(0))
-        If 子节点 Is Nothing Then
-            If 搜索发起节点.父域.全局平面.ContainsKey(域(0)) Then
-                If 搜索发起节点.父域.全局平面(域(0)).本域节点.ContainsKey(域(1)) Then
-                    子节点 = 搜索发起节点.父域.全局平面(域(0)).本域节点(域(1))
-                    起点 += 1
-                End If
-            End If
-        End If
-        For i As Integer = 起点 To UBound(域)
+        For i As Integer = 0 To UBound(域) - 1
             If 子节点 Is Nothing Then
-                Return Nothing
-            Else
-                Dim 上个节点 As 节点类 = 子节点
-                子节点 = 子节点.获得子节点(域(i))
-                If 子节点 Is Nothing And i < UBound(域) Then
-                    If 上个节点.类型 = "引用" Then
-                        If 上个节点.空间.ContainsKey(域(i)) Then
-                            If 上个节点.空间(域(i)).本域节点.ContainsKey(域(i + 1)) Then
-                                子节点 = 上个节点.空间(域(i)).本域节点(域(i + 1))
-                                i += 1
-                            End If
-                        End If
-                    End If
-                    If 子节点 Is Nothing Then
-                        If 搜索发起节点.父域.全局平面.ContainsKey(域(i)) Then
-                            If 搜索发起节点.父域.全局平面(域(i)).本域节点.ContainsKey(域(i + 1)) Then
-                                子节点 = 上个节点.空间(域(i)).本域节点(域(i + 1))
-                                i += 1
-                            End If
-                        End If
-                    End If
+                Dim 子平面 As 节点平面类 = 子节点.获得子平面(域(i))
+                If 子平面 Is Nothing Then Return Nothing
+                If 子平面.本域节点.ContainsKey(域(i + 1)) Then
+                    子节点 = 子平面.本域节点(域(i + 1))
+                Else
+                    Return Nothing
                 End If
+                i += 1
+            Else
+                子节点 = 子节点.获得子节点(域(i))
             End If
         Next
         Return 子节点
@@ -349,21 +365,21 @@ Public Class 节点脚本类
                 Case "type", "类型"
                     If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：获取节点类型语句""{0}""过短。", targetString, 节点.名字, 行)
                     nodes(0).内容 = nodes(1).类型
-                Case "copytype", "复制类型"
-                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：复制节点类型语句""{0}""过短。", targetString, 节点.名字, 行)
-                    nodes(0).类型 = nodes(1).类型
-                Case "settype", "设置类型"
-                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：设置节点类型语句""{0}""过短。", targetString, 节点.名字, 行)
-                    Select Case nodes(1).内容
-                        Case "值", "0"
-                            nodes(0).类型 = "值"
-                        Case "引用", "1"
-                            nodes(0).类型 = "引用"
-                        Case "函数", "2"
-                            nodes(0).类型 = "函数"
-                        Case Else
-                            Return String.Format("函数节点[{1}]第{2}行：无节点类型""{0}""。", nodes(1).内容, 节点.名字, 行)
-                    End Select
+                'Case "copytype", "复制类型"
+                '    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：复制节点类型语句""{0}""过短。", targetString, 节点.名字, 行)
+                '    nodes(0).类型 = nodes(1).类型
+                'Case "settype", "设置类型"
+                '    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：设置节点类型语句""{0}""过短。", targetString, 节点.名字, 行)
+                '    Select Case nodes(1).内容
+                '        Case "值", "0"
+                '            nodes(0).类型 = "值"
+                '        Case "引用", "1"
+                '            nodes(0).类型 = "引用"
+                '        Case "函数", "2"
+                '            nodes(0).类型 = "函数"
+                '        Case Else
+                '            Return String.Format("函数节点[{1}]第{2}行：无节点类型""{0}""。", nodes(1).内容, 节点.名字, 行)
+                '    End Select
                 Case "setpos", "设置位置"
                     If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：设置节点位置语句""{0}""过短。", targetString, 节点.名字, 行)
                     Dim 新位置 As New Point(Val(nodes(1).内容), Val(nodes(2).内容))

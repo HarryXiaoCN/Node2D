@@ -63,7 +63,7 @@ Partial Class Node
         Me.节点类型.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.节点类型.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.节点类型.FormattingEnabled = True
-        Me.节点类型.Items.AddRange(New Object() {"值", "引用", "函数"})
+        Me.节点类型.Items.AddRange(New Object() {"值", "引用", "函数", "接口"})
         Me.节点类型.Location = New System.Drawing.Point(162, 33)
         Me.节点类型.Name = "节点类型"
         Me.节点类型.Size = New System.Drawing.Size(132, 29)
