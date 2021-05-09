@@ -206,6 +206,10 @@ Public Class 节点平面类
                         If i >= 连接.Count - 1 Then Exit Sub
                     End If
                 Next
+                For i As Integer = 0 To 空间.Count - 1
+                    空间(i).资源回收()
+                Next
+                空间.Clear()
             End If
         End Sub
         Private Sub 重构空间()
@@ -214,10 +218,7 @@ Public Class 节点平面类
                 If content <> "" Then
                     Dim sT() As String = Split(content, vbCrLf)
                     For i As Integer = 0 To UBound(sT)
-                        If sT(i).IndexOf(".") <> -1 Then
-                            sT(i) = Path.GetFileNameWithoutExtension(sT(i))
-                        End If
-                        Dim filePath As String = Path.GetFullPath(sT(i) & ".n2d", 父域.路径)
+                        Dim filePath As String = Path.GetFullPath(sT(i), 父域.路径)
                         If File.Exists(filePath) Then
                             Dim fileName As String = Path.GetFileNameWithoutExtension(filePath)
                             If 空间.ContainsKey(fileName) Then
@@ -233,7 +234,6 @@ Public Class 节点平面类
                             控制台.添加消息(String.Format("引用节点[{0}]内第{2}行：引用空间""{1}""不存在。", name, filePath, i + 1))
                         End If
                     Next
-                    content = Join(sT, vbCrLf)
                 End If
             End If
         End Sub
@@ -396,10 +396,7 @@ Public Class 节点平面类
         Next
     End Sub
     Public Sub 添加全局平面(filePath As String)
-        If filePath.IndexOf(".") <> -1 Then
-            filePath = Path.GetFileNameWithoutExtension(filePath)
-        End If
-        Dim readPath As String = Path.GetFullPath(filePath & ".n2d", 路径)
+        Dim readPath As String = Path.GetFullPath(filePath, 路径)
         If File.Exists(readPath) Then
             Dim fileName As String = Path.GetFileNameWithoutExtension(readPath)
             Try
