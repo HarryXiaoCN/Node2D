@@ -26,13 +26,6 @@ Public Module 节点全局
         Next
         Return 前缀
     End Function
-    Public Function 节点遍历(ByRef 平面 As 节点平面类) As String
-        Dim r As New List(Of String)
-        For i As Long = 0 To 平面.本域节点.Count - 1
-            r.Add(String.Format("{0} {1} {2}", i, 平面.本域节点.Values(i).名字, 平面.本域节点.Values(i).类型))
-        Next
-        Return Join(r.ToArray, vbCrLf)
-    End Function
     Public Function BoolToInt(b As Boolean) As Integer
         If b Then
             Return 1
@@ -339,20 +332,12 @@ Public Class 节点脚本类
                             Return String.Format("函数节点[{1}]第{2}行：平面内节点数量获取语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
                     End Select
                 Case "n-for", "节点遍历"
-                    Select Case nodesString.Length
-                        Case 2
-                            nodes(0).内容 = 节点遍历(节点.父域)
-                        Case 3
-                            nodes(0).内容 = 节点遍历(nodes(1).父域)
-                        Case 4
-                            If nodes(1).空间.ContainsKey(nodes(2).内容) Then
-                                nodes(0).内容 = 节点遍历(nodes(1).空间(nodes(2).内容))
-                            Else
-                                Return String.Format("函数节点[{0}]第{1}行：欲遍历平面缺失，引用节点[{2}]的引用空间[{3}]未找到。", 节点.名字, 行, nodes(1).名字, nodes(2).名字)
-                            End If
-                        Case Else
-                            Return String.Format("函数节点[{1}]第{2}行：平面内节点遍历语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
-                    End Select
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：节点遍历语句""{0}""过短。", targetString, 节点.名字, 行)
+                    If nodes(1).类型 = "函数" Then
+                        节点遍历(节点.父域, nodes(0), nodes(1))
+                    Else
+                        Return String.Format("函数节点[{1}]第{2}行：遍历触发节点[{0}]不是函数点。", nodes(1).名字, 节点.名字, 行)
+                    End If
                 Case "select", "选取"
                     If nodesString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：选取语句""{0}""过短。", targetString, 节点.名字, 行)
                     控制台.添加消息("请用鼠标左击某节点完成选取操作……")
@@ -425,5 +410,11 @@ Public Class 节点脚本类
 
         Return ""
     End Function
-
+    Public Sub 节点遍历(ByRef 平面 As 节点平面类, ByRef 反馈存放点 As 节点类, ByRef 函数点 As 节点类)
+        Dim r As New List(Of String)
+        For i As Long = 0 To 平面.本域节点.Count - 1
+            反馈存放点.内容 = 平面.本域节点.Keys(i)
+            函数解释(函数点)
+        Next
+    End Sub
 End Class
