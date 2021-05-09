@@ -38,6 +38,7 @@ Partial Class Form1
         Me.编辑右键点击创建值节点 = New System.Windows.Forms.ToolStripMenuItem()
         Me.编辑右键点击创建引用点 = New System.Windows.Forms.ToolStripMenuItem()
         Me.编辑右键点击创建函数点 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.编辑右键点击创建接口点 = New System.Windows.Forms.ToolStripMenuItem()
         Me.运行菜单 = New System.Windows.Forms.ToolStripMenuItem()
         Me.运行菜单执行当前节点 = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator2 = New System.Windows.Forms.ToolStripSeparator()
@@ -45,13 +46,15 @@ Partial Class Form1
         Me.控制台输出时间戳 = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator3 = New System.Windows.Forms.ToolStripSeparator()
         Me.打开全局引用窗体 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.视图菜单 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.主窗体字体设置 = New System.Windows.Forms.ToolStripMenuItem()
         Me.帮助菜单 = New System.Windows.Forms.ToolStripMenuItem()
         Me.帮助主页 = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator4 = New System.Windows.Forms.ToolStripSeparator()
         Me.程序版本 = New System.Windows.Forms.ToolStripMenuItem()
         Me.SFD = New System.Windows.Forms.SaveFileDialog()
         Me.OFD = New System.Windows.Forms.OpenFileDialog()
-        Me.编辑右键点击创建接口点 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.FontD = New System.Windows.Forms.FontDialog()
         CType(Me.绘制空间, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.菜单栏.SuspendLayout()
         Me.SuspendLayout()
@@ -68,7 +71,7 @@ Partial Class Form1
         '
         '菜单栏
         '
-        Me.菜单栏.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.文件菜单, Me.编辑菜单, Me.运行菜单, Me.帮助菜单})
+        Me.菜单栏.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.文件菜单, Me.编辑菜单, Me.运行菜单, Me.视图菜单, Me.帮助菜单})
         Me.菜单栏.Location = New System.Drawing.Point(0, 0)
         Me.菜单栏.Name = "菜单栏"
         Me.菜单栏.Size = New System.Drawing.Size(784, 25)
@@ -162,6 +165,12 @@ Partial Class Form1
         Me.编辑右键点击创建函数点.Size = New System.Drawing.Size(136, 22)
         Me.编辑右键点击创建函数点.Text = "创建函数点"
         '
+        '编辑右键点击创建接口点
+        '
+        Me.编辑右键点击创建接口点.Name = "编辑右键点击创建接口点"
+        Me.编辑右键点击创建接口点.Size = New System.Drawing.Size(136, 22)
+        Me.编辑右键点击创建接口点.Text = "创建接口点"
+        '
         '运行菜单
         '
         Me.运行菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.运行菜单执行当前节点, Me.ToolStripSeparator2, Me.控制台每次运行时清空, Me.控制台输出时间戳, Me.ToolStripSeparator3, Me.打开全局引用窗体})
@@ -206,6 +215,19 @@ Partial Class Form1
         Me.打开全局引用窗体.Size = New System.Drawing.Size(177, 22)
         Me.打开全局引用窗体.Text = "全局引用(&I)"
         '
+        '视图菜单
+        '
+        Me.视图菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.主窗体字体设置})
+        Me.视图菜单.Name = "视图菜单"
+        Me.视图菜单.Size = New System.Drawing.Size(60, 21)
+        Me.视图菜单.Text = "视图(&V)"
+        '
+        '主窗体字体设置
+        '
+        Me.主窗体字体设置.Name = "主窗体字体设置"
+        Me.主窗体字体设置.Size = New System.Drawing.Size(114, 22)
+        Me.主窗体字体设置.Text = "字体(&F)"
+        '
         '帮助菜单
         '
         Me.帮助菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.帮助主页, Me.ToolStripSeparator4, Me.程序版本})
@@ -241,12 +263,6 @@ Partial Class Form1
         '
         Me.OFD.Filter = "节点平面|*.n2d"
         Me.OFD.Title = "载入节点平面"
-        '
-        '编辑右键点击创建接口点
-        '
-        Me.编辑右键点击创建接口点.Name = "编辑右键点击创建接口点"
-        Me.编辑右键点击创建接口点.Size = New System.Drawing.Size(136, 22)
-        Me.编辑右键点击创建接口点.Text = "创建接口点"
         '
         'Form1
         '
@@ -301,4 +317,7 @@ Partial Class Form1
     Friend WithEvents ToolStripSeparator4 As ToolStripSeparator
     Friend WithEvents 程序版本 As ToolStripMenuItem
     Friend WithEvents 编辑右键点击创建接口点 As ToolStripMenuItem
+    Friend WithEvents 视图菜单 As ToolStripMenuItem
+    Friend WithEvents 主窗体字体设置 As ToolStripMenuItem
+    Friend WithEvents FontD As FontDialog
 End Class

@@ -24,7 +24,9 @@ Public Class Form1
     Private Sub 保存设置文件()
         Dim 设置 As New List(Of String) From {
             "控制台每次执行自动清空=" & 控制台每次运行时清空.Checked,
-            "控制台消息增加时间戳=" & 控制台输出时间戳.Checked
+            "控制台消息增加时间戳=" & 控制台输出时间戳.Checked,
+            "字体样式=" & Font.Name,
+            "字体大小=" & Font.Size
         }
         File.WriteAllText("程序设置.ini", Join(设置.ToArray, vbCrLf))
     End Sub
@@ -40,6 +42,10 @@ Public Class Form1
                     控制台每次运行时清空.Checked = sBool
                 Case "控制台消息增加时间戳"
                     控制台输出时间戳.Checked = sBool
+                Case "字体样式"
+                    Font = New Font(sT(1), Font.Size)
+                Case "字体大小"
+                    Font = New Font(Font.Name, Val(sT(1)))
             End Select
         End If
     End Sub
@@ -176,5 +182,12 @@ Public Class Form1
 
     Private Sub 帮助主页_Click(sender As Object, e As EventArgs) Handles 帮助主页.Click
         Process.Start("explorer.exe", "http://harryxiao.cn/node2d.html")
+    End Sub
+
+    Private Sub 主窗体字体设置_Click(sender As Object, e As EventArgs) Handles 主窗体字体设置.Click
+        FontD.Font = Font
+        If FontD.ShowDialog = DialogResult.OK Then
+            Font = FontD.Font
+        End If
     End Sub
 End Class

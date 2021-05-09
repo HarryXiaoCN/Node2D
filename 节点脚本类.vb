@@ -332,12 +332,27 @@ Public Class 节点脚本类
                             Return String.Format("函数节点[{1}]第{2}行：平面内节点数量获取语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
                     End Select
                 Case "n-for", "节点遍历"
-                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：节点遍历语句""{0}""过短。", targetString, 节点.名字, 行)
-                    If nodes(1).类型 = "函数" Then
-                        节点遍历(节点.父域, nodes(0), nodes(1))
-                    Else
-                        Return String.Format("函数节点[{1}]第{2}行：遍历触发节点[{0}]不是函数点。", nodes(1).名字, 节点.名字, 行)
-                    End If
+                    Select Case nodesString.Length
+                        Case 3
+                            If nodes(1).类型 = "函数" Then
+                                节点遍历(节点.父域, nodes(0), nodes(1))
+                            Else
+                                Return String.Format("函数节点[{1}]第{2}行：遍历触发节点[{0}]不是函数点。", nodes(1).名字, 节点.名字, 行)
+                            End If
+                        Case 5
+                            If nodes(0).空间.ContainsKey(nodes(1).内容) Then
+                                If nodes(3).类型 = "函数" Then
+                                    节点遍历(nodes(0).空间(nodes(1).内容), nodes(2), nodes(3))
+                                Else
+                                    Return String.Format("函数节点[{1}]第{2}行：遍历触发节点[{0}]不是函数点。", nodes(3).名字, 节点.名字, 行)
+                                End If
+                            Else
+                                Return String.Format("函数节点[{0}]第{1}行：欲遍历平面缺失，引用节点[{2}]的引用空间[{3}]未找到。", 节点.名字, 行, nodes(0).名字, nodes(1).名字)
+                            End If
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：平面内节点遍历语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
+                    End Select
+
                 Case "select", "选取"
                     If nodesString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：选取语句""{0}""过短。", targetString, 节点.名字, 行)
                     控制台.添加消息("请用鼠标左击某节点完成选取操作……")
