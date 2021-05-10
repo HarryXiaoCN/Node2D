@@ -450,7 +450,7 @@ Public Class 节点脚本类
                     Else
                         nodes(0).内容 = 目标节点.类型
                     End If
-                Case "<<n", "getname", "获得类型"
+                Case "<<n", "getname", "获得名字"
                     If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：获取指定节点名字语句""{0}""过短。", targetString, 节点.名字, 行)
                     Dim 目标节点 As 节点类 = 获得节点(nodes(1).内容, 节点)
                     If 目标节点 Is Nothing Then
