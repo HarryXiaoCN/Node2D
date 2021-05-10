@@ -42,7 +42,7 @@ Public Module 节点全局
                 Exit For
             End If
         Next
-        Debug.WriteLine(String.Format("{0}，{1}，{2}", 前缀, 行, 列))
+        'Debug.WriteLine(String.Format("{0}，{1}，{2}", 前缀, 行, 列))
         Return New 文本定位类(前缀, 行, 列)
     End Function
     Public Function BoolToInt(b As Boolean) As Integer

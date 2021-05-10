@@ -16,6 +16,7 @@ Public Class 节点平面类
         Private 接口线程 As Thread = Nothing
         Private ReadOnly 待连接 As New List(Of String)
 
+        Public 行内容() As String
         Public 网络接口 As Socket = Nothing
         Public 接口类型 As String = ""
         Public 接口开启 As Boolean
@@ -32,6 +33,7 @@ Public Class 节点平面类
             name = nodeName
             type = nodeType
             content = nodeContent
+            行内容 = Split(content, vbCrLf)
             位置 = nodePos
             父域.空间限制.Add(位置, Me)
             重构空间()
@@ -42,6 +44,7 @@ Public Class 节点平面类
             name = s(0)
             type = s(1)
             content = Replace(s(2), Chr(2), vbCrLf)
+            行内容 = Split(content, vbCrLf)
             位置 = New Point(Val(s(3)), Val(s(4)))
             If s(5) <> "" Then
                 待连接.AddRange(Split(s(5), Chr(2)))
@@ -244,6 +247,7 @@ Public Class 节点平面类
             Set(value As String)
                 RaiseEvent 改变前(Me)
                 content = value
+                行内容 = Split(content, vbCrLf)
                 重构空间()
                 重构接口()
                 RaiseEvent 改变后(Me)
@@ -526,7 +530,7 @@ Public Class 节点平面类
     Public Function 编辑节点名(name As String, value As String) As Integer
         If 本域节点.ContainsKey(name) Then
             If Not 本域节点.ContainsKey(value) Then
-                If Regex.IsMatch(value, "^[^+\-*/\\=<>^().'\s]{1,}$") Then
+                If Regex.IsMatch(value, "^[^().'\s]{1,}$") Then
                     Dim 缓存节点 As 节点类 = 本域节点(name)
                     缓存节点.名字 = value
                     本域节点.Remove(name)
@@ -748,7 +752,22 @@ Public Class 节点平面类
                 g.FillPolygon(填充笔刷, 六边形路径)
                 g.DrawPolygon(图形边缘, 六边形路径)
         End Select
-        g.DrawString(String.Format("{0}:{1}", node.名字, node.内容), 主窗体.Font, Brushes.Black, 位置.X, 位置.Y)
+        Dim printStr As String
+        If 主窗体.主窗体显示内容.Checked Then
+            printStr = String.Format("{0}:{1}{2}", node.名字, vbCrLf, node.内容)
+        Else
+            If node.行内容.Length > 1 Then
+                printStr = String.Format("{0}:{1}...({2})", node.名字, node.行内容(0), node.行内容.Length)
+            Else
+                printStr = String.Format("{0}:{1}", node.名字, node.内容)
+            End If
+        End If
+        If 主窗体.主窗体文字居中.Checked Then
+            Dim s As SizeF = g.MeasureString(printStr, 主窗体.Font)
+            g.DrawString(printStr, 主窗体.Font, Brushes.Black, 位置.X + (缩放倍数 \ 2) - (s.Width \ 2), 位置.Y + (缩放倍数 \ 2) - (s.Height \ 2))
+        Else
+            g.DrawString(printStr, 主窗体.Font, Brushes.Black, 位置.X, 位置.Y)
+        End If
     End Sub
     Private Sub 绘制节点(ByRef g As Graphics, node As 节点类)
         Dim r As New Rectangle(node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数, 缩放倍数, 缩放倍数)
@@ -772,7 +791,23 @@ Public Class 节点平面类
                 g.FillPolygon(New SolidBrush(接口点填充颜色), 六边形路径)
                 g.DrawPolygon(边缘色, 六边形路径)
         End Select
-        g.DrawString(String.Format("{0}:{1}", node.名字, node.内容), 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数)
+        Dim printStr As String
+        If 主窗体.主窗体显示内容.Checked Then
+            printStr = String.Format("{0}:{1}{2}", node.名字, vbCrLf, node.内容)
+        Else
+            If node.行内容.Length > 1 Then
+                printStr = String.Format("{0}:{1}...({2})", node.名字, node.行内容(0), node.行内容.Length)
+            Else
+                printStr = String.Format("{0}:{1}", node.名字, node.内容)
+            End If
+        End If
+        If 主窗体.主窗体文字居中.Checked Then
+            Dim s As SizeF = g.MeasureString(printStr, 主窗体.Font)
+            'g.DrawRectangle(Pens.Red, New Rectangle(node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数, s.Width, s.Height))
+            g.DrawString(printStr, 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数 + (缩放倍数 \ 2) - (s.Width \ 2), node.位置.Y * 缩放倍数 + (缩放倍数 \ 2) - (s.Height \ 2))
+        Else
+            g.DrawString(printStr, 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数)
+        End If
     End Sub
     Private Function 获得六边形点集(左上基点 As Point) As Point()
         Dim v As Integer = 缩放倍数 / 2 * Math.Sin(30 * Math.PI / 180)

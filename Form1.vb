@@ -26,7 +26,9 @@ Public Class Form1
             "控制台每次执行自动清空=" & 控制台每次运行时清空.Checked,
             "控制台消息增加时间戳=" & 控制台输出时间戳.Checked,
             "字体样式=" & Font.Name,
-            "字体大小=" & Font.Size
+            "字体大小=" & Font.Size,
+            "文字居中=" & 主窗体文字居中.Checked,
+            "显示内容=" & 主窗体显示内容.Checked
         }
         File.WriteAllText("程序设置.ini", Join(设置.ToArray, vbCrLf))
     End Sub
@@ -46,6 +48,10 @@ Public Class Form1
                     Font = New Font(sT(1), Font.Size)
                 Case "字体大小"
                     Font = New Font(Font.Name, Val(sT(1)))
+                Case "文字居中"
+                    主窗体文字居中.Checked = sBool
+                Case "显示内容"
+                    主窗体显示内容.Checked = sBool
             End Select
         End If
     End Sub
@@ -189,5 +195,13 @@ Public Class Form1
         If FontD.ShowDialog = DialogResult.OK Then
             Font = FontD.Font
         End If
+    End Sub
+
+    Private Sub 主窗体文字居中_Click(sender As Object, e As EventArgs) Handles 主窗体文字居中.Click
+        主窗体文字居中.Checked = Not 主窗体文字居中.Checked
+    End Sub
+
+    Private Sub 主窗体显示内容_Click(sender As Object, e As EventArgs) Handles 主窗体显示内容.Click
+        主窗体显示内容.Checked = Not 主窗体显示内容.Checked
     End Sub
 End Class

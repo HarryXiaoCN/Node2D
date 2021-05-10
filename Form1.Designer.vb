@@ -48,6 +48,8 @@ Partial Class Form1
         Me.打开全局引用窗体 = New System.Windows.Forms.ToolStripMenuItem()
         Me.视图菜单 = New System.Windows.Forms.ToolStripMenuItem()
         Me.主窗体字体设置 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.主窗体文字居中 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.主窗体显示内容 = New System.Windows.Forms.ToolStripMenuItem()
         Me.帮助菜单 = New System.Windows.Forms.ToolStripMenuItem()
         Me.帮助主页 = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator4 = New System.Windows.Forms.ToolStripSeparator()
@@ -217,7 +219,7 @@ Partial Class Form1
         '
         '视图菜单
         '
-        Me.视图菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.主窗体字体设置})
+        Me.视图菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.主窗体字体设置, Me.主窗体文字居中, Me.主窗体显示内容})
         Me.视图菜单.Name = "视图菜单"
         Me.视图菜单.Size = New System.Drawing.Size(60, 21)
         Me.视图菜单.Text = "视图(&V)"
@@ -225,8 +227,24 @@ Partial Class Form1
         '主窗体字体设置
         '
         Me.主窗体字体设置.Name = "主窗体字体设置"
-        Me.主窗体字体设置.Size = New System.Drawing.Size(114, 22)
-        Me.主窗体字体设置.Text = "字体(&F)"
+        Me.主窗体字体设置.Size = New System.Drawing.Size(144, 22)
+        Me.主窗体字体设置.Text = "设置字体(&F)"
+        '
+        '主窗体文字居中
+        '
+        Me.主窗体文字居中.Checked = True
+        Me.主窗体文字居中.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.主窗体文字居中.Name = "主窗体文字居中"
+        Me.主窗体文字居中.Size = New System.Drawing.Size(144, 22)
+        Me.主窗体文字居中.Text = "文字居中(&M)"
+        '
+        '主窗体显示内容
+        '
+        Me.主窗体显示内容.Checked = True
+        Me.主窗体显示内容.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.主窗体显示内容.Name = "主窗体显示内容"
+        Me.主窗体显示内容.Size = New System.Drawing.Size(144, 22)
+        Me.主窗体显示内容.Text = "完整内容(&C)"
         '
         '帮助菜单
         '
@@ -320,4 +338,6 @@ Partial Class Form1
     Friend WithEvents 视图菜单 As ToolStripMenuItem
     Friend WithEvents 主窗体字体设置 As ToolStripMenuItem
     Friend WithEvents FontD As FontDialog
+    Friend WithEvents 主窗体文字居中 As ToolStripMenuItem
+    Friend WithEvents 主窗体显示内容 As ToolStripMenuItem
 End Class
