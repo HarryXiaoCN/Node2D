@@ -66,7 +66,7 @@
             Select Case e.KeyCode
                 Case Keys.Down, Keys.Up
                     If 主域.候选窗体.Visible Then
-                        避免咚 = True
+                        e.Handled = True
                     End If
             End Select
         End If
