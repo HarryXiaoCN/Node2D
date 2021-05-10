@@ -4,19 +4,37 @@ Imports System.Threading
 Imports Node2D.节点平面类
 
 Public Module 节点全局
+    Public Structure 文本定位类
+        Public 前缀 As String, 行 As Long, 列 As Long
+        Public Sub New(beforeStr As String, row As Long, col As Long)
+            前缀 = beforeStr
+            行 = row
+            列 = col
+        End Sub
+    End Structure
     Public 控制台 As NodeConsole
-    Public Function 获得前缀(文本域 As TextBox) As String
+    Public Function 获得前缀(文本域 As TextBox) As 文本定位类
         Dim s() As String = Split(文本域.Text, vbCrLf)
-        Dim 已长 As Long, 前缀 As String = "", 句首长 As Long, 句内已长 As Long ', 行 As Long
+        Dim 已长 As Long, 前缀 As String = "", 句首长 As Long, 句内已长 As Long, 行 As Long, 列 As Long
         For i As Long = 0 To UBound(s)
             句首长 = 已长
-            已长 += s(i).Length + 1
-            If 已长 > 文本域.SelectionStart Then
-                '行 = i
+            已长 += s(i).Length
+            If i > 0 Then
+                已长 += 2
+            End If
+            If 已长 >= 文本域.SelectionStart Then
+                行 = i
                 Dim s2() As String = Split(s(i), " ")
+                If i > 0 Then
+                    句内已长 += 2
+                End If
                 For j As Long = 0 To UBound(s2)
-                    句内已长 += s2(j).Length + 1
-                    If 句首长 + 句内已长 > 文本域.SelectionStart Then
+                    句内已长 += s2(j).Length
+                    If j > 0 Then
+                        句内已长 += 1
+                    End If
+                    If 句首长 + 句内已长 >= 文本域.SelectionStart Then
+                        列 = j
                         前缀 = s2(j)
                         Exit For
                     End If
@@ -24,7 +42,8 @@ Public Module 节点全局
                 Exit For
             End If
         Next
-        Return 前缀
+        Debug.WriteLine(String.Format("{0}，{1}，{2}", 前缀, 行, 列))
+        Return New 文本定位类(前缀, 行, 列)
     End Function
     Public Function BoolToInt(b As Boolean) As Integer
         If b Then
@@ -352,7 +371,6 @@ Public Class 节点脚本类
                         Case Else
                             Return String.Format("函数节点[{1}]第{2}行：平面内节点遍历语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
                     End Select
-
                 Case "select", "选取"
                     If nodesString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：选取语句""{0}""过短。", targetString, 节点.名字, 行)
                     控制台.添加消息("请用鼠标左击某节点完成选取操作……")
@@ -416,6 +434,53 @@ Public Class 节点脚本类
                     Else
                         Return String.Format("函数节点[{1}]第{2}行：节点[{0}]不是接口节点。", nodes(0).名字, 节点.名字, 行)
                     End If
+                Case "<<=", "<<c", "getcontent", "获得内容"
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：获取指定节点内容语句""{0}""过短。", targetString, 节点.名字, 行)
+                    Dim 目标节点 As 节点类 = 获得节点(nodes(1).内容, 节点)
+                    If 目标节点 Is Nothing Then
+                        Return String.Format("函数节点[{0}]第{1}行：目标节点[{2}]未找到。", 节点.名字, 行, nodes(1).内容)
+                    Else
+                        nodes(0).内容 = 目标节点.内容
+                    End If
+                Case "<<t", "gettype", "获得类型"
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：获取指定节点类型语句""{0}""过短。", targetString, 节点.名字, 行)
+                    Dim 目标节点 As 节点类 = 获得节点(nodes(1).内容, 节点)
+                    If 目标节点 Is Nothing Then
+                        Return String.Format("函数节点[{0}]第{1}行：目标节点[{2}]未找到。", 节点.名字, 行, nodes(1).内容)
+                    Else
+                        nodes(0).内容 = 目标节点.类型
+                    End If
+                Case "<<n", "getname", "获得类型"
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：获取指定节点名字语句""{0}""过短。", targetString, 节点.名字, 行)
+                    Dim 目标节点 As 节点类 = 获得节点(nodes(1).内容, 节点)
+                    If 目标节点 Is Nothing Then
+                        Return String.Format("函数节点[{0}]第{1}行：目标节点[{2}]未找到。", 节点.名字, 行, nodes(1).内容)
+                    Else
+                        nodes(0).内容 = 目标节点.名字
+                    End If
+                Case "<<x", "getx", "获得横坐标"
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：获取指定节点横坐标语句""{0}""过短。", targetString, 节点.名字, 行)
+                    Dim 目标节点 As 节点类 = 获得节点(nodes(1).内容, 节点)
+                    If 目标节点 Is Nothing Then
+                        Return String.Format("函数节点[{0}]第{1}行：目标节点[{2}]未找到。", 节点.名字, 行, nodes(1).内容)
+                    Else
+                        nodes(0).内容 = 目标节点.位置.X
+                    End If
+                Case "<<y", "gety", "获得纵坐标"
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：获取指定节点纵坐标语句""{0}""过短。", targetString, 节点.名字, 行)
+                    Dim 目标节点 As 节点类 = 获得节点(nodes(1).内容, 节点)
+                    If 目标节点 Is Nothing Then
+                        Return String.Format("函数节点[{0}]第{1}行：目标节点[{2}]未找到。", 节点.名字, 行, nodes(1).内容)
+                    Else
+                        nodes(0).内容 = 目标节点.位置.Y
+                    End If
+                Case "l-for", "连接遍历"
+                    If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：连接遍历语句""{0}""过短。", targetString, 节点.名字, 行)
+                    If nodes(2).类型 = "函数" Then
+                        连接遍历(nodes(0), nodes(1), nodes(2))
+                    Else
+                        Return String.Format("函数节点[{1}]第{2}行：遍历触发节点[{0}]不是函数点。", nodes(2).名字, 节点.名字, 行)
+                    End If
                 Case Else
                     Return String.Format("函数节点[{1}]第{2}行：处理法则【{0}】未找到。", nodesString(0), 节点.名字, 行)
             End Select
@@ -429,6 +494,13 @@ Public Class 节点脚本类
         Dim r As New List(Of String)
         For i As Long = 0 To 平面.本域节点.Count - 1
             反馈存放点.内容 = 平面.本域节点.Keys(i)
+            函数解释(函数点)
+        Next
+    End Sub
+    Public Sub 连接遍历(ByRef 源点 As 节点类, ByRef 反馈存放点 As 节点类, ByRef 函数点 As 节点类)
+        Dim r As New List(Of String)
+        For i As Long = 0 To 源点.连接.Count - 1
+            反馈存放点.内容 = 源点.连接(i).名字
             函数解释(函数点)
         Next
     End Sub

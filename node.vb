@@ -36,14 +36,16 @@
             If e.KeyCode = Keys.S Then
                 主域.编辑节点名(主域.当前编辑节点.名字, 节点名.Text)
                 节点名_TextChanged(Nothing, Nothing)
+                避免咚 = True
             ElseIf e.KeyCode = Keys.A Then
                 节点名.SelectAll()
+                避免咚 = True
             End If
-            避免咚 = True
         Else
-            If e.KeyCode = Keys.Tab Then
-                节点内容.Focus()
-            End If
+            Select Case e.KeyCode
+                Case Keys.Tab
+                    节点内容.Focus()
+            End Select
         End If
     End Sub
     Private Sub 节点类型_SelectionChangeCommitted(sender As Object, e As EventArgs) Handles 节点类型.SelectionChangeCommitted
@@ -55,10 +57,18 @@
             If e.KeyCode = Keys.S Then
                 主域.编辑节点内容(主域.当前编辑节点.名字, 节点内容.Text)
                 节点内容_TextChanged(Nothing, Nothing)
+                避免咚 = True
             ElseIf e.KeyCode = Keys.A Then
                 节点内容.SelectAll()
+                避免咚 = True
             End If
-            避免咚 = True
+        Else
+            Select Case e.KeyCode
+                Case Keys.Down, Keys.Up
+                    If 主域.候选窗体.Visible Then
+                        避免咚 = True
+                    End If
+            End Select
         End If
     End Sub
 

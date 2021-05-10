@@ -11,7 +11,8 @@
         父域 = parent
         编辑面 = 父域.节点编辑窗体
     End Sub
-    Public Sub 候选构建(前缀 As String)
+    Public Sub 候选构建(前缀类 As 文本定位类)
+        Dim 前缀 As String = 前缀类.前缀
         候选表.Items.Clear()
         Dim 前缀集() As String = Split(前缀, ".")
         Dim 源节点 As 节点平面类.节点类
@@ -156,7 +157,7 @@
     End Sub
     Public Sub 编辑窗体内容键盘弹起(sender As Object, e As KeyEventArgs) Handles 编辑面.KeyUp
         Select Case e.KeyCode
-            Case Keys.Tab, Keys.Decimal, Keys.OemPeriod, Keys.Enter, Keys.Space, Keys.Up, Keys.Down
+            Case Keys.Tab, Keys.Decimal, Keys.Enter, Keys.Space, Keys.Up, Keys.Down
 
             Case Else
                 候选构建(获得前缀(编辑面.节点内容))
@@ -168,10 +169,16 @@
                 插入内容(候选表.SelectedItem, " ")
                 候选构建(获得前缀(编辑面.节点内容))
                 出现()
-            Case Keys.Decimal, Keys.OemPeriod
+            Case Keys.Decimal
                 插入内容(候选表.SelectedItem, ".")
                 候选构建(获得前缀(编辑面.节点内容))
                 出现()
+            Case Keys.OemPeriod
+                If e.Shift = False Then
+                    插入内容(候选表.SelectedItem, ".")
+                    候选构建(获得前缀(编辑面.节点内容))
+                    出现()
+                End If
             Case Keys.Tab
                 If Visible Then
                     插入内容(候选表.SelectedItem, "")
