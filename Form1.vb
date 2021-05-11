@@ -28,7 +28,11 @@ Public Class Form1
             "字体样式=" & Font.Name,
             "字体大小=" & Font.Size,
             "文字居中=" & 主窗体文字居中.Checked,
-            "显示内容=" & 主窗体显示内容.Checked
+            "显示内容=" & 主窗体显示内容.Checked,
+            "值节点背景色=" & 值节点背景色.BackColor.ToArgb,
+            "引用点背景色=" & 引用点背景色.BackColor.ToArgb,
+            "函数点背景色=" & 函数点背景色.BackColor.ToArgb,
+            "接口点背景色=" & 接口点背景色.BackColor.ToArgb
         }
         File.WriteAllText("程序设置.ini", Join(设置.ToArray, vbCrLf))
     End Sub
@@ -39,6 +43,7 @@ Public Class Form1
             If sT(1).ToLower = "true" Or sT(1) = "1" Then
                 sBool = True
             End If
+            Dim sInt As Integer = Val(sT(1))
             Select Case sT(0).ToLower
                 Case "控制台每次执行自动清空"
                     控制台每次运行时清空.Checked = sBool
@@ -52,6 +57,14 @@ Public Class Form1
                     主窗体文字居中.Checked = sBool
                 Case "显示内容"
                     主窗体显示内容.Checked = sBool
+                Case "值节点背景色"
+                    值节点背景色.BackColor = Color.FromArgb(sInt)
+                Case "引用点背景色"
+                    引用点背景色.BackColor = Color.FromArgb(sInt)
+                Case "函数点背景色"
+                    函数点背景色.BackColor = Color.FromArgb(sInt)
+                Case "接口点背景色"
+                    接口点背景色.BackColor = Color.FromArgb(sInt)
             End Select
         End If
     End Sub
@@ -203,5 +216,12 @@ Public Class Form1
 
     Private Sub 主窗体显示内容_Click(sender As Object, e As EventArgs) Handles 主窗体显示内容.Click
         主窗体显示内容.Checked = Not 主窗体显示内容.Checked
+    End Sub
+
+    Private Sub 接口点背景色_Click(sender As Object, e As EventArgs) Handles 接口点背景色.Click, 函数点背景色.Click, 值节点背景色.Click, 引用点背景色.Click
+        If ColorD.ShowDialog = DialogResult.OK Then
+            sender.BackColor = ColorD.Color
+            主域.初始化颜色()
+        End If
     End Sub
 End Class

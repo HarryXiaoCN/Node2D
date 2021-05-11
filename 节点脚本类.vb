@@ -73,31 +73,52 @@ Public Module 节点全局
         Next
         Return 子平面
     End Function
+    Public Function 获得平面(路径 As String, ByRef 搜索平面 As 节点平面类) As 节点平面类
+        If 搜索平面.全局平面.ContainsKey(路径) Then
+            Return 搜索平面.全局平面(路径)
+        End If
+        Return Nothing
+    End Function
+    Public Function 获得节点(路径 As String, ByRef 搜索平面 As 节点平面类) As 节点类
+        If 搜索平面.本域节点.ContainsKey(路径) Then
+            Return 搜索平面.本域节点(路径)
+        End If
+        Return Nothing
+    End Function
     Public Function 获得节点(路径 As String, ByRef 搜索发起节点 As 节点类) As 节点类
         Dim 域() As String = 路径.Split(".")
         Dim 子节点 As 节点类 = 搜索发起节点.获得子节点(域(0))
-        Dim 子平面 As 节点平面类 = Nothing
-        Dim 上个子节点 As 节点类 = Nothing
-        If 子节点 Is Nothing And 子平面 Is Nothing Then
-            Return Nothing
-        End If
-        For i As Integer = 0 To UBound(域) - 1
+        Dim 上个节点 As 节点类 = 搜索发起节点
+        Dim 子平面 As 节点平面类 = 获得平面(域(0), 上个节点)
+        If 域.Length > 1 Then
+            Dim 当前域类 As String
             If 子节点 Is Nothing Then
-                If 上个子节点 Is Nothing Then Return Nothing
-                子平面 = 上个子节点.获得子平面(域(i))
-                If 子平面 Is Nothing Then Return Nothing
-                If 子平面.本域节点.ContainsKey(域(i + 1)) Then
-                    上个子节点 = 子节点
-                    子节点 = 子平面.本域节点(域(i + 1))
-                Else
-                    Return Nothing
-                End If
-                i += 1
+                当前域类 = "平面"
             Else
-                上个子节点 = 子节点
-                子节点 = 子节点.获得子节点(域(i))
+                当前域类 = "节点"
             End If
-        Next
+            For i As Long = 1 To UBound(域)
+                If 当前域类 = "节点" Then
+                    上个节点 = 子节点
+                    子节点 = 获得节点(域(i), 子节点)
+                    If 子节点 Is Nothing Then
+                        子平面 = 获得平面(域(i), 上个节点)
+                        当前域类 = "平面"
+                    Else
+                        当前域类 = "节点"
+                    End If
+                Else
+                    If 子平面 Is Nothing Then Return Nothing
+                    子节点 = 获得节点(域(i), 子平面)
+                    If 子节点 Is Nothing Then
+                        子平面 = 获得平面(域(i), 子平面)
+                        当前域类 = "平面"
+                    Else
+                        当前域类 = "节点"
+                    End If
+                End If
+            Next
+        End If
         Return 子节点
     End Function
     Public Function 连接有效性判断(n1 As 节点类, n2 As 节点类) As Boolean
@@ -489,6 +510,9 @@ Public Class 节点脚本类
                     Else
                         Return String.Format("函数节点[{1}]第{2}行：遍历触发节点[{0}]不是函数点。", nodes(2).名字, 节点.名字, 行)
                     End If
+                Case "retest", "正则测试"
+                    If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：正则匹配测试语句""{0}""过短。", targetString, 节点.名字, 行)
+                    nodes(0).内容 = BoolToInt(Regex.IsMatch(nodes(1).内容, nodes(2).内容))
                 Case Else
                     Return String.Format("函数节点[{1}]第{2}行：处理法则【{0}】未找到。", nodesString(0), 节点.名字, 行)
             End Select

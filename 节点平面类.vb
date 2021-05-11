@@ -308,8 +308,15 @@ Public Class 节点平面类
     Private ReadOnly 节点删除列表 As New List(Of 节点类)
     Private ReadOnly 绘制线程 As Thread
     Private Delegate Sub 绘制更新委托(ByRef 帧 As Image)
+    Public Sub 初始化颜色()
+        函数节点填充色 = 主窗体.函数点背景色.BackColor
+        引用节点填充色 = 主窗体.引用点背景色.BackColor
+        值节点填充颜色 = 主窗体.值节点背景色.BackColor
+        接口点填充颜色 = 主窗体.接口点背景色.BackColor
+    End Sub
     Public Sub New(ByRef mainForm As Form1, ByRef drawSpace As PictureBox, Optional mainNode2D As Boolean = True)
         主窗体 = mainForm
+        初始化颜色()
         绘制空间 = drawSpace
         主平面 = mainNode2D
         节点编辑窗体.主域 = Me

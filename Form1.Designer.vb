@@ -50,6 +50,11 @@ Partial Class Form1
         Me.主窗体字体设置 = New System.Windows.Forms.ToolStripMenuItem()
         Me.主窗体文字居中 = New System.Windows.Forms.ToolStripMenuItem()
         Me.主窗体显示内容 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.默认节点颜色 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.值节点背景色 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.引用点背景色 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.函数点背景色 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.接口点背景色 = New System.Windows.Forms.ToolStripMenuItem()
         Me.帮助菜单 = New System.Windows.Forms.ToolStripMenuItem()
         Me.帮助主页 = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator4 = New System.Windows.Forms.ToolStripSeparator()
@@ -57,6 +62,7 @@ Partial Class Form1
         Me.SFD = New System.Windows.Forms.SaveFileDialog()
         Me.OFD = New System.Windows.Forms.OpenFileDialog()
         Me.FontD = New System.Windows.Forms.FontDialog()
+        Me.ColorD = New System.Windows.Forms.ColorDialog()
         CType(Me.绘制空间, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.菜单栏.SuspendLayout()
         Me.SuspendLayout()
@@ -219,7 +225,7 @@ Partial Class Form1
         '
         '视图菜单
         '
-        Me.视图菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.主窗体字体设置, Me.主窗体文字居中, Me.主窗体显示内容})
+        Me.视图菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.主窗体字体设置, Me.主窗体文字居中, Me.主窗体显示内容, Me.默认节点颜色})
         Me.视图菜单.Name = "视图菜单"
         Me.视图菜单.Size = New System.Drawing.Size(60, 21)
         Me.视图菜单.Text = "视图(&V)"
@@ -244,7 +250,46 @@ Partial Class Form1
         Me.主窗体显示内容.CheckState = System.Windows.Forms.CheckState.Checked
         Me.主窗体显示内容.Name = "主窗体显示内容"
         Me.主窗体显示内容.Size = New System.Drawing.Size(144, 22)
-        Me.主窗体显示内容.Text = "完整内容(&C)"
+        Me.主窗体显示内容.Text = "完整内容(&A)"
+        '
+        '默认节点颜色
+        '
+        Me.默认节点颜色.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.值节点背景色, Me.引用点背景色, Me.函数点背景色, Me.接口点背景色})
+        Me.默认节点颜色.Name = "默认节点颜色"
+        Me.默认节点颜色.Size = New System.Drawing.Size(144, 22)
+        Me.默认节点颜色.Text = "节点颜色(&C)"
+        '
+        '值节点背景色
+        '
+        Me.值节点背景色.BackColor = System.Drawing.Color.Gold
+        Me.值节点背景色.Name = "值节点背景色"
+        Me.值节点背景色.Size = New System.Drawing.Size(130, 22)
+        Me.值节点背景色.Text = "值节点(&V)"
+        Me.值节点背景色.ToolTipText = "值节点背景色"
+        '
+        '引用点背景色
+        '
+        Me.引用点背景色.BackColor = System.Drawing.Color.DeepSkyBlue
+        Me.引用点背景色.Name = "引用点背景色"
+        Me.引用点背景色.Size = New System.Drawing.Size(130, 22)
+        Me.引用点背景色.Text = "引用点(&I)"
+        Me.引用点背景色.ToolTipText = "引用点背景色"
+        '
+        '函数点背景色
+        '
+        Me.函数点背景色.BackColor = System.Drawing.Color.LimeGreen
+        Me.函数点背景色.Name = "函数点背景色"
+        Me.函数点背景色.Size = New System.Drawing.Size(130, 22)
+        Me.函数点背景色.Text = "函数点(&F)"
+        Me.函数点背景色.ToolTipText = "函数点背景色"
+        '
+        '接口点背景色
+        '
+        Me.接口点背景色.BackColor = System.Drawing.Color.PaleVioletRed
+        Me.接口点背景色.Name = "接口点背景色"
+        Me.接口点背景色.Size = New System.Drawing.Size(130, 22)
+        Me.接口点背景色.Text = "接口点(&N)"
+        Me.接口点背景色.ToolTipText = "接口点背景色"
         '
         '帮助菜单
         '
@@ -340,4 +385,10 @@ Partial Class Form1
     Friend WithEvents FontD As FontDialog
     Friend WithEvents 主窗体文字居中 As ToolStripMenuItem
     Friend WithEvents 主窗体显示内容 As ToolStripMenuItem
+    Friend WithEvents 默认节点颜色 As ToolStripMenuItem
+    Friend WithEvents 值节点背景色 As ToolStripMenuItem
+    Friend WithEvents 引用点背景色 As ToolStripMenuItem
+    Friend WithEvents 函数点背景色 As ToolStripMenuItem
+    Friend WithEvents 接口点背景色 As ToolStripMenuItem
+    Friend WithEvents ColorD As ColorDialog
 End Class
