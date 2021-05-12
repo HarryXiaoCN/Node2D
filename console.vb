@@ -11,7 +11,15 @@ Public Class NodeConsole
         ' 在 InitializeComponent() 调用之后添加任何初始化。
         父窗体 = parent
     End Sub
-
+    Protected Overrides Sub WndProc(ByRef m As Message)
+        If m.Msg = 786 Then
+            Dim tid As Integer = m.WParam.ToInt32
+            If 全局等待锁.Contains(tid) Then
+                全局等待锁.Remove(tid)
+            End If
+        End If
+        MyBase.WndProc(m)
+    End Sub
     Public Sub 添加消息(info As String)
         Dim d As New 添加消息委托(AddressOf 添加消息执行)
         Invoke(d, info)

@@ -265,6 +265,7 @@ Public Class 节点平面类
     Public 本域节点 As New Dictionary(Of String, 节点类)
     Public 空间限制 As New Dictionary(Of Point, 节点类)
     Public 全局平面 As New Dictionary(Of String, 节点平面类)
+    Public 用户法则 As New Dictionary(Of String, List(Of 节点类))
     Public 主平面 As Boolean
     Public 结束标识 As Boolean
     Public 清理完成 As Boolean
@@ -328,6 +329,9 @@ Public Class 节点平面类
             绘制线程.Start()
         End If
     End Sub
+    Public Sub New()
+
+    End Sub
     Public Sub New(节点集() As String)
         For i As Integer = 0 To UBound(节点集)
             新建节点(i, 节点集(i), New Point(i, i \ 100))
@@ -336,6 +340,18 @@ Public Class 节点平面类
     Public Sub New(路径 As String)
         加载(路径)
     End Sub
+    Public Function 增加用户法则(法则名 As String, 执行点 As 节点类, ParamArray 参数() As 节点类) As Boolean
+        If Not 用户法则.ContainsKey(法则名) Then
+            用户法则.Add(法则名, New List(Of 节点类))
+            用户法则(法则名).Add(执行点)
+            用户法则(法则名).AddRange(参数)
+            Return True
+        End If
+        用户法则(法则名).Clear()
+        用户法则(法则名).Add(执行点)
+        用户法则(法则名).AddRange(参数)
+        Return False
+    End Function
     Public Sub 结束()
         结束标识 = True
         Do Until 清理完成
@@ -426,6 +442,12 @@ Public Class 节点平面类
             全局窗体.全局平面列表.Items.RemoveAt(全局窗体.全局平面列表.SelectedIndex)
         End If
     End Sub
+    Public Sub 移除全局平面(平面路径 As String)
+        If 全局窗体.全局平面列表.Items.Contains(平面路径) Then
+            全局平面.Remove(平面路径)
+            全局窗体.全局平面列表.Items.Remove(平面路径)
+        End If
+    End Sub
 
     Public Sub 保存(filePath As String)
         Dim result As New List(Of String) From {
@@ -465,6 +487,31 @@ Public Class 节点平面类
             鼠标当前位置.Y -= 1
         End If
     End Sub
+    Public Function 新建连接(ByRef n1 As 节点类, ByRef n2 As 节点类) As Integer
+        If n1.父域.Equals(n2.父域) Then
+            If 连接有效性判断(n1, n2) Then
+                If Not n1.连接.Contains(n2) And Not n2.连接.Contains(n1) Then
+                    n1.连接.Add(n2)
+                    n2.连接.Add(n1)
+                    Return 3
+                End If
+                Return 2
+            End If
+            Return 1
+        End If
+        Return 0
+    End Function
+    Public Function 删除连接(ByRef n1 As 节点类, ByRef n2 As 节点类) As Integer
+        If n1.父域.Equals(n2.父域) Then
+            If n1.连接.Contains(n2) And n2.连接.Contains(n1) Then
+                n1.连接.Remove(n2)
+                n2.连接.Remove(n1)
+                Return 2
+            End If
+            Return 1
+        End If
+        Return 0
+    End Function
     Private Sub 鼠标点击事件(sender As Object, e As MouseEventArgs) Handles 绘制空间.MouseDown
         鼠标位置获取(e.Location)
         If e.Button = MouseButtons.Right Then
@@ -537,7 +584,7 @@ Public Class 节点平面类
     Public Function 编辑节点名(name As String, value As String) As Integer
         If 本域节点.ContainsKey(name) Then
             If Not 本域节点.ContainsKey(value) Then
-                If Regex.IsMatch(value, "^[^().'\s]{1,}$") Then
+                If Regex.IsMatch(value, "^[^().'\s$]{1,}$") Then
                     Dim 缓存节点 As 节点类 = 本域节点(name)
                     缓存节点.名字 = value
                     本域节点.Remove(name)
@@ -590,11 +637,16 @@ Public Class 节点平面类
             ' 待添加节点事件钩子
         End If
     End Sub
-    Public Sub 新建节点(节点名 As String, 内容 As String, 位置 As Point)
-        If Not 本域节点.ContainsKey(节点名) And Not 空间限制.ContainsKey(位置) Then
-            本域节点.Add(节点名, New 节点类(Me, 节点名, "值", 内容, 位置))
+    Public Function 新建节点(节点名 As String, 内容 As String, 位置 As Point) As Integer
+        If Not 本域节点.ContainsKey(节点名) Then
+            If Not 空间限制.ContainsKey(位置) Then
+                本域节点.Add(节点名, New 节点类(Me, 节点名, "值", 内容, 位置))
+                Return 2
+            End If
+            Return 1
         End If
-    End Sub
+        Return 0
+    End Function
 
     Private Sub 绘制()
         On Error Resume Next
