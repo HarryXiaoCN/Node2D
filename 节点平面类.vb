@@ -340,7 +340,8 @@ Public Class 节点平面类
     Public Sub New(路径 As String)
         加载(路径)
     End Sub
-    Public Function 增加用户法则(法则名 As String, 执行点 As 节点类, ParamArray 参数() As 节点类) As Boolean
+    Public Function 增加用户法则(执行点 As 节点类, ParamArray 参数() As 节点类) As Boolean
+        Dim 法则名 As String = 执行点.名字
         If Not 用户法则.ContainsKey(法则名) Then
             用户法则.Add(法则名, New List(Of 节点类))
             用户法则(法则名).Add(执行点)
@@ -409,6 +410,17 @@ Public Class 节点平面类
             For Each n As 节点类 In 本域节点.Values
                 n.确认连接()
             Next
+        End If
+        If 本域节点.ContainsKey("主节点") Then
+            If 本域节点("主节点").类型 = "函数" Then
+                Dim 脚本 As New 节点脚本类
+                脚本.解释(本域节点("主节点"))
+            End If
+        ElseIf 本域节点.ContainsKey("Main") Then
+            If 本域节点("Main").类型 = "函数" Then
+                Dim 脚本 As New 节点脚本类
+                脚本.解释(本域节点("Main"))
+            End If
         End If
     End Sub
     Private Sub Load_NODE2D_20210424_1(filePath As String, s() As String)

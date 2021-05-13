@@ -12,8 +12,38 @@ Public Module 节点全局
             列 = col
         End Sub
     End Structure
+
+    Public 主界面 As Form1
     Public 控制台 As NodeConsole
     Public 全局等待锁 As New List(Of Integer)
+    Public Sub 程序卸载()
+        Dim mKey As Microsoft.Win32.RegistryKey = Microsoft.Win32.Registry.ClassesRoot
+        Try
+            If mKey.OpenSubKey(".n2d") IsNot Nothing Then
+                mKey.DeleteSubKeyTree(".n2d")
+            End If
+            If mKey.OpenSubKey("Node2D") IsNot Nothing Then
+                mKey.DeleteSubKeyTree("Node2D")
+            End If
+        Catch ex As Exception
+            If MsgBox(String.Format("解除文件关联失败！是否尝试管理员权限重新运行程序注册？" & vbCrLf & "(错误提示：{0})", ex.Message), MsgBoxStyle.YesNo + vbExclamation, "节点平面") = MsgBoxResult.Yes Then
+                管理员权限运行自己()
+            End If
+        End Try
+    End Sub
+    Public Sub 管理员权限运行自己()
+        Try
+            Dim procInfo As New ProcessStartInfo With {
+                .UseShellExecute = True,
+                .FileName = Application.ExecutablePath,
+                .Verb = "runas"
+            }
+            Process.Start(procInfo)
+            主界面.Close()
+        Catch ex As Exception
+            MsgBox("管理员权限运行失败，错误描述：" & ex.Message, 48)
+        End Try
+    End Sub
     Public Function 获得前缀(文本域 As TextBox) As 文本定位类
         Dim s() As String = Split(文本域.Text, vbCrLf)
         Dim 已长 As Long, 前缀 As String = "", 句首长 As Long, 句内已长 As Long, 行 As Long, 列 As Long
@@ -721,26 +751,23 @@ Public Class 节点脚本类
                             Return String.Format("函数节点[{1}]第{2}行：保存平面语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
                     End Select
                 Case "addfunction", "addfun", "增加法则"
-                    If targetString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：增加用户法则语句""{0}""过短。", targetString, 节点.名字, 行)
-                    Dim 参数(nodes.Count - 3) As 节点类
-                    nodes.CopyTo(2, 参数, 0, nodes.Count - 2)
-                    If 节点.父域.增加用户法则(nodes(0).内容, nodes(1), 参数) Then
-                        Return String.Format("函数节点[{1}]第{2}行：用户法则""{0}""添加成功！参数数量：{3}。", nodes(0).内容, 节点.名字, 行, 参数.Length)
+                    If targetString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：增加用户法则语句""{0}""过短。", targetString, 节点.名字, 行)
+                    Dim 参数(nodes.Count - 2) As 节点类
+                    nodes.CopyTo(1, 参数, 0, nodes.Count - 1)
+                    If 节点.父域.增加用户法则(nodes(0), 参数) Then
+                        Return String.Format("函数节点[{1}]第{2}行：用户法则""{0}""添加成功！参数数量：{3}。", nodes(0).名字, 节点.名字, 行, 参数.Length)
                     Else
-                        Return String.Format("函数节点[{1}]第{2}行：用户法则""{0}""修改完毕！参数数量：{3}。", nodes(0).内容, 节点.名字, 行, 参数.Length)
+                        Return String.Format("函数节点[{1}]第{2}行：用户法则""{0}""修改完毕！参数数量：{3}。", nodes(0).名字, 节点.名字, 行, 参数.Length)
                     End If
                 Case "delfunction", "delfun", "删除法则"
                     If targetString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：删除用户法则语句""{0}""过短。", targetString, 节点.名字, 行)
                     If 节点.父域.用户法则.ContainsKey(nodes(0).内容) Then
                         节点.父域.用户法则.Remove(nodes(0).内容)
-                        Return String.Format("函数节点[{1}]第{2}行：用户法则""{0}""已移除。", nodes(0).内容, 节点.名字, 行)
+                        Return String.Format("函数节点[{1}]第{2}行：用户法则""{0}""已移除。", nodes(0).名字, 节点.名字, 行)
                     Else
-                        Return String.Format("函数节点[{1}]第{2}行：用户法则""{0}""不存在。", nodes(0).内容, 节点.名字, 行)
+                        Return String.Format("函数节点[{1}]第{2}行：用户法则""{0}""不存在。", nodes(0).名字, 节点.名字, 行)
                     End If
                 Case Else
-                    'If Not 用户法则解释(节点, nodes, nodesString(0).ToLower) Then
-                    '    Return String.Format("函数节点[{1}]第{2}行：处理法则【{0}】未找到。", nodesString(0), 节点.名字, 行)
-                    'End If
                     Return 用户法则解释(节点, nodes, nodesString(0).ToLower, 行)
             End Select
         Catch ex As Exception

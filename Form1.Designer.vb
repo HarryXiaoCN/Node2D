@@ -57,6 +57,8 @@ Partial Class Form1
         Me.接口点背景色 = New System.Windows.Forms.ToolStripMenuItem()
         Me.帮助菜单 = New System.Windows.Forms.ToolStripMenuItem()
         Me.帮助主页 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripSeparator5 = New System.Windows.Forms.ToolStripSeparator()
+        Me.解除文件关联 = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator4 = New System.Windows.Forms.ToolStripSeparator()
         Me.程序版本 = New System.Windows.Forms.ToolStripMenuItem()
         Me.SFD = New System.Windows.Forms.SaveFileDialog()
@@ -293,7 +295,7 @@ Partial Class Form1
         '
         '帮助菜单
         '
-        Me.帮助菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.帮助主页, Me.ToolStripSeparator4, Me.程序版本})
+        Me.帮助菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.帮助主页, Me.ToolStripSeparator5, Me.解除文件关联, Me.ToolStripSeparator4, Me.程序版本})
         Me.帮助菜单.Name = "帮助菜单"
         Me.帮助菜单.Size = New System.Drawing.Size(61, 21)
         Me.帮助菜单.Text = "帮助(&H)"
@@ -301,19 +303,31 @@ Partial Class Form1
         '帮助主页
         '
         Me.帮助主页.Name = "帮助主页"
-        Me.帮助主页.Size = New System.Drawing.Size(136, 22)
+        Me.帮助主页.Size = New System.Drawing.Size(164, 22)
         Me.帮助主页.Text = "主页(&I)"
+        '
+        'ToolStripSeparator5
+        '
+        Me.ToolStripSeparator5.Name = "ToolStripSeparator5"
+        Me.ToolStripSeparator5.Size = New System.Drawing.Size(161, 6)
+        '
+        '解除文件关联
+        '
+        Me.解除文件关联.Name = "解除文件关联"
+        Me.解除文件关联.Size = New System.Drawing.Size(164, 22)
+        Me.解除文件关联.Text = "解除文件关联(&R)"
+        Me.解除文件关联.ToolTipText = "恢复文件关联请将""程序设置.ini""文件中的""已注册""行删除后重启程序。"
         '
         'ToolStripSeparator4
         '
         Me.ToolStripSeparator4.Name = "ToolStripSeparator4"
-        Me.ToolStripSeparator4.Size = New System.Drawing.Size(133, 6)
+        Me.ToolStripSeparator4.Size = New System.Drawing.Size(161, 6)
         '
         '程序版本
         '
         Me.程序版本.Enabled = False
         Me.程序版本.Name = "程序版本"
-        Me.程序版本.Size = New System.Drawing.Size(136, 22)
+        Me.程序版本.Size = New System.Drawing.Size(164, 22)
         Me.程序版本.Text = "版本：未知"
         '
         'SFD
@@ -329,6 +343,7 @@ Partial Class Form1
         '
         'Form1
         '
+        Me.AllowDrop = True
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 17.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.White
@@ -391,4 +406,6 @@ Partial Class Form1
     Friend WithEvents 函数点背景色 As ToolStripMenuItem
     Friend WithEvents 接口点背景色 As ToolStripMenuItem
     Friend WithEvents ColorD As ColorDialog
+    Friend WithEvents 解除文件关联 As ToolStripMenuItem
+    Friend WithEvents ToolStripSeparator5 As ToolStripSeparator
 End Class

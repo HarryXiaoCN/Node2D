@@ -3,17 +3,63 @@ Imports System.IO
 
 Public Class Form1
     Private 主域 As 节点平面类
+    Private 已注册 As Boolean
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles Me.Load
+        主界面 = Me
         程序版本.Text = "版本：" & Application.ProductVersion
         控制台 = New NodeConsole(Me)
         加载设置文件()
+        程序注册()
         绘制空间.Image = New Bitmap(10, 10)
         主域 = New 节点平面类(Me, 绘制空间)
+        启动命令处理()
         控制台.Show()
     End Sub
+    Private Sub 程序注册()
+        Try
+            If 已注册 Then Exit Sub
+            Dim mKey As Microsoft.Win32.RegistryKey = Microsoft.Win32.Registry.ClassesRoot
+            Dim mSubKey As Microsoft.Win32.RegistryKey = mKey.OpenSubKey(".n2d")
+            Dim shellNewkey As Microsoft.Win32.RegistryKey
+            If mSubKey Is Nothing Then
+                shellNewkey = mKey.CreateSubKey(".n2d", True)
+                shellNewkey.SetValue("", "Node2D")
+                shellNewkey = mKey.CreateSubKey(".n2d\ShellNew", True)
+                shellNewkey.SetValue("NullFile", "")
+            End If
+            mSubKey = mKey.OpenSubKey("Node2D", True)
+            If mSubKey Is Nothing Then
+                shellNewkey = mKey.CreateSubKey("Node2D", True)
+                shellNewkey.SetValue("", "Node2D File")
+                mKey.CreateSubKey("Node2D\Shell", True)
+                mKey.CreateSubKey("Node2D\Shell\Open", True)
+                shellNewkey = mKey.CreateSubKey("Node2D\Shell\Open\Command", True)
+                shellNewkey.SetValue("", Application.ExecutablePath & " %1")
+                mKey.CreateSubKey("Node2D\Shell\Edit", True)
+                shellNewkey = mKey.CreateSubKey("Node2D\Shell\Edit\Command", True)
+                shellNewkey.SetValue("", Application.ExecutablePath & " %1")
+            End If
+            已注册 = True
+            保存设置文件()
+        Catch ex As Exception
+            If MsgBox(String.Format("文件关联失败！是否尝试管理员权限重新运行程序注册？" & vbCrLf & "(错误提示：{0})", ex.Message), MsgBoxStyle.YesNo + vbExclamation, "节点平面") = MsgBoxResult.Yes Then
+                管理员权限运行自己()
+            Else
+                已注册 = True
+            End If
+        End Try
+    End Sub
+
+    Private Sub 启动命令处理()
+        Dim cmd As String = Replace(Command(), """", "")
+        If cmd <> "" And File.Exists(cmd) Then
+            主域.加载(cmd)
+        End If
+    End Sub
     Private Sub 加载设置文件()
-        If File.Exists("程序设置.ini") Then
-            Dim 设置() As String = Split(File.ReadAllText("程序设置.ini"), vbCrLf)
+        Dim configPath As String = Application.StartupPath & "程序设置.ini"
+        If File.Exists(configPath) Then
+            Dim 设置() As String = Split(File.ReadAllText(configPath), vbCrLf)
             For i As Integer = 0 To UBound(设置)
                 If 设置(i) <> "" Then
                     设置解释(设置(i))
@@ -32,9 +78,10 @@ Public Class Form1
             "值节点背景色=" & 值节点背景色.BackColor.ToArgb,
             "引用点背景色=" & 引用点背景色.BackColor.ToArgb,
             "函数点背景色=" & 函数点背景色.BackColor.ToArgb,
-            "接口点背景色=" & 接口点背景色.BackColor.ToArgb
+            "接口点背景色=" & 接口点背景色.BackColor.ToArgb,
+            "已注册=" & 已注册
         }
-        File.WriteAllText("程序设置.ini", Join(设置.ToArray, vbCrLf))
+        File.WriteAllText(Application.StartupPath & "程序设置.ini", Join(设置.ToArray, vbCrLf))
     End Sub
     Private Sub 设置解释(s As String)
         If s.IndexOf("=") <> -1 Then
@@ -65,11 +112,13 @@ Public Class Form1
                     函数点背景色.BackColor = Color.FromArgb(sInt)
                 Case "接口点背景色"
                     接口点背景色.BackColor = Color.FromArgb(sInt)
+                Case "已注册"
+                    已注册 = sBool
             End Select
         End If
     End Sub
     Private Sub Form1_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
-        主域.结束()
+        If 主域 IsNot Nothing Then 主域.结束()
         保存设置文件()
     End Sub
 
@@ -223,5 +272,20 @@ Public Class Form1
             sender.BackColor = ColorD.Color
             主域.初始化颜色()
         End If
+    End Sub
+
+    Private Sub 解除文件关联_Click(sender As Object, e As EventArgs) Handles 解除文件关联.Click
+        程序卸载()
+    End Sub
+
+    Private Sub Form1_DragDrop(sender As Object, e As DragEventArgs) Handles MyBase.DragDrop
+        Dim filePath As String = e.Data.GetData("FileNameW")(0)
+        If File.Exists(filePath) Then
+            主域.加载(filePath)
+        End If
+    End Sub
+
+    Private Sub Form1_DragOver(sender As Object, e As DragEventArgs) Handles MyBase.DragOver
+        e.Effect = DragDropEffects.Copy
     End Sub
 End Class
