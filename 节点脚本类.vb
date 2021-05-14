@@ -5,6 +5,9 @@ Imports Node2D.节点平面类
 Imports System.Net
 
 Public Module 节点全局
+    Public 主界面 As Form1
+    Public 控制台 As NodeConsole
+    Public 全局等待锁 As New List(Of Integer)
     Public Structure 文本定位类
         Public 前缀 As String, 行 As Long, 列 As Long
         Public Sub New(beforeStr As String, row As Long, col As Long)
@@ -14,9 +17,31 @@ Public Module 节点全局
         End Sub
     End Structure
 
-    Public 主界面 As Form1
-    Public 控制台 As NodeConsole
-    Public 全局等待锁 As New List(Of Integer)
+    Public Function 删除连接(ByRef n1 As 节点类, ByRef n2 As 节点类) As Integer
+        If n1.父域.Equals(n2.父域) Then
+            If n1.连接.Contains(n2) And n2.连接.Contains(n1) Then
+                n1.连接.Remove(n2)
+                n2.连接.Remove(n1)
+                Return 2
+            End If
+            Return 1
+        End If
+        Return 0
+    End Function
+    Public Function 新建连接(ByRef n1 As 节点类, ByRef n2 As 节点类) As Integer
+        If n1.父域.Equals(n2.父域) Then
+            If 连接有效性判断(n1, n2) Then
+                If Not n1.连接.Contains(n2) And Not n2.连接.Contains(n1) Then
+                    n1.连接.Add(n2)
+                    n2.连接.Add(n1)
+                    Return 3
+                End If
+                Return 2
+            End If
+            Return 1
+        End If
+        Return 0
+    End Function
     Public Function WebClient头导出(ByRef wc As WebClient) As String
         Dim r As New List(Of String)
         For Each h As String In wc.Headers
@@ -176,8 +201,8 @@ Public Module 节点全局
     End Function
 End Module
 Public Class 节点脚本类
-    Public Declare Auto Function RegisterHotKey Lib "user32.dll" Alias "RegisterHotKey" (hwnd As IntPtr, id As Integer, fsModifiers As Integer, vk As Integer) As Boolean
-    Public Declare Auto Function UnRegisterHotKey Lib "user32.dll" Alias "UnregisterHotKey" (hwnd As IntPtr, id As Integer) As Boolean
+    Private Declare Auto Function RegisterHotKey Lib "user32.dll" Alias "RegisterHotKey" (hwnd As IntPtr, id As Integer, fsModifiers As Integer, vk As Integer) As Boolean
+    Private Declare Auto Function UnRegisterHotKey Lib "user32.dll" Alias "UnregisterHotKey" (hwnd As IntPtr, id As Integer) As Boolean
     Public Sub 解释(ByRef 节点 As 节点类)
         Dim 执行线程 As New Thread(AddressOf 函数解释)
         执行线程.SetApartmentState(ApartmentState.STA)
@@ -564,7 +589,7 @@ Public Class 节点脚本类
                     Else
                         Return String.Format("函数节点[{1}]第{2}行：遍历触发节点[{0}]不是函数点。", nodes(2).名字, 节点.名字, 行)
                     End If
-                Case "retest", "正则测试"
+                Case "re-test", "正则测试"
                     If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：正则匹配测试语句""{0}""过短。", targetString, 节点.名字, 行)
                     nodes(0).内容 = BoolToInt(Regex.IsMatch(nodes(1).内容, nodes(2).内容))
                 Case "split-for", "拆分循环"
@@ -587,10 +612,10 @@ Public Class 节点脚本类
                     nodes(0).删除()
                 Case "addline", "新增连接", "增加连接", "新建连接"
                     If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：新增连接语句""{0}""过短。", targetString, 节点.名字, 行)
-                    nodes(0).内容 = nodes(1).父域.新建连接(nodes(1), nodes(2))
+                    nodes(0).内容 = 新建连接(nodes(1), nodes(2))
                 Case "delline", "删除连接"
                     If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：删除连接语句""{0}""过短。", targetString, 节点.名字, 行)
-                    nodes(0).内容 = nodes(1).父域.删除连接(nodes(1), nodes(2))
+                    nodes(0).内容 = 删除连接(nodes(1), nodes(2))
                 Case "waitkeydown", "等待按键"
                     If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：等待按键语句""{0}""过短。", targetString, 节点.名字, 行)
                     '第3个参数意义： 0=nothing 1 -alt 2-ctrl 3-ctrl+alt 4-shift 5-alt+shift 6-ctrl+shift 7-ctrl+shift+alt
@@ -802,6 +827,14 @@ Public Class 节点脚本类
                     主界面.显示(nodes(0).内容)
                     控制台.显示(nodes(1).内容)
                     主界面.托盘显示(nodes(2).内容, nodes(3).内容, nodes(4).内容)
+                Case "re-match", "正则匹配"
+                    If targetString.Length < 5 Then Return String.Format("函数节点[{1}]第{2}行：正则匹配语句""{0}""过短。", targetString, 节点.名字, 行)
+                    If nodes(3).类型 <> "函数" Then Return String.Format("函数节点[{1}]第{2}行：节点[{0}]不是函数点。", nodes(3).名字, 节点.名字, 行)
+                    Dim reResult = Regex.Matches(nodes(0).内容, nodes(1).内容)
+                    For Each m As Match In reResult
+                        nodes(2).内容 = m.Value
+                        函数解释(nodes(3))
+                    Next
                 Case Else
                     Return 用户法则解释(节点, nodes, nodesString(0).ToLower, 行)
             End Select

@@ -502,31 +502,6 @@ Public Class 节点平面类
             鼠标当前位置.Y -= 1
         End If
     End Sub
-    Public Function 新建连接(ByRef n1 As 节点类, ByRef n2 As 节点类) As Integer
-        If n1.父域.Equals(n2.父域) Then
-            If 连接有效性判断(n1, n2) Then
-                If Not n1.连接.Contains(n2) And Not n2.连接.Contains(n1) Then
-                    n1.连接.Add(n2)
-                    n2.连接.Add(n1)
-                    Return 3
-                End If
-                Return 2
-            End If
-            Return 1
-        End If
-        Return 0
-    End Function
-    Public Function 删除连接(ByRef n1 As 节点类, ByRef n2 As 节点类) As Integer
-        If n1.父域.Equals(n2.父域) Then
-            If n1.连接.Contains(n2) And n2.连接.Contains(n1) Then
-                n1.连接.Remove(n2)
-                n2.连接.Remove(n1)
-                Return 2
-            End If
-            Return 1
-        End If
-        Return 0
-    End Function
     Private Sub 鼠标点击事件(sender As Object, e As MouseEventArgs) Handles 绘制空间.MouseDown
         鼠标位置获取(e.Location)
         If e.Button = MouseButtons.Right Then
