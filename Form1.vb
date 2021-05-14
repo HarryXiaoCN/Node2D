@@ -4,6 +4,41 @@ Imports System.IO
 Public Class Form1
     Private 主域 As 节点平面类
     Private 已注册 As Boolean
+
+    Private Delegate Sub 显示委托(v As String)
+    Private Delegate Sub 托盘显示委托(v As String, t As String, i As String)
+
+    Public Sub 托盘显示(v As String, t As String, i As String)
+        Dim d As New 托盘显示委托(AddressOf 托盘显示执行)
+        Invoke(d, v, t, i)
+    End Sub
+
+    Private Sub 托盘显示执行(v As String, t As String, i As String)
+        If v = "" Then
+            托盘.Visible = False
+        Else
+            托盘.Visible = True
+        End If
+        If t <> "" Then
+            托盘.Text = t
+        End If
+        If i <> "" And File.Exists(i) Then
+            主界面.托盘.Icon = Icon.ExtractAssociatedIcon(i)
+        End If
+    End Sub
+    Public Sub 显示(v As String)
+        Dim d As New 显示委托(AddressOf 显示执行)
+        Invoke(d, v)
+    End Sub
+
+    Private Sub 显示执行(v As String)
+        If v = "" Then
+            Visible = False
+            主域.节点编辑窗体.Visible = False
+        Else
+            Visible = True
+        End If
+    End Sub
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles Me.Load
         主界面 = Me
         程序版本.Text = "版本：" & Application.ProductVersion
@@ -30,7 +65,7 @@ Public Class Form1
             mSubKey = mKey.OpenSubKey("Node2D", True)
             If mSubKey Is Nothing Then
                 shellNewkey = mKey.CreateSubKey("Node2D", True)
-                shellNewkey.SetValue("", "Node2D File")
+                shellNewkey.SetValue("", "节点平面")
                 mKey.CreateSubKey("Node2D\Shell", True)
                 mKey.CreateSubKey("Node2D\Shell\Open", True)
                 shellNewkey = mKey.CreateSubKey("Node2D\Shell\Open\Command", True)
@@ -52,8 +87,12 @@ Public Class Form1
 
     Private Sub 启动命令处理()
         Dim cmd As String = Replace(Command(), """", "")
-        If cmd <> "" And File.Exists(cmd) Then
-            主域.加载(cmd)
+        If cmd <> "" Then
+            If File.Exists(cmd) Then
+                主域.加载(cmd)
+            Else
+                MsgBox("未知启动参数：" & cmd, 64, "节点平面")
+            End If
         End If
     End Sub
     Private Sub 加载设置文件()
@@ -119,6 +158,7 @@ Public Class Form1
     End Sub
     Private Sub Form1_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
         If 主域 IsNot Nothing Then 主域.结束()
+        托盘.Visible = False
         保存设置文件()
     End Sub
 
@@ -287,5 +327,17 @@ Public Class Form1
 
     Private Sub Form1_DragOver(sender As Object, e As DragEventArgs) Handles MyBase.DragOver
         e.Effect = DragDropEffects.Copy
+    End Sub
+
+    Private Sub 托盘打开平面_Click(sender As Object, e As EventArgs) Handles 托盘打开平面.Click
+        Visible = True
+    End Sub
+
+    Private Sub 托盘退出平面_Click(sender As Object, e As EventArgs) Handles 托盘退出平面.Click
+        Close()
+    End Sub
+
+    Private Sub 托盘_DoubleClick(sender As Object, e As EventArgs) Handles 托盘.DoubleClick
+        Visible = True
     End Sub
 End Class

@@ -2,6 +2,7 @@
 Imports System.IO
 Imports System.Threading
 Imports Node2D.节点平面类
+Imports System.Net
 
 Public Module 节点全局
     Public Structure 文本定位类
@@ -16,6 +17,21 @@ Public Module 节点全局
     Public 主界面 As Form1
     Public 控制台 As NodeConsole
     Public 全局等待锁 As New List(Of Integer)
+    Public Function WebClient头导出(ByRef wc As WebClient) As String
+        Dim r As New List(Of String)
+        For Each h As String In wc.Headers
+            r.Add(h)
+        Next
+        Return Join(r.ToArray, vbCrLf)
+    End Function
+    Public Sub WebClient头写入(ByRef wc As WebClient, c As String)
+        Dim cT() As String = Split(c, vbCrLf)
+        For Each h As String In cT
+            If h.IndexOf(":") <> -1 Then
+                wc.Headers.Add(h)
+            End If
+        Next
+    End Sub
     Public Sub 程序卸载()
         Dim mKey As Microsoft.Win32.RegistryKey = Microsoft.Win32.Registry.ClassesRoot
         Try
@@ -767,6 +783,25 @@ Public Class 节点脚本类
                     Else
                         Return String.Format("函数节点[{1}]第{2}行：用户法则""{0}""不存在。", nodes(0).名字, 节点.名字, 行)
                     End If
+                Case "downloadstring", "下载字符串", "下载文本"
+                    If targetString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：下载字符串语句""{0}""过短。", targetString, 节点.名字, 行)
+                    Dim wc As New WebClient
+                    Try
+                        WebClient头写入(wc, nodes(2).内容)
+                        nodes(0).内容 = wc.DownloadString(nodes(1).内容)
+                        nodes(2).内容 = WebClient头导出(wc)
+                    Catch ex As Exception
+                        Return String.Format("函数节点[{1}]第{2}行：下载字符串出错：{0}", ex.Message, 节点.名字, 行)
+                    End Try
+                    wc.Dispose()
+                Case "replace", "替换"
+                    If targetString.Length < 5 Then Return String.Format("函数节点[{1}]第{2}行：替换语句""{0}""过短。", targetString, 节点.名字, 行)
+                    nodes(0).内容 = Replace(nodes(1).内容, nodes(2).内容, nodes(3).内容)
+                Case "visible", "显示"
+                    If targetString.Length < 6 Then Return String.Format("函数节点[{1}]第{2}行：显示语句""{0}""过短。", targetString, 节点.名字, 行)
+                    主界面.显示(nodes(0).内容)
+                    控制台.显示(nodes(1).内容)
+                    主界面.托盘显示(nodes(2).内容, nodes(3).内容, nodes(4).内容)
                 Case Else
                     Return 用户法则解释(节点, nodes, nodesString(0).ToLower, 行)
             End Select

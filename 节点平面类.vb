@@ -376,7 +376,8 @@ Public Class 节点平面类
     End Sub
 
     Public Sub 加载(filePath As String)
-        Dim s() As String = Split(File.ReadAllText(filePath), vbCrLf)
+        Dim f As String = File.ReadAllText(filePath)
+        Dim s() As String = Split(f, vbCrLf)
         If s(0) = "NODE2D.20210424.1" Then
             Load_NODE2D_20210424_1(filePath, s)
         ElseIf s(0) = "NODE2D.20210430.1" Then
@@ -410,6 +411,8 @@ Public Class 节点平面类
             For Each n As 节点类 In 本域节点.Values
                 n.确认连接()
             Next
+        ElseIf f = "" Then
+            路径赋予(filePath)
         End If
         If 本域节点.ContainsKey("主节点") Then
             If 本域节点("主节点").类型 = "函数" Then

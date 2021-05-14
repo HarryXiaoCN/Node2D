@@ -3,6 +3,20 @@
 Public Class NodeConsole
     Private Delegate Sub 添加消息委托(info As String)
     Public 父窗体 As Form1
+    Private Delegate Sub 显示委托(v As String)
+
+    Public Sub 显示(v As String)
+        Dim d As New 显示委托(AddressOf 显示执行)
+        Invoke(d, v)
+    End Sub
+
+    Private Sub 显示执行(v As String)
+        If v = "" Then
+            Visible = False
+        Else
+            Visible = True
+        End If
+    End Sub
     Public Sub New(ByRef parent As Form1)
 
         ' 此调用是设计器所必需的。

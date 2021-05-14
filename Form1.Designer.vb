@@ -22,6 +22,7 @@ Partial Class Form1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
         Me.绘制空间 = New System.Windows.Forms.PictureBox()
         Me.菜单栏 = New System.Windows.Forms.MenuStrip()
@@ -65,8 +66,13 @@ Partial Class Form1
         Me.OFD = New System.Windows.Forms.OpenFileDialog()
         Me.FontD = New System.Windows.Forms.FontDialog()
         Me.ColorD = New System.Windows.Forms.ColorDialog()
+        Me.托盘 = New System.Windows.Forms.NotifyIcon(Me.components)
+        Me.托盘菜单 = New System.Windows.Forms.ContextMenuStrip(Me.components)
+        Me.托盘打开平面 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.托盘退出平面 = New System.Windows.Forms.ToolStripMenuItem()
         CType(Me.绘制空间, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.菜单栏.SuspendLayout()
+        Me.托盘菜单.SuspendLayout()
         Me.SuspendLayout()
         '
         '绘制空间
@@ -341,6 +347,30 @@ Partial Class Form1
         Me.OFD.Filter = "节点平面|*.n2d"
         Me.OFD.Title = "载入节点平面"
         '
+        '托盘
+        '
+        Me.托盘.ContextMenuStrip = Me.托盘菜单
+        Me.托盘.Icon = CType(resources.GetObject("托盘.Icon"), System.Drawing.Icon)
+        Me.托盘.Text = "节点平面"
+        '
+        '托盘菜单
+        '
+        Me.托盘菜单.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.托盘打开平面, Me.托盘退出平面})
+        Me.托盘菜单.Name = "托盘菜单"
+        Me.托盘菜单.Size = New System.Drawing.Size(143, 48)
+        '
+        '托盘打开平面
+        '
+        Me.托盘打开平面.Name = "托盘打开平面"
+        Me.托盘打开平面.Size = New System.Drawing.Size(142, 22)
+        Me.托盘打开平面.Text = "打开平面(&O)"
+        '
+        '托盘退出平面
+        '
+        Me.托盘退出平面.Name = "托盘退出平面"
+        Me.托盘退出平面.Size = New System.Drawing.Size(142, 22)
+        Me.托盘退出平面.Text = "退出平面(&Q)"
+        '
         'Form1
         '
         Me.AllowDrop = True
@@ -361,6 +391,7 @@ Partial Class Form1
         CType(Me.绘制空间, System.ComponentModel.ISupportInitialize).EndInit()
         Me.菜单栏.ResumeLayout(False)
         Me.菜单栏.PerformLayout()
+        Me.托盘菜单.ResumeLayout(False)
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -408,4 +439,8 @@ Partial Class Form1
     Friend WithEvents ColorD As ColorDialog
     Friend WithEvents 解除文件关联 As ToolStripMenuItem
     Friend WithEvents ToolStripSeparator5 As ToolStripSeparator
+    Friend WithEvents 托盘 As NotifyIcon
+    Friend WithEvents 托盘菜单 As ContextMenuStrip
+    Friend WithEvents 托盘打开平面 As ToolStripMenuItem
+    Friend WithEvents 托盘退出平面 As ToolStripMenuItem
 End Class
