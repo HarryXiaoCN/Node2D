@@ -16,6 +16,14 @@ Public Module 节点全局
             列 = col
         End Sub
     End Structure
+    Public Function 获得正则有效捕获(r As Match) As String
+        For Each g As Group In r.Groups
+            If g.Value <> "" Then
+                Return g.Value
+            End If
+        Next
+        Return ""
+    End Function
 
     Public Function 删除连接(ByRef n1 As 节点类, ByRef n2 As 节点类) As Integer
         If n1.父域.Equals(n2.父域) Then
@@ -209,6 +217,10 @@ Public Class 节点脚本类
         执行线程.Start(节点)
     End Sub
     Private Sub 函数解释(节点 As 节点类)
+        If 节点.类型 <> "函数" Then
+            控制台.添加消息(String.Format("函数节点[{0}]：不是函数节点，无法执行解释。", 节点.名字))
+            Exit Sub
+        End If
         Dim 句集() As String = Split(节点.内容, vbCrLf)
         For i As Integer = 0 To UBound(句集)
             If 句集(i) <> "" And Not 句集(i).StartsWith("'") Then
@@ -284,38 +296,176 @@ Public Class 节点脚本类
                     If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：拼接语句""{0}""过短。", targetString, 节点.名字, 行)
                     nodes(0).内容 = nodes(1).内容 & nodes(2).内容
                 Case ">", "大于"
-                    If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：大于判断语句""{0}""过短。", targetString, 节点.名字, 行)
-                    nodes(0).内容 = BoolToInt(Val(nodes(1).内容) > Val(nodes(2).内容))
+                    Select Case nodesString.Length
+                        Case 4
+                            If Val(nodes(0).内容) > Val(nodes(1).内容) Then
+                                函数解释(nodes(2))
+                            End If
+                        Case 5
+                            If Val(nodes(0).内容) > Val(nodes(1).内容) Then
+                                函数解释(nodes(2))
+                            Else
+                                函数解释(nodes(3))
+                            End If
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：大于判断语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
+                    End Select
                 Case "<", "小于"
-                    If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：小于判断语句""{0}""过短。", targetString, 节点.名字, 行)
-                    nodes(0).内容 = BoolToInt(Val(nodes(1).内容) < Val(nodes(2).内容))
+                    Select Case nodesString.Length
+                        Case 4
+                            If Val(nodes(0).内容) < Val(nodes(1).内容) Then
+                                函数解释(nodes(2))
+                            End If
+                        Case 5
+                            If Val(nodes(0).内容) < Val(nodes(1).内容) Then
+                                函数解释(nodes(2))
+                            Else
+                                函数解释(nodes(3))
+                            End If
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：小于判断语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
+                    End Select
                 Case ">=", "大于或等于"
-                    If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：大于或等于判断语句""{0}""过短。", targetString, 节点.名字, 行)
-                    nodes(0).内容 = BoolToInt(Val(nodes(1).内容) >= Val(nodes(2).内容))
+                    Select Case nodesString.Length
+                        Case 4
+                            If Val(nodes(0).内容) >= Val(nodes(1).内容) Then
+                                函数解释(nodes(2))
+                            End If
+                        Case 5
+                            If Val(nodes(0).内容) >= Val(nodes(1).内容) Then
+                                函数解释(nodes(2))
+                            Else
+                                函数解释(nodes(3))
+                            End If
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：大于或等于判断语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
+                    End Select
                 Case "<=", "小于或等于"
-                    If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：小于或等于判断语句""{0}""过短。", targetString, 节点.名字, 行)
-                    nodes(0).内容 = BoolToInt(Val(nodes(1).内容) <= Val(nodes(2).内容))
+                    Select Case nodesString.Length
+                        Case 4
+                            If Val(nodes(0).内容) <= Val(nodes(1).内容) Then
+                                函数解释(nodes(2))
+                            End If
+                        Case 5
+                            If Val(nodes(0).内容) <= Val(nodes(1).内容) Then
+                                函数解释(nodes(2))
+                            Else
+                                函数解释(nodes(3))
+                            End If
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：小于或等于判断语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
+                    End Select
                 Case "==", "等于"
-                    If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：等于判断语句""{0}""过短。", targetString, 节点.名字, 行)
-                    nodes(0).内容 = BoolToInt(nodes(1).内容 = nodes(2).内容)
+                    Select Case nodesString.Length
+                        Case 4
+                            If Val(nodes(0).内容) = Val(nodes(1).内容) Then
+                                函数解释(nodes(2))
+                            End If
+                        Case 5
+                            If Val(nodes(0).内容) = Val(nodes(1).内容) Then
+                                函数解释(nodes(2))
+                            Else
+                                函数解释(nodes(3))
+                            End If
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：等于判断语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
+                    End Select
                 Case "!=", "<>", "不等于"
-                    If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：不等于判断语句""{0}""过短。", targetString, 节点.名字, 行)
-                    nodes(0).内容 = BoolToInt(nodes(1).内容 <> nodes(2).内容)
+                    Select Case nodesString.Length
+                        Case 4
+                            If Val(nodes(0).内容) <> Val(nodes(1).内容) Then
+                                函数解释(nodes(2))
+                            End If
+                        Case 5
+                            If Val(nodes(0).内容) <> Val(nodes(1).内容) Then
+                                函数解释(nodes(2))
+                            Else
+                                函数解释(nodes(3))
+                            End If
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：不等于判断语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
+                    End Select
                 Case "and", "与"
-                    If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：与运算语句""{0}""过短。", targetString, 节点.名字, 行)
-                    nodes(0).内容 = BoolToInt(CBool(Val(nodes(1).内容)) And CBool(Val(nodes(2).内容)))
+                    Select Case nodesString.Length
+                        Case 4
+                            If CBool(Val(nodes(0).内容)) And CBool(Val(nodes(1).内容)) Then
+                                函数解释(nodes(2))
+                            End If
+                        Case 5
+                            If CBool(Val(nodes(0).内容) And Val(nodes(1).内容)) Then
+                                函数解释(nodes(2))
+                            Else
+                                函数解释(nodes(3))
+                            End If
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：与运算判断语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
+                    End Select
                 Case "or", "或"
-                    If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：或运算语句""{0}""过短。", targetString, 节点.名字, 行)
-                    nodes(0).内容 = BoolToInt(CBool(Val(nodes(1).内容)) Or CBool(Val(nodes(2).内容)))
+                    Select Case nodesString.Length
+                        Case 4
+                            If CBool(Val(nodes(0).内容)) Or CBool(Val(nodes(1).内容)) Then
+                                函数解释(nodes(2))
+                            End If
+                        Case 5
+                            If CBool(Val(nodes(0).内容)) Or CBool(Val(nodes(1).内容)) Then
+                                函数解释(nodes(2))
+                            Else
+                                函数解释(nodes(3))
+                            End If
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：或运算判断语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
+                    End Select
                 Case "!", "not", "非"
-                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：非运算语句""{0}""过短。", targetString, 节点.名字, 行)
-                    nodes(0).内容 = BoolToInt(Not CBool(Val(nodes(1).内容)))
+                    Select Case nodesString.Length
+                        Case 3
+                            If Not CBool(Val(nodes(0).内容)) Then
+                                函数解释(nodes(1))
+                            End If
+                        Case 4
+                            If Not CBool(Val(nodes(0).内容)) Then
+                                函数解释(nodes(1))
+                            Else
+                                函数解释(nodes(2))
+                            End If
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：非运算判断语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
+                    End Select
                 Case "xor", "异或"
-                    If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：异或运算语句""{0}""过短。", targetString, 节点.名字, 行)
-                    nodes(0).内容 = BoolToInt(CBool(Val(nodes(1).内容)) Xor CBool(Val(nodes(2).内容)))
+                    Select Case nodesString.Length
+                        Case 4
+                            If CBool(Val(nodes(0).内容)) Xor CBool(Val(nodes(1).内容)) Then
+                                函数解释(nodes(2))
+                            End If
+                        Case 5
+                            If CBool(Val(nodes(0).内容)) Xor CBool(Val(nodes(1).内容)) Then
+                                函数解释(nodes(2))
+                            Else
+                                函数解释(nodes(3))
+                            End If
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：异或运算判断语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
+                    End Select
                 Case "in", "indexof", "存在"
-                    If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：存在语句""{0}""过短。", targetString, 节点.名字, 行)
-                    nodes(0).内容 = nodes(1).内容.IndexOf(nodes(2).内容)
+                    Select Case nodesString.Length
+                        Case 4
+                            nodes(0).内容 = nodes(1).内容.IndexOf(nodes(2).内容)
+                        Case 5
+                            Dim r As Long = nodes(1).内容.IndexOf(nodes(2).内容)
+                            nodes(0).内容 = r
+                            If r <> -1 Then
+                                函数解释(nodes(3))
+                            End If
+                        Case 6
+                            Dim r As Long = nodes(1).内容.IndexOf(nodes(2).内容)
+                            nodes(0).内容 = r
+                            If r <> -1 Then
+                                函数解释(nodes(3))
+                            Else
+                                函数解释(nodes(4))
+                            End If
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：存在判断语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
+                    End Select
                 Case ":", "切片"
                     Select Case nodesString.Length
                         Case 4
@@ -408,32 +558,20 @@ Public Class 节点脚本类
                     If 调用节点 Is Nothing Then
                         Return String.Format("函数节点[{0}]第{1}行：根据节点[{2}]的内容""{3}""未找到对应欲调用节点。", 节点.名字, 行, nodes(0).名字, nodes(0).内容)
                     Else
-                        If 调用节点.类型 = "函数" Then
-                            函数解释(调用节点)
-                        Else
-                            Return String.Format("函数节点[{0}]第{1}行：节点[{2}]不是函数节点，无法执行。", 节点.名字, 行, 调用节点.名字)
-                        End If
+                        函数解释(调用节点)
                     End If
                 Case "m-run", "多线程运行", "并行"
                     If nodesString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：并行语句""{0}""过短。", targetString, 节点.名字, 行)
-                    If nodes(0).类型 = "函数" Then
-                        Dim t As New Thread(AddressOf 函数解释)
-                        t.Start(nodes(0))
-                    Else
-                        Return String.Format("函数节点[{0}]第{1}行：节点[{2}]不是函数节点，无法执行。", 节点.名字, 行, nodes(0).名字)
-                    End If
+                    Dim t As New Thread(AddressOf 函数解释)
+                    t.Start(nodes(0))
                 Case "m-call", "多线程调用", "并用"
                     If nodesString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：并用语句""{0}""过短。", targetString, 节点.名字, 行)
                     Dim 调用节点 As 节点类 = 获得节点(nodes(0).内容, nodes(0))
                     If 调用节点 Is Nothing Then
                         Return String.Format("函数节点[{0}]第{1}行：根据节点[{2}]的内容""{3}""未找到对应欲调用节点。", 节点.名字, 行, nodes(0).名字, nodes(0).内容)
                     Else
-                        If 调用节点.类型 = "函数" Then
-                            Dim t As New Thread(AddressOf 函数解释)
-                            t.Start(调用节点)
-                        Else
-                            Return String.Format("函数节点[{0}]第{1}行：节点[{2}]不是函数节点，无法执行。", 节点.名字, 行, 调用节点.名字)
-                        End If
+                        Dim t As New Thread(AddressOf 函数解释)
+                        t.Start(调用节点)
                     End If
                 Case "split", "分拆"
                     Select Case nodesString.Length
@@ -466,18 +604,10 @@ Public Class 节点脚本类
                 Case "n-for", "节点遍历"
                     Select Case nodesString.Length
                         Case 3
-                            If nodes(1).类型 = "函数" Then
-                                节点遍历(节点.父域, nodes(0), nodes(1))
-                            Else
-                                Return String.Format("函数节点[{1}]第{2}行：遍历触发节点[{0}]不是函数点。", nodes(1).名字, 节点.名字, 行)
-                            End If
+                            节点遍历(节点.父域, nodes(0), nodes(1))
                         Case 5
                             If nodes(0).空间.ContainsKey(nodes(1).内容) Then
-                                If nodes(3).类型 = "函数" Then
-                                    节点遍历(nodes(0).空间(nodes(1).内容), nodes(2), nodes(3))
-                                Else
-                                    Return String.Format("函数节点[{1}]第{2}行：遍历触发节点[{0}]不是函数点。", nodes(3).名字, 节点.名字, 行)
-                                End If
+                                节点遍历(nodes(0).空间(nodes(1).内容), nodes(2), nodes(3))
                             Else
                                 Return String.Format("函数节点[{0}]第{1}行：欲遍历平面缺失，引用节点[{2}]的引用空间[{3}]未找到。", 节点.名字, 行, nodes(0).名字, nodes(1).名字)
                             End If
@@ -584,17 +714,13 @@ Public Class 节点脚本类
                     End If
                 Case "l-for", "连接遍历"
                     If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：连接遍历语句""{0}""过短。", targetString, 节点.名字, 行)
-                    If nodes(2).类型 = "函数" Then
-                        连接遍历(nodes(0), nodes(1), nodes(2))
-                    Else
-                        Return String.Format("函数节点[{1}]第{2}行：遍历触发节点[{0}]不是函数点。", nodes(2).名字, 节点.名字, 行)
-                    End If
+                    连接遍历(nodes(0), nodes(1), nodes(2))
+
                 Case "re-test", "正则测试"
                     If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：正则匹配测试语句""{0}""过短。", targetString, 节点.名字, 行)
                     nodes(0).内容 = BoolToInt(Regex.IsMatch(nodes(1).内容, nodes(2).内容))
                 Case "split-for", "拆分循环"
                     If nodesString.Length < 5 Then Return String.Format("函数节点[{1}]第{2}行：拆分循环语句""{0}""过短。", targetString, 节点.名字, 行)
-                    If nodes(3).类型 <> "函数" Then Return String.Format("函数节点[{0}]第{1}行：节点[{2}]不是函数点。", 节点.名字, 行, nodes(3).名字)
                     Dim cT() As String = Split(nodes(0).内容, nodes(1).内容)
                     For i As Long = 0 To UBound(cT)
                         nodes(2).内容 = cT(i)
@@ -827,14 +953,18 @@ Public Class 节点脚本类
                     主界面.显示(nodes(0).内容)
                     控制台.显示(nodes(1).内容)
                     主界面.托盘显示(nodes(2).内容, nodes(3).内容, nodes(4).内容)
-                Case "re-match", "正则匹配"
-                    If targetString.Length < 5 Then Return String.Format("函数节点[{1}]第{2}行：正则匹配语句""{0}""过短。", targetString, 节点.名字, 行)
-                    If nodes(3).类型 <> "函数" Then Return String.Format("函数节点[{1}]第{2}行：节点[{0}]不是函数点。", nodes(3).名字, 节点.名字, 行)
+                Case "re-matches-for", "re-ms-for", "正则匹配遍历"
+                    If targetString.Length < 6 Then Return String.Format("函数节点[{1}]第{2}行：正则匹配遍历语句""{0}""过短。", targetString, 节点.名字, 行)
                     Dim reResult = Regex.Matches(nodes(0).内容, nodes(1).内容)
                     For Each m As Match In reResult
                         nodes(2).内容 = m.Value
-                        函数解释(nodes(3))
+                        nodes(3).内容 = 获得正则有效捕获(m)
+                        函数解释(nodes(4))
                     Next
+                Case "re-match", "re-m", "正则捕获"
+                    If targetString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：正则捕获语句""{0}""过短。", targetString, 节点.名字, 行)
+                    Dim reResult = Regex.Match(nodes(0).内容, nodes(1).内容)
+                    nodes(2).内容 = 获得正则有效捕获(reResult)
                 Case Else
                     Return 用户法则解释(节点, nodes, nodesString(0).ToLower, 行)
             End Select
