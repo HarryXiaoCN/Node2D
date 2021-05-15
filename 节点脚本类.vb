@@ -17,9 +17,9 @@ Public Module 节点全局
         End Sub
     End Structure
     Public Function 获得正则有效捕获(r As Match) As String
-        For Each g As Group In r.Groups
-            If g.Value <> "" Then
-                Return g.Value
+        For i As Integer = 1 To r.Groups.Count - 1
+            If r.Groups(i).Value <> "" Then
+                Return r.Groups(i).Value
             End If
         Next
         Return ""

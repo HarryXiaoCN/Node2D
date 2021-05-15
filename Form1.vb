@@ -66,6 +66,10 @@ Public Class Form1
             If mSubKey Is Nothing Then
                 shellNewkey = mKey.CreateSubKey("Node2D", True)
                 shellNewkey.SetValue("", "节点平面")
+                If File.Exists(Application.StartupPath & "Node2D_File_Ico.ico") Then
+                    shellNewkey = mKey.CreateSubKey("Node2D\DefaultIcon", True)
+                    shellNewkey.SetValue("", Application.StartupPath & "node2d_file_ico.ico")
+                End If
                 mKey.CreateSubKey("Node2D\Shell", True)
                 mKey.CreateSubKey("Node2D\Shell\Open", True)
                 shellNewkey = mKey.CreateSubKey("Node2D\Shell\Open\Command", True)
