@@ -16,6 +16,34 @@ Public Module 节点全局
             列 = col
         End Sub
     End Structure
+    Public Function 获得字符(s As String) As String
+        If s = "" Then Return ""
+        Dim r As New List(Of String)
+        Dim sT() As String = Split(s, " ")
+        For Each c As String In sT
+            Dim ci As Integer = Val(c)
+            Try
+                r.Add(Chr(ci))
+            Catch ex As Exception
+                Dim b() As Byte = BitConverter.GetBytes(CUShort(c))
+                r.Add(Text.Encoding.Unicode.GetString(b))
+            End Try
+        Next
+        Return Join(r.ToArray, "")
+    End Function
+    Public Function 获得ASCII码(s As String) As String
+        If s = "" Then Return ""
+        Dim r As New List(Of String)
+        For Each c As String In s
+            Try
+                r.Add(Asc(c))
+            Catch ex As Exception
+                Dim b() As Byte = Text.Encoding.Unicode.GetBytes(c)
+                r.Add(BitConverter.ToUInt16(b))
+            End Try
+        Next
+        Return Join(r.ToArray, " ")
+    End Function
     Public Function 获得正则有效捕获(r As Match) As String
         For i As Integer = 1 To r.Groups.Count - 1
             If r.Groups(i).Value <> "" Then
@@ -209,8 +237,6 @@ Public Module 节点全局
     End Function
 End Module
 Public Class 节点脚本类
-    Private Declare Auto Function RegisterHotKey Lib "user32.dll" Alias "RegisterHotKey" (hwnd As IntPtr, id As Integer, fsModifiers As Integer, vk As Integer) As Boolean
-    Private Declare Auto Function UnRegisterHotKey Lib "user32.dll" Alias "UnregisterHotKey" (hwnd As IntPtr, id As Integer) As Boolean
     Public Sub 解释(ByRef 节点 As 节点类)
         Dim 执行线程 As New Thread(AddressOf 函数解释)
         执行线程.SetApartmentState(ApartmentState.STA)
@@ -269,6 +295,12 @@ Public Class 节点脚本类
             End If
             If nodes.Last Is Nothing Then Return String.Format("函数节点[{0}]第{1}行：参与节点[{2}]未找到。", 节点.名字, 行, nodesString(i))
         Next
+        If 主界面.激活节点变色.Checked Then
+            节点.激活 = 180
+            For Each n As 节点类 In nodes
+                n.激活 = 180
+            Next
+        End If
         Try
             Select Case nodesString(0).ToLower
                 Case "+", "加", "加法"
@@ -746,13 +778,13 @@ Public Class 节点脚本类
                     If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：等待按键语句""{0}""过短。", targetString, 节点.名字, 行)
                     '第3个参数意义： 0=nothing 1 -alt 2-ctrl 3-ctrl+alt 4-shift 5-alt+shift 6-ctrl+shift 7-ctrl+shift+alt
                     Dim tid As Integer = Thread.CurrentThread.ManagedThreadId
-                    RegisterHotKey(控制台.Handle, tid, Val(nodes(0).内容), Val(nodes(1).内容))
+                    控制台.热键注册(控制台.获得窗体句柄(), tid, Val(nodes(0).内容), Val(nodes(1).内容))
                     全局等待锁.Add(Thread.CurrentThread.ManagedThreadId)
                     Do While 全局等待锁.Contains(tid)
                         Application.DoEvents()
                         Thread.Sleep(10)
                     Loop
-                    UnRegisterHotKey(控制台.Handle, tid)
+                    控制台.热键卸载(控制台.获得窗体句柄(), tid)
                 Case "sendkeys", "发送按键"
                     If nodesString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：发送按键语句""{0}""过短。", targetString, 节点.名字, 行)
                     SendKeys.SendWait(nodes(0).内容)
@@ -965,6 +997,18 @@ Public Class 节点脚本类
                     If targetString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：正则捕获语句""{0}""过短。", targetString, 节点.名字, 行)
                     Dim reResult = Regex.Match(nodes(0).内容, nodes(1).内容)
                     nodes(2).内容 = 获得正则有效捕获(reResult)
+                Case "debug-append", "debug-a", "调试追加写入"
+                    If targetString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：调试追加写入语句""{0}""过短。", targetString, 节点.名字, 行)
+                    控制台.添加消息(nodes(0).内容)
+                Case "debug-write", "debug-w", "调试覆盖写入"
+                    If targetString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：调试覆盖写入语句""{0}""过短。", targetString, 节点.名字, 行)
+                    控制台.设定消息(nodes(0).内容)
+                Case "asc", "ord", "编码"
+                    If targetString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：获得字符编码语句""{0}""过短。", targetString, 节点.名字, 行)
+                    nodes(0).内容 = 获得ASCII码(nodes(1).内容)
+                Case "chr", "字符"
+                    If targetString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：获得对应字符语句""{0}""过短。", targetString, 节点.名字, 行)
+                    nodes(0).内容 = 获得字符(nodes(1).内容)
                 Case Else
                     Return 用户法则解释(节点, nodes, nodesString(0).ToLower, 行)
             End Select

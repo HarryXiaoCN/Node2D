@@ -1,9 +1,33 @@
 ﻿Imports System.ComponentModel
 
 Public Class NodeConsole
+    Private Declare Auto Function RegisterHotKey Lib "user32.dll" Alias "RegisterHotKey" (hwnd As IntPtr, id As Integer, fsModifiers As Integer, vk As Integer) As Boolean
+    Private Declare Auto Function UnRegisterHotKey Lib "user32.dll" Alias "UnregisterHotKey" (hwnd As IntPtr, id As Integer) As Boolean
+
     Private Delegate Sub 添加消息委托(info As String)
+    Private Delegate Sub 设定消息委托(info As String)
     Public 父窗体 As Form1
     Private Delegate Sub 显示委托(v As String)
+    Private Delegate Sub 热键注册委托(hwnd As IntPtr, id As Integer, fsModifiers As Integer, vk As Integer)
+    Private Delegate Sub 热键卸载委托(hwnd As IntPtr, id As Integer)
+    Private Delegate Function 获得窗体句柄委托() As IntPtr
+
+    Public Function 获得窗体句柄() As IntPtr
+        Dim d As New 获得窗体句柄委托(AddressOf 获得窗体句柄执行)
+        Return Invoke(d)
+    End Function
+    Public Function 获得窗体句柄执行() As IntPtr
+        Return Handle
+    End Function
+
+    Public Sub 热键注册(hwnd As IntPtr, id As Integer, fsModifiers As Integer, vk As Integer)
+        Dim d As New 热键注册委托(AddressOf RegisterHotKey)
+        Invoke(d, hwnd, id, fsModifiers, vk)
+    End Sub
+    Public Sub 热键卸载(hwnd As IntPtr, id As Integer)
+        Dim d As New 热键卸载委托(AddressOf UnRegisterHotKey)
+        Invoke(d, hwnd, id)
+    End Sub
 
     Public Sub 显示(v As String)
         Dim d As New 显示委托(AddressOf 显示执行)
@@ -37,6 +61,19 @@ Public Class NodeConsole
     Public Sub 添加消息(info As String)
         Dim d As New 添加消息委托(AddressOf 添加消息执行)
         Invoke(d, info)
+    End Sub
+    Public Sub 设定消息(info As String)
+        Dim d As New 设定消息委托(AddressOf 设定消息执行)
+        Invoke(d, info)
+    End Sub
+    Private Sub 设定消息执行(info As String)
+        If info <> "" Then
+            If 父窗体.控制台输出时间戳.Checked Then
+                控制输出.Text = String.Format("{0}: {1}", Now.ToString("yyyy-MM-dd HH:mm:ss.fff"), info) & vbCrLf
+            Else
+                控制输出.Text = info & vbCrLf
+            End If
+        End If
     End Sub
     Private Sub 添加消息执行(info As String)
         If info <> "" Then

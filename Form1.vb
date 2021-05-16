@@ -74,9 +74,9 @@ Public Class Form1
                 mKey.CreateSubKey("Node2D\Shell\Open", True)
                 shellNewkey = mKey.CreateSubKey("Node2D\Shell\Open\Command", True)
                 shellNewkey.SetValue("", Application.ExecutablePath & " %1")
-                mKey.CreateSubKey("Node2D\Shell\Edit", True)
-                shellNewkey = mKey.CreateSubKey("Node2D\Shell\Edit\Command", True)
-                shellNewkey.SetValue("", Application.ExecutablePath & " %1")
+                'mKey.CreateSubKey("Node2D\Shell\Edit", True)
+                'shellNewkey = mKey.CreateSubKey("Node2D\Shell\Edit\Command", True)
+                'shellNewkey.SetValue("", Application.ExecutablePath & " %1")
             End If
             已注册 = True
             保存设置文件()
@@ -122,7 +122,8 @@ Public Class Form1
             "引用点背景色=" & 引用点背景色.BackColor.ToArgb,
             "函数点背景色=" & 函数点背景色.BackColor.ToArgb,
             "接口点背景色=" & 接口点背景色.BackColor.ToArgb,
-            "已注册=" & 已注册
+            "已注册=" & 已注册,
+            "激活节点变色=" & 激活节点变色.Checked
         }
         File.WriteAllText(Application.StartupPath & "程序设置.ini", Join(设置.ToArray, vbCrLf))
     End Sub
@@ -157,6 +158,8 @@ Public Class Form1
                     接口点背景色.BackColor = Color.FromArgb(sInt)
                 Case "已注册"
                     已注册 = sBool
+                Case "激活节点变色"
+                    激活节点变色.Checked = sBool
             End Select
         End If
     End Sub
@@ -343,5 +346,9 @@ Public Class Form1
 
     Private Sub 托盘_DoubleClick(sender As Object, e As EventArgs) Handles 托盘.DoubleClick
         Visible = True
+    End Sub
+
+    Private Sub 激活节点变色_Click(sender As Object, e As EventArgs) Handles 激活节点变色.Click
+        激活节点变色.Checked = Not 激活节点变色.Checked
     End Sub
 End Class

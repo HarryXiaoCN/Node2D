@@ -1,6 +1,7 @@
 ﻿Public Class Node
     Public 主域 As 节点平面类
     Private 避免咚 As Boolean
+    Private 按住坐标 As New Point
     Private Sub 节点名_TextChanged(sender As Object, e As EventArgs) Handles 节点名.TextChanged
         If 节点名.Text <> 主域.当前编辑节点.名字 Then
             If 主域.本域节点.ContainsKey(节点名.Text) Then
@@ -115,11 +116,55 @@
         End If
     End Sub
 
-    Private Sub Node_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-
+    Private Sub 大小控制_中_Click(sender As Object, e As EventArgs) Handles 大小控制_中.Click
+        大小控制颜色还原()
+        sender.ForeColor = Color.MediumSpringGreen
+        Width = Screen.PrimaryScreen.Bounds.Width * 0.382
+        Height = Screen.PrimaryScreen.Bounds.Height * 0.618
+        主域.节点编辑窗体居中对齐()
     End Sub
 
-    Private Sub Node_KeyUp(sender As Object, e As KeyEventArgs) Handles Me.KeyUp
+    Private Sub 大小控制_小_Click(sender As Object, e As EventArgs) Handles 大小控制_小.Click
+        大小控制颜色还原()
+        sender.ForeColor = Color.MediumSpringGreen
+        Width = 306
+        Height = 230
+        主域.节点编辑窗体居中对齐()
+    End Sub
 
+    Private Sub 大小控制_大_Click(sender As Object, e As EventArgs) Handles 大小控制_大.Click
+        大小控制颜色还原()
+        sender.ForeColor = Color.MediumSpringGreen
+        Left = 0
+        Top = 0
+        Width = Screen.PrimaryScreen.Bounds.Width
+        Height = Screen.PrimaryScreen.Bounds.Height
+    End Sub
+    Private Sub 大小控制颜色还原()
+        大小控制_小.ForeColor = Color.White
+        大小控制_中.ForeColor = Color.White
+        大小控制_大.ForeColor = Color.White
+    End Sub
+
+    Private Sub 大小控制_MouseEnter(sender As Object, e As EventArgs) Handles 大小控制_小.MouseEnter, 大小控制_中.MouseEnter, 大小控制_大.MouseEnter
+        '大小控制_小.BackColor = Color.DarkGray
+        '大小控制_中.BackColor = Color.DarkGray
+        '大小控制_大.BackColor = Color.DarkGray
+        sender.BackColor = Color.Gray
+    End Sub
+
+    Private Sub 大小控制_MouseLeave(sender As Object, e As EventArgs) Handles 大小控制_小.MouseLeave, 大小控制_中.MouseLeave, 大小控制_大.MouseLeave
+        sender.BackColor = Color.DarkGray
+    End Sub
+
+    Private Sub Node_MouseDown(sender As Object, e As MouseEventArgs) Handles Me.MouseDown
+        按住坐标 = e.Location
+    End Sub
+
+    Private Sub Node_MouseMove(sender As Object, e As MouseEventArgs) Handles Me.MouseMove
+        If e.Button = MouseButtons.Left And 按住坐标.X <> 0 And 按住坐标.Y <> 0 Then
+            Left += e.Location.X - 按住坐标.X
+            Top += e.Location.Y - 按住坐标.Y
+        End If
     End Sub
 End Class

@@ -17,13 +17,13 @@
         Dim 前缀集() As String = Split(前缀, ".")
         Dim 源节点 As 节点平面类.节点类
         If 前缀集.Length > 1 Then
-            源节点 = 获得节点(前缀.Substring(0, 前缀.IndexOf(".")), 父域.当前编辑节点)
+            源节点 = 获得节点(前缀.Substring(0, 前缀.LastIndexOf(".")), 父域.当前编辑节点)
         Else
             源节点 = 父域.当前编辑节点
         End If
         If 源节点 Is Nothing Then
             If 前缀集.Length > 1 Then
-                Dim 源平面 As 节点平面类 = 获得平面(前缀.Substring(0, 前缀.IndexOf(".")), 父域.当前编辑节点)
+                Dim 源平面 As 节点平面类 = 获得平面(前缀.Substring(0, 前缀.LastIndexOf(".")), 父域.当前编辑节点)
                 If 源平面 IsNot Nothing Then
                     源平面候选表构建(前缀集, 源平面)
                 End If
@@ -136,11 +136,17 @@
                 Dim 插入点缓存 As Long = 编辑面.节点内容.SelectionStart
                 Dim 空格距离 As Long = 编辑面.节点内容.Text.Substring(0, 插入点缓存).LastIndexOf(" ") + 1
                 Dim 点距离 As Long = 编辑面.节点内容.Text.Substring(0, 插入点缓存).LastIndexOf(".") + 1
+                Dim 换行距离 As Long = 编辑面.节点内容.Text.Substring(0, 插入点缓存).LastIndexOf(vbCrLf) + 1
+                Dim 开始位置 As Long
                 If 点距离 > 空格距离 Then
-                    编辑面.节点内容.SelectionStart = 点距离
+                    开始位置 = 点距离
                 Else
-                    编辑面.节点内容.SelectionStart = 空格距离
+                    开始位置 = 空格距离
                 End If
+                If 换行距离 > 开始位置 Then
+                    开始位置 = 换行距离 + 1
+                End If
+                编辑面.节点内容.SelectionStart = 开始位置
                 编辑面.节点内容.SelectionLength = 插入点缓存 - 编辑面.节点内容.SelectionStart
             End If
             编辑面.节点内容.SelectedText = 内容 & 后缀

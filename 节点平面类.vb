@@ -21,6 +21,7 @@ Public Class 节点平面类
         Public 接口类型 As String = ""
         Public 接口开启 As Boolean
         Public 高亮 As Boolean
+        Public 激活 As Integer
         Public 位置 As Point
         Public 父域 As 节点平面类
         Public 引用等级 As Integer '0:一次引用 1:本次引用 2:永久引用
@@ -298,6 +299,7 @@ Public Class 节点平面类
     Public 函数节点连接色 As New Pen(Color.FromArgb(180, 函数节点填充色), 10)
     Public 引用节点连接色 As New Pen(Color.FromArgb(180, 引用节点填充色), 10)
     Public 接口节点连接色 As New Pen(Color.FromArgb(180, 接口点填充颜色), 10)
+    Public 激活色 As Color = Color.Red
     Public 连接起点颜色 As Color = Color.Purple
     Public WithEvents 绘制空间 As PictureBox
     Public 版本 As String = "NODE2D.20210430.1"
@@ -557,8 +559,7 @@ Public Class 节点平面类
                 If 鼠标移动选中节点 IsNot Nothing And 连接发起节点 Is Nothing Then
                     If 节点编辑窗体.Visible = False Then
                         当前编辑节点 = 鼠标移动选中节点
-                        节点编辑窗体.Left = 当前编辑节点.位置.X * 缩放倍数 + 主窗体.Left - 节点编辑窗体.Width / 2 + 缩放倍数 / 2 + 视角偏移.X
-                        节点编辑窗体.Top = 当前编辑节点.位置.Y * 缩放倍数 + 主窗体.Top + 50 + 缩放倍数 + 视角偏移.Y
+                        节点编辑窗体居中对齐()
                         节点编辑窗体.节点名.Text = 当前编辑节点.名字
                         节点编辑窗体.节点类型.Text = 当前编辑节点.类型
                         节点编辑窗体.节点内容.Text = 当前编辑节点.内容
@@ -569,6 +570,10 @@ Public Class 节点平面类
                 End If
             End If
         End If
+    End Sub
+    Public Sub 节点编辑窗体居中对齐()
+        节点编辑窗体.Left = 当前编辑节点.位置.X * 缩放倍数 + 主窗体.Left - 节点编辑窗体.Width / 2 + 缩放倍数 / 2 + 视角偏移.X
+        节点编辑窗体.Top = 当前编辑节点.位置.Y * 缩放倍数 + 主窗体.Top + 50 + 缩放倍数 + 视角偏移.Y
     End Sub
 
     Public Function 编辑节点名(name As String, value As String) As Integer
@@ -661,14 +666,23 @@ Public Class 节点平面类
                         Case "函数"
                             For Each targetNode As 节点类 In 本域节点.Values(i).连接
                                 绘制线段(g, 函数节点连接色, 本域节点.Values(i)， targetNode)
+                                'If targetNode.激活 > 0 And 本域节点.Values(i).激活 > 0 Then
+                                '    绘制线段(g, New Pen(Color.FromArgb((targetNode.激活 + 本域节点.Values(i).激活) \ 2, 激活色), 函数节点连接色.Width), 本域节点.Values(i)， targetNode)
+                                'End If
                             Next
                         Case "引用"
                             For Each targetNode As 节点类 In 本域节点.Values(i).连接
                                 绘制线段(g, 引用节点连接色, 本域节点.Values(i)， targetNode)
+                                'If targetNode.激活 > 0 And 本域节点.Values(i).激活 > 0 Then
+                                '    绘制线段(g, New Pen(Color.FromArgb((targetNode.激活 + 本域节点.Values(i).激活) \ 2, 激活色), 函数节点连接色.Width), 本域节点.Values(i)， targetNode)
+                                'End If
                             Next
                         Case "接口"
                             For Each targetNode As 节点类 In 本域节点.Values(i).连接
                                 绘制线段(g, 接口节点连接色, 本域节点.Values(i)， targetNode)
+                                'If targetNode.激活 > 0 And 本域节点.Values(i).激活 > 0 Then
+                                '    绘制线段(g, New Pen(Color.FromArgb((targetNode.激活 + 本域节点.Values(i).激活) \ 2, 激活色), 函数节点连接色.Width), 本域节点.Values(i)， targetNode)
+                                'End If
                             Next
                     End Select
                 Next
@@ -828,17 +842,33 @@ Public Class 节点平面类
             Case "值"
                 g.FillRectangle(New SolidBrush(值节点填充颜色), r)
                 g.DrawRectangle(边缘色, r)
+                If node.激活 > 0 Then
+                    g.FillRectangle(New SolidBrush(Color.FromArgb(node.激活, 激活色)), r)
+                    node.激活 -= 10
+                End If
             Case "引用"
                 Dim 三角形路径() As Point = 获得三角形点集(node.位置)
                 g.FillPolygon(New SolidBrush(引用节点填充色), 三角形路径)
                 g.DrawPolygon(边缘色, 三角形路径)
+                If node.激活 > 0 Then
+                    g.FillPolygon(New SolidBrush(Color.FromArgb(node.激活, 激活色)), 三角形路径)
+                    node.激活 -= 10
+                End If
             Case "函数"
                 g.FillEllipse(New SolidBrush(函数节点填充色), r)
                 g.DrawEllipse(边缘色, r)
+                If node.激活 > 0 Then
+                    g.FillEllipse(New SolidBrush(Color.FromArgb(node.激活, 激活色)), r)
+                    node.激活 -= 10
+                End If
             Case "接口"
                 Dim 六边形路径() As Point = 获得六边形点集(node.位置)
                 g.FillPolygon(New SolidBrush(接口点填充颜色), 六边形路径)
                 g.DrawPolygon(边缘色, 六边形路径)
+                If node.激活 > 0 Then
+                    g.FillPolygon(New SolidBrush(Color.FromArgb(node.激活, 激活色)), 六边形路径)
+                    node.激活 -= 10
+                End If
         End Select
         Dim printStr As String
         If 主窗体.主窗体显示内容.Checked Then

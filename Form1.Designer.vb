@@ -56,6 +56,7 @@ Partial Class Form1
         Me.引用点背景色 = New System.Windows.Forms.ToolStripMenuItem()
         Me.函数点背景色 = New System.Windows.Forms.ToolStripMenuItem()
         Me.接口点背景色 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.激活节点变色 = New System.Windows.Forms.ToolStripMenuItem()
         Me.帮助菜单 = New System.Windows.Forms.ToolStripMenuItem()
         Me.帮助主页 = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator5 = New System.Windows.Forms.ToolStripSeparator()
@@ -233,7 +234,7 @@ Partial Class Form1
         '
         '视图菜单
         '
-        Me.视图菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.主窗体字体设置, Me.主窗体文字居中, Me.主窗体显示内容, Me.默认节点颜色})
+        Me.视图菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.主窗体字体设置, Me.主窗体文字居中, Me.主窗体显示内容, Me.默认节点颜色, Me.激活节点变色})
         Me.视图菜单.Name = "视图菜单"
         Me.视图菜单.Size = New System.Drawing.Size(60, 21)
         Me.视图菜单.Text = "视图(&V)"
@@ -298,6 +299,14 @@ Partial Class Form1
         Me.接口点背景色.Size = New System.Drawing.Size(130, 22)
         Me.接口点背景色.Text = "接口点(&N)"
         Me.接口点背景色.ToolTipText = "接口点背景色"
+        '
+        '激活节点变色
+        '
+        Me.激活节点变色.Checked = True
+        Me.激活节点变色.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.激活节点变色.Name = "激活节点变色"
+        Me.激活节点变色.Size = New System.Drawing.Size(144, 22)
+        Me.激活节点变色.Text = "激活变色(&T)"
         '
         '帮助菜单
         '
@@ -443,4 +452,5 @@ Partial Class Form1
     Friend WithEvents 托盘菜单 As ContextMenuStrip
     Friend WithEvents 托盘打开平面 As ToolStripMenuItem
     Friend WithEvents 托盘退出平面 As ToolStripMenuItem
+    Friend WithEvents 激活节点变色 As ToolStripMenuItem
 End Class
