@@ -666,23 +666,23 @@ Public Class 节点平面类
                         Case "函数"
                             For Each targetNode As 节点类 In 本域节点.Values(i).连接
                                 绘制线段(g, 函数节点连接色, 本域节点.Values(i)， targetNode)
-                                'If targetNode.激活 > 0 And 本域节点.Values(i).激活 > 0 Then
-                                '    绘制线段(g, New Pen(Color.FromArgb((targetNode.激活 + 本域节点.Values(i).激活) \ 2, 激活色), 函数节点连接色.Width), 本域节点.Values(i)， targetNode)
-                                'End If
+                                If targetNode.激活 > 0 And 本域节点.Values(i).激活 > 0 Then
+                                    绘制线段(g, New Pen(Color.FromArgb((targetNode.激活 + 本域节点.Values(i).激活) \ 2, 激活色), 函数节点连接色.Width), 本域节点.Values(i)， targetNode)
+                                End If
                             Next
                         Case "引用"
                             For Each targetNode As 节点类 In 本域节点.Values(i).连接
                                 绘制线段(g, 引用节点连接色, 本域节点.Values(i)， targetNode)
-                                'If targetNode.激活 > 0 And 本域节点.Values(i).激活 > 0 Then
-                                '    绘制线段(g, New Pen(Color.FromArgb((targetNode.激活 + 本域节点.Values(i).激活) \ 2, 激活色), 函数节点连接色.Width), 本域节点.Values(i)， targetNode)
-                                'End If
+                                If targetNode.激活 > 0 And 本域节点.Values(i).激活 > 0 Then
+                                    绘制线段(g, New Pen(Color.FromArgb((targetNode.激活 + 本域节点.Values(i).激活) \ 2, 激活色), 函数节点连接色.Width), 本域节点.Values(i)， targetNode)
+                                End If
                             Next
                         Case "接口"
                             For Each targetNode As 节点类 In 本域节点.Values(i).连接
                                 绘制线段(g, 接口节点连接色, 本域节点.Values(i)， targetNode)
-                                'If targetNode.激活 > 0 And 本域节点.Values(i).激活 > 0 Then
-                                '    绘制线段(g, New Pen(Color.FromArgb((targetNode.激活 + 本域节点.Values(i).激活) \ 2, 激活色), 函数节点连接色.Width), 本域节点.Values(i)， targetNode)
-                                'End If
+                                If targetNode.激活 > 0 And 本域节点.Values(i).激活 > 0 Then
+                                    绘制线段(g, New Pen(Color.FromArgb((targetNode.激活 + 本域节点.Values(i).激活) \ 2, 激活色), 函数节点连接色.Width), 本域节点.Values(i)， targetNode)
+                                End If
                             Next
                     End Select
                 Next
