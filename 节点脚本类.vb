@@ -21,13 +21,8 @@ Public Module 节点全局
         Dim r As New List(Of String)
         Dim sT() As String = Split(s, " ")
         For Each c As String In sT
-            Dim ci As Integer = Val(c)
-            Try
-                r.Add(Chr(ci))
-            Catch ex As Exception
-                Dim b() As Byte = BitConverter.GetBytes(CUShort(c))
-                r.Add(Text.Encoding.Unicode.GetString(b))
-            End Try
+            Dim b() As Byte = BitConverter.GetBytes(CUShort(c))
+            r.Add(Text.Encoding.Unicode.GetString(b))
         Next
         Return Join(r.ToArray, "")
     End Function
@@ -35,12 +30,8 @@ Public Module 节点全局
         If s = "" Then Return ""
         Dim r As New List(Of String)
         For Each c As String In s
-            Try
-                r.Add(Asc(c))
-            Catch ex As Exception
-                Dim b() As Byte = Text.Encoding.Unicode.GetBytes(c)
-                r.Add(BitConverter.ToUInt16(b))
-            End Try
+            Dim b() As Byte = Text.Encoding.Unicode.GetBytes(c)
+            r.Add(BitConverter.ToUInt16(b))
         Next
         Return Join(r.ToArray, " ")
     End Function
