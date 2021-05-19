@@ -228,6 +228,7 @@ Public Module 节点全局
     End Function
 End Module
 Public Class 节点脚本类
+
     Public Sub 解释(ByRef 节点 As 节点类)
         Dim 执行线程 As New Thread(AddressOf 函数解释)
         执行线程.SetApartmentState(ApartmentState.STA)

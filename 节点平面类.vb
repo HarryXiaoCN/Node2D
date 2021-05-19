@@ -177,6 +177,20 @@ Public Class 节点平面类
             Return name & Chr(1) & type & Chr(1) & Replace(content, vbCrLf, Chr(2)) & Chr(1) & 位置.X & Chr(1) & 位置.Y _
                 & Chr(1) & Join(连接名集.ToArray, Chr(2))
         End Function
+        Public Sub 触发行为()
+            If type = "值" Then
+                If name.StartsWith("#") Then
+                    Dim 脚本 As New 节点脚本类
+                    For Each n As 节点类 In 连接
+                        If n.类型 = "函数" Then
+                            If n.名字.StartsWith("#") Then
+                                脚本.解释(n)
+                            End If
+                        End If
+                    Next
+                End If
+            End If
+        End Sub
         Public Property 名字() As String
             Get
                 Return name
@@ -184,6 +198,7 @@ Public Class 节点平面类
             Set(value As String)
                 RaiseEvent 改变前(Me)
                 name = value
+                触发行为()
                 RaiseEvent 改变后(Me)
             End Set
         End Property
@@ -251,6 +266,7 @@ Public Class 节点平面类
                 行内容 = Split(content, vbCrLf)
                 重构空间()
                 重构接口()
+                触发行为()
                 RaiseEvent 改变后(Me)
             End Set
         End Property
