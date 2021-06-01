@@ -43,6 +43,7 @@ Public Class Form1
         主界面 = Me
         程序版本.Text = "版本：" & Application.ProductVersion
         控制台 = New NodeConsole(Me)
+        浏览器 = New MyWebbrowser
         加载设置文件()
         程序注册()
         绘制空间.Image = New Bitmap(10, 10)

@@ -8,6 +8,8 @@ Imports System.Text
 Public Module 节点全局
     Public 主界面 As Form1
     Public 控制台 As NodeConsole
+    Public 浏览器 As MyWebbrowser
+    Private Delegate Sub 浏览器显示委托(who As MyWebbrowser, v As Boolean)
 
     Public Structure 文本定位类
         Public 前缀 As String, 行 As Long, 列 As Long
@@ -31,7 +33,7 @@ Public Module 节点全局
         If s = "" Then Return ""
         Dim r As New List(Of String)
         For Each c As String In s
-            Dim b() As Byte = Text.Encoding.Unicode.GetBytes(c)
+            Dim b() As Byte = Encoding.Unicode.GetBytes(c)
             r.Add(BitConverter.ToUInt16(b))
         Next
         Return Join(r.ToArray, " ")
@@ -233,10 +235,18 @@ Public Module 节点全局
         End If
         Return True
     End Function
+    Private Sub 显示浏览器执行(who As MyWebbrowser, v As Boolean)
+        who.Visible = v
+    End Sub
+    Public Sub 显示浏览器(who As MyWebbrowser, v As Boolean)
+        Dim d As New 浏览器显示委托(AddressOf 显示浏览器执行)
+        d.Invoke(who, v)
+    End Sub
 End Module
 Public Class 节点脚本类
     Public 全局等待锁 As New List(Of Integer)
     Public 全局浏览器 As New Dictionary(Of String, WebBrowser)
+
     Public Sub 解释(ByRef 节点 As 节点类)
         Dim 执行线程 As New Thread(AddressOf 函数解释)
         执行线程.SetApartmentState(ApartmentState.STA)
@@ -1016,6 +1026,9 @@ Public Class 节点脚本类
                     Else
                         全局浏览器.Add(nodes(0).内容, New WebBrowser)
                         全局浏览器(nodes(0).内容).ScriptErrorsSuppressed = True
+                        浏览器.Controls.Add(全局浏览器(nodes(0).内容))
+                        浏览器.Text = nodes(0).内容
+                        显示浏览器(浏览器, True)
                     End If
                 Case "navigate-wb", "navigate-webbrowser", "浏览器导航至"
                     If targetString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：浏览器导航至语句""{0}""过短。", targetString, 节点.名字, 行)
@@ -1069,7 +1082,9 @@ Public Class 节点脚本类
                     If Not 全局浏览器.ContainsKey(nodes(0).内容) Then
                         Return String.Format("函数节点[{1}]第{2}行：浏览器""{0}""不存在。", nodes(0).内容, 节点.名字, 行)
                     End If
+                    Control.CheckForIllegalCrossThreadCalls = False
                     全局浏览器(nodes(0).内容).Visible = StringToBool(nodes(1).内容)
+                    Control.CheckForIllegalCrossThreadCalls = True
                 Case "close-webbrowser", "close-wb", "关闭浏览器"
                     If Not 全局浏览器.ContainsKey(nodes(0).内容) Then
                         Return String.Format("函数节点[{1}]第{2}行：浏览器""{0}""不存在。", nodes(0).内容, 节点.名字, 行)
