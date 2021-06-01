@@ -73,7 +73,7 @@
         End If
         For i As Integer = 0 To 源节点.父域.全局窗体.全局节点列表.Items.Count - 1
             If 源节点.父域.本域节点.ContainsKey(源节点.父域.全局窗体.全局节点列表.Items(i)) Then
-                If 前缀集.Last = "" Or 源节点.父域.全局窗体.全局节点列表.Items(i).名字.StartsWith(前缀集.Last) Then
+                If 前缀集.Last = "" Or 源节点.父域.全局窗体.全局节点列表.Items(i).StartsWith(前缀集.Last) Then
                     候选表.Items.Add(源节点.父域.全局窗体.全局节点列表.Items(i))
                 End If
             End If
