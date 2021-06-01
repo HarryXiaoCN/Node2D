@@ -85,8 +85,7 @@
         ElseIf e.KeyCode = Keys.F5 Then
             If 主域.鼠标移动选中节点 IsNot Nothing Then
                 If 主域.鼠标移动选中节点.类型 = "函数" Then
-                    Dim 脚本 As New 节点脚本类
-                    脚本.解释(主域.鼠标移动选中节点)
+                    主域.脚本.解释(主域.鼠标移动选中节点)
                     If 主域.主窗体.控制台每次运行时清空.Checked Then
                         控制台.控制输出.Text = ""
                     End If

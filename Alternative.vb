@@ -1,7 +1,6 @@
 ﻿Public Class Alternative
     Public 父域 As 节点平面类
     Public WithEvents 编辑面 As Node
-    Private 忽略构建 As Boolean
     Public Sub New(ByRef parent As 节点平面类)
 
         ' 此调用是设计器所必需的。

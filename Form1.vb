@@ -2,7 +2,7 @@
 Imports System.IO
 
 Public Class Form1
-    Private 主域 As 节点平面类
+    Public 主域 As 节点平面类
     Private 已注册 As Boolean
 
     Private Delegate Sub 显示委托(v As String)
@@ -234,8 +234,7 @@ Public Class Form1
     Private Sub 运行菜单执行当前节点_Click(sender As Object, e As EventArgs) Handles 运行菜单执行当前节点.Click
         If 主域.鼠标移动选中节点 IsNot Nothing Then
             If 主域.鼠标移动选中节点.类型 = "函数" Then
-                Dim 脚本 As New 节点脚本类
-                脚本.解释(主域.鼠标移动选中节点)
+                主域.脚本.解释(主域.鼠标移动选中节点)
                 If 主域.主窗体.控制台每次运行时清空.Checked Then
                     控制台.控制输出.Text = ""
                 End If

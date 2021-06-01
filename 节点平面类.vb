@@ -110,7 +110,6 @@ Public Class 节点平面类
             网络接口.Send(Encoding.UTF8.GetBytes(内容))
         End Sub
         Private Sub 接口过程()
-            Dim 脚本 As New 节点脚本类
             接口开启 = True
             Try
                 While type = "接口" And 接口开启 And Not 父域.结束标识
@@ -118,7 +117,7 @@ Public Class 节点平面类
                     Dim b(Val(接口大小控制节点.内容)) As Byte
                     s.Receive(b)
                     接口数据缓存节点.内容 = Replace(Encoding.UTF8.GetString(b), vbNullChar, "")
-                    脚本.解释(接口进入触发节点)
+                    父域.脚本.解释(接口进入触发节点)
                     Try
                         s.Shutdown(SocketShutdown.Both)
                         s.Close()
@@ -305,6 +304,7 @@ Public Class 节点平面类
     Public 版本 As String = "NODE2D.20210430.1"
     Public 路径 As String = Application.StartupPath
     Public 平面名 As String = ""
+    Public 脚本 As New 节点脚本类
 
     Private 视角拖拽起点 As Point
     Private 视角拖拽 As Boolean
@@ -418,12 +418,10 @@ Public Class 节点平面类
         End If
         If 本域节点.ContainsKey("主节点") Then
             If 本域节点("主节点").类型 = "函数" Then
-                Dim 脚本 As New 节点脚本类
                 脚本.解释(本域节点("主节点"))
             End If
         ElseIf 本域节点.ContainsKey("Main") Then
             If 本域节点("Main").类型 = "函数" Then
-                Dim 脚本 As New 节点脚本类
                 脚本.解释(本域节点("Main"))
             End If
         End If

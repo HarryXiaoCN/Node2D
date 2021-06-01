@@ -52,8 +52,8 @@ Public Class NodeConsole
     Protected Overrides Sub WndProc(ByRef m As Message)
         If m.Msg = 786 Then
             Dim tid As Integer = m.WParam.ToInt32
-            If 全局等待锁.Contains(tid) Then
-                全局等待锁.Remove(tid)
+            If 主界面.主域.脚本.全局等待锁.Contains(tid) Then
+                主界面.主域.脚本.全局等待锁.Remove(tid)
             End If
         End If
         MyBase.WndProc(m)
