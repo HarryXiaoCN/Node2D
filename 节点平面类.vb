@@ -90,6 +90,7 @@ Public Class 节点平面类
                             网络接口.Bind(New IPEndPoint(IPAddress.Parse("0.0.0.0"), Val(接口端口控制节点.内容)))
                             网络接口.Listen()
                             接口线程 = New Thread(AddressOf 接口过程)
+                            父域.线程集.Add(接口线程)
                             接口线程.Start()
                         Catch ex As Exception
                             网络接口 = Nothing
@@ -110,24 +111,36 @@ Public Class 节点平面类
             网络接口.Send(Encoding.UTF8.GetBytes(内容))
         End Sub
         Private Sub 接口过程()
+            Dim clients As New List(Of Socket)
             接口开启 = True
             Try
                 While type = "接口" And 接口开启 And Not 父域.结束标识
                     Dim s As Socket = 网络接口.Accept
-                    Dim b(Val(接口大小控制节点.内容)) As Byte
-                    s.Receive(b)
-                    接口数据缓存节点.内容 = Replace(Encoding.UTF8.GetString(b), vbNullChar, "")
-                    父域.脚本.解释(接口进入触发节点)
-                    Try
-                        s.Shutdown(SocketShutdown.Both)
-                        s.Close()
-                    Catch ex As Exception
-
-                    End Try
+                    clients.Add(s)
+                    Dim t As New Thread(AddressOf 接收数据)
+                    父域.线程集.Add(t)
+                    t.Start(s)
                 End While
             Catch ex As Exception
                 控制台.添加消息(String.Format("接口节点[{0}]：接口线程终止，原因：{1}。", name, ex.Message))
             End Try
+            For Each s As Socket In clients
+                关闭套接字(s)
+            Next
+        End Sub
+        Private Sub 接收数据(s As Socket)
+            Try
+                While type = "接口" And 接口开启 And Not 父域.结束标识
+                    Dim bSize As Integer = Val(接口大小控制节点.内容)
+                    Dim b(bSize) As Byte
+                    s.Receive(b)
+                    接口数据缓存节点.内容 = Replace(Encoding.UTF8.GetString(b), vbNullChar, "")
+                    父域.脚本.解释(接口进入触发节点)
+                End While
+            Catch ex As Exception
+
+            End Try
+            关闭套接字(s)
         End Sub
         Public Sub 接口释放()
             On Error Resume Next
@@ -298,6 +311,7 @@ Public Class 节点平面类
     Public 节点创建模式 As String = "值"
     Public 鼠标当前位置 As Point
     Public 鼠标实际位置 As Point
+    Public 线程集 As New List(Of Thread)
 
     Public 视角偏移 As Point
     Public 节点移动填充色_安全 As New SolidBrush(Color.FromArgb(180, Color.LightGreen))
@@ -344,11 +358,9 @@ Public Class 节点平面类
         If 主平面 Then
             主窗体.Text = "节点平面 - " & 路径
             绘制线程 = New Thread(AddressOf 绘制)
+            线程集.Add(绘制线程)
             绘制线程.Start()
         End If
-    End Sub
-    Public Sub New()
-
     End Sub
     Public Sub New(节点集() As String)
         For i As Integer = 0 To UBound(节点集)
@@ -357,6 +369,9 @@ Public Class 节点平面类
     End Sub
     Public Sub New(路径 As String)
         加载(路径)
+    End Sub
+    Public Sub New()
+
     End Sub
     Public Function 增加用户法则(执行点 As 节点类, ParamArray 参数() As 节点类) As Boolean
         Dim 法则名 As String = 执行点.名字

@@ -8,8 +8,6 @@ Imports System.Text
 Public Module 节点全局
     Public 主界面 As Form1
     Public 控制台 As NodeConsole
-    Public 浏览器 As MyWebbrowser
-    Private Delegate Sub 浏览器显示委托(who As MyWebbrowser, v As Boolean)
 
     Public Structure 文本定位类
         Public 前缀 As String, 行 As Long, 列 As Long
@@ -46,6 +44,15 @@ Public Module 节点全局
         Next
         Return ""
     End Function
+    Public Sub 关闭套接字(s As Sockets.Socket)
+        On Error Resume Next
+        If s IsNot Nothing Then
+            s.Shutdown(Sockets.SocketShutdown.Both)
+            s.Close()
+            s.Dispose()
+            s = Nothing
+        End If
+    End Sub
 
     Public Function 删除连接(ByRef n1 As 节点类, ByRef n2 As 节点类) As Integer
         If n1.父域.Equals(n2.父域) Then
@@ -235,13 +242,6 @@ Public Module 节点全局
         End If
         Return True
     End Function
-    Private Sub 显示浏览器执行(who As MyWebbrowser, v As Boolean)
-        who.Visible = v
-    End Sub
-    Public Sub 显示浏览器(who As MyWebbrowser, v As Boolean)
-        Dim d As New 浏览器显示委托(AddressOf 显示浏览器执行)
-        d.Invoke(who, v)
-    End Sub
 End Module
 Public Class 节点脚本类
     Public 全局等待锁 As New List(Of Integer)
@@ -400,11 +400,11 @@ Public Class 节点脚本类
                 Case "==", "等于"
                     Select Case nodesString.Length
                         Case 4
-                            If Val(nodes(0).内容) = Val(nodes(1).内容) Then
+                            If nodes(0).内容 = nodes(1).内容 Then
                                 函数解释(nodes(2))
                             End If
                         Case 5
-                            If Val(nodes(0).内容) = Val(nodes(1).内容) Then
+                            If nodes(0).内容 = nodes(1).内容 Then
                                 函数解释(nodes(2))
                             Else
                                 函数解释(nodes(3))
@@ -415,11 +415,11 @@ Public Class 节点脚本类
                 Case "!=", "<>", "不等于"
                     Select Case nodesString.Length
                         Case 4
-                            If Val(nodes(0).内容) <> Val(nodes(1).内容) Then
+                            If nodes(0).内容 <> nodes(1).内容 Then
                                 函数解释(nodes(2))
                             End If
                         Case 5
-                            If Val(nodes(0).内容) <> Val(nodes(1).内容) Then
+                            If nodes(0).内容 <> nodes(1).内容 Then
                                 函数解释(nodes(2))
                             Else
                                 函数解释(nodes(3))
@@ -1019,78 +1019,6 @@ Public Class 节点脚本类
                 Case "chr", "字符"
                     If targetString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：获得对应字符语句""{0}""过短。", targetString, 节点.名字, 行)
                     nodes(0).内容 = 获得字符(nodes(1).内容)
-                Case "add-webbrowser", "add-wb", "新建浏览器"
-                    If targetString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：新建浏览器语句""{0}""过短。", targetString, 节点.名字, 行)
-                    If 全局浏览器.ContainsKey(nodes(0).内容) Then
-                        Return String.Format("函数节点[{1}]第{2}行：浏览器""{0}""已存在。", nodes(0).内容, 节点.名字, 行)
-                    Else
-                        全局浏览器.Add(nodes(0).内容, New WebBrowser)
-                        全局浏览器(nodes(0).内容).ScriptErrorsSuppressed = True
-                        浏览器.Controls.Add(全局浏览器(nodes(0).内容))
-                        浏览器.Text = nodes(0).内容
-                        显示浏览器(浏览器, True)
-                    End If
-                Case "navigate-wb", "navigate-webbrowser", "浏览器导航至"
-                    If targetString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：浏览器导航至语句""{0}""过短。", targetString, 节点.名字, 行)
-                    If Not 全局浏览器.ContainsKey(nodes(0).内容) Then
-                        Return String.Format("函数节点[{1}]第{2}行：浏览器""{0}""不存在。", nodes(0).内容, 节点.名字, 行)
-                    End If
-                    Select Case targetString.Length
-                        Case 3
-                            全局浏览器(nodes(0).内容).Navigate(nodes(1).内容)
-                        Case 4
-                            全局浏览器(nodes(0).内容).Navigate(nodes(1).内容, nodes(2).内容)
-                        Case 6
-                            全局浏览器(nodes(0).内容).Navigate(nodes(1).内容, nodes(2).内容, Encoding.UTF8.GetBytes(nodes(3).内容), nodes(4).内容)
-                        Case Else
-                            Return String.Format("函数节点[{1}]第{2}行：浏览器导航至语句""{0}""参数数量不对。", nodes(0).内容, 节点.名字, 行)
-                    End Select
-                Case "get-documenttext", "get-doctext", "获得网页内容"
-                    If targetString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：获得网页内容语句""{0}""过短。", targetString, 节点.名字, 行)
-                    If Not 全局浏览器.ContainsKey(nodes(0).内容) Then
-                        Return String.Format("函数节点[{1}]第{2}行：浏览器""{0}""不存在。", nodes(0).内容, 节点.名字, 行)
-                    End If
-                    nodes(1).内容 = 全局浏览器(nodes(0).内容).DocumentText
-                Case "id-get-attribute", "id-get-att", "根据标识获得网页属性"
-                    If targetString.Length < 5 Then Return String.Format("函数节点[{1}]第{2}行：获得网页属性语句""{0}""过短。", targetString, 节点.名字, 行)
-                    If Not 全局浏览器.ContainsKey(nodes(0).内容) Then
-                        Return String.Format("函数节点[{1}]第{2}行：浏览器""{0}""不存在。", nodes(0).内容, 节点.名字, 行)
-                    End If
-                    nodes(3).内容 = 全局浏览器(nodes(0).内容).Document.GetElementById(nodes(1).内容).GetAttribute(nodes(2).内容)
-                Case "id-set-attribute", "id-set-att", "根据标识设置网页属性"
-                    If targetString.Length < 5 Then Return String.Format("函数节点[{1}]第{2}行：设置网页属性语句""{0}""过短。", targetString, 节点.名字, 行)
-                    If Not 全局浏览器.ContainsKey(nodes(0).内容) Then
-                        Return String.Format("函数节点[{1}]第{2}行：浏览器""{0}""不存在。", nodes(0).内容, 节点.名字, 行)
-                    End If
-                    全局浏览器(nodes(0).内容).Document.GetElementById(nodes(1).内容).SetAttribute(nodes(2).内容， nodes(3).内容)
-                Case "webbrowser-invokescript", "wb-script", "浏览器执行脚本"
-                    If targetString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：浏览器执行脚本语句""{0}""过短。", targetString, 节点.名字, 行)
-                    If Not 全局浏览器.ContainsKey(nodes(0).内容) Then
-                        Return String.Format("函数节点[{1}]第{2}行：浏览器""{0}""不存在。", nodes(0).内容, 节点.名字, 行)
-                    End If
-                    Dim 参数 As New List(Of String)
-                    For i As Long = 2 To nodes.Count - 1
-                        参数.Add(nodes(i).内容)
-                    Next
-                    If 参数.Count > 0 Then
-                        全局浏览器(nodes(0).内容).Document.InvokeScript(nodes(1).内容, 参数.ToArray)
-                    Else
-                        全局浏览器(nodes(0).内容).Document.InvokeScript(nodes(1).内容)
-                    End If
-                Case "visible-webbrowser", "vis-wb", "浏览器显示"
-                    If targetString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：浏览器显示语句""{0}""过短。", targetString, 节点.名字, 行)
-                    If Not 全局浏览器.ContainsKey(nodes(0).内容) Then
-                        Return String.Format("函数节点[{1}]第{2}行：浏览器""{0}""不存在。", nodes(0).内容, 节点.名字, 行)
-                    End If
-                    Control.CheckForIllegalCrossThreadCalls = False
-                    全局浏览器(nodes(0).内容).Visible = StringToBool(nodes(1).内容)
-                    Control.CheckForIllegalCrossThreadCalls = True
-                Case "close-webbrowser", "close-wb", "关闭浏览器"
-                    If Not 全局浏览器.ContainsKey(nodes(0).内容) Then
-                        Return String.Format("函数节点[{1}]第{2}行：浏览器""{0}""不存在。", nodes(0).内容, 节点.名字, 行)
-                    End If
-                    全局浏览器(nodes(0).内容).Dispose()
-                    全局浏览器.Remove(nodes(0).内容)
                 Case Else
                     Return 用户法则解释(节点, nodes, nodesString(0).ToLower, 行)
             End Select
