@@ -1038,7 +1038,7 @@ Public Class 节点脚本类
                 Case "urlencode", "链接编码"
                     If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：链接编码语句""{0}""过短。", targetString, 节点.名字, 行)
                     nodes(0).内容 = Web.HttpUtility.UrlEncode(nodes(1).内容)
-                Case "urlencode", "链接解码"
+                Case "urldecode", "链接解码"
                     If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：链接解码语句""{0}""过短。", targetString, 节点.名字, 行)
                     nodes(0).内容 = Web.HttpUtility.UrlDecode(nodes(1).内容)
                 Case Else
