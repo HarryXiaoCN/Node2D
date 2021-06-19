@@ -802,7 +802,7 @@ Public Class 节点脚本类
                     If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：判断相似语句""{0}""过短。", targetString, 节点.名字, 行)
                     nodes(0).内容 = BoolToInt(nodes(1).内容 Like nodes(2).内容)
                 Case "rnd", "随机数"
-                    Select Case targetString.Length
+                    Select Case nodesString.Length
                         Case 2
                             Dim r As New Random
                             nodes(0).内容 = r.NextDouble
@@ -813,7 +813,7 @@ Public Class 节点脚本类
                             Return String.Format("函数节点[{1}]第{2}行：获取随机数语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
                     End Select
                 Case "addglobal2d", "添加全局平面引用"
-                    Select Case targetString.Length
+                    Select Case nodesString.Length
                         Case 2
                             If nodes(1).内容 = "" Then Return String.Format("函数节点[{1}]第{2}行：节点[{0}]内容不能为空。", nodes(1).名字, 节点.名字, 行)
                             If Not nodes(0).父域.全局窗体.全局平面列表.Items.Contains(nodes(1).内容) Then
@@ -836,7 +836,7 @@ Public Class 节点脚本类
                             Return String.Format("函数节点[{1}]第{2}行：添加全局平面引用语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
                     End Select
                 Case "delgloabl2d", "删除全局平面引用"
-                    Select Case targetString.Length
+                    Select Case nodesString.Length
                         Case 2
                             If nodes(1).内容 = "" Then Return String.Format("函数节点[{1}]第{2}行：节点[{0}]内容不能为空。", nodes(1).名字, 节点.名字, 行)
                             If nodes(0).父域.全局窗体.全局平面列表.Items.Contains(nodes(1).内容) Then
@@ -859,7 +859,7 @@ Public Class 节点脚本类
                             Return String.Format("函数节点[{1}]第{2}行：删除全局平面引用语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
                     End Select
                 Case "addglobalnode", "添加全局节点引用"
-                    Select Case targetString.Length
+                    Select Case nodesString.Length
                         Case 2
                             If nodes(1).内容 = "" Then Return String.Format("函数节点[{1}]第{2}行：节点[{0}]内容不能为空。", nodes(1).名字, 节点.名字, 行)
                             If Not nodes(0).父域.全局窗体.全局节点列表.Items.Contains(nodes(1).内容) Then
@@ -890,7 +890,7 @@ Public Class 节点脚本类
                             Return String.Format("函数节点[{1}]第{2}行：添加全局节点引用语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
                     End Select
                 Case "delglobalnode", "删除全局节点引用"
-                    Select Case targetString.Length
+                    Select Case nodesString.Length
                         Case 2
                             If nodes(1).内容 = "" Then Return String.Format("函数节点[{1}]第{2}行：节点[{0}]内容不能为空。", nodes(1).名字, 节点.名字, 行)
                             If nodes(0).父域.全局窗体.全局节点列表.Items.Contains(nodes(1).内容) Then
@@ -914,7 +914,7 @@ Public Class 节点脚本类
                     End Select
                 Case "shell", "命令"
                     Try
-                        Select Case targetString.Length
+                        Select Case nodesString.Length
                             Case 2
                                 Shell(nodes(0).内容)
                             Case 3
@@ -928,10 +928,10 @@ Public Class 节点脚本类
                         Return String.Format("函数节点[{1}]第{2}行：命令""{3}""执行错误：{0}。", ex.Message, 节点.名字, 行, nodes(0).内容)
                     End Try
                 Case "l-conut", "连接数量"
-                    If targetString.Length < 3 Then Return String.Format("函数节点[{0}]第{1}行：获取连接数量语句""{2}""过短。", 节点.名字, 行, targetString)
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{0}]第{1}行：获取连接数量语句""{2}""过短。", 节点.名字, 行, targetString)
                     nodes(0).内容 = nodes(1).连接.Count
                 Case "mypath", "平面路径"
-                    Select Case targetString.Length
+                    Select Case nodesString.Length
                         Case 2
                             nodes(0).内容 = 节点.父域.路径
                         Case 3
@@ -940,7 +940,7 @@ Public Class 节点脚本类
                             Return String.Format("函数节点[{1}]第{2}行：获取平面路径语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
                     End Select
                 Case "now", "当前时间"
-                    Select Case targetString.Length
+                    Select Case nodesString.Length
                         Case 2
                             nodes(0).内容 = Now.ToOADate
                         Case 3
@@ -949,7 +949,7 @@ Public Class 节点脚本类
                             Return String.Format("函数节点[{1}]第{2}行：获取当前时间语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
                     End Select
                 Case "save", "保存平面"
-                    Select Case targetString.Length
+                    Select Case nodesString.Length
                         Case 2
                             节点.父域.保存(nodes(0).内容)
                         Case 3
@@ -960,7 +960,7 @@ Public Class 节点脚本类
                             Return String.Format("函数节点[{1}]第{2}行：保存平面语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
                     End Select
                 Case "addfunction", "addfun", "增加法则"
-                    If targetString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：增加用户法则语句""{0}""过短。", targetString, 节点.名字, 行)
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：增加用户法则语句""{0}""过短。", targetString, 节点.名字, 行)
                     Dim 参数(nodes.Count - 2) As 节点类
                     nodes.CopyTo(1, 参数, 0, nodes.Count - 1)
                     If 节点.父域.增加用户法则(nodes(0), 参数) Then
@@ -969,7 +969,7 @@ Public Class 节点脚本类
                         Return String.Format("函数节点[{1}]第{2}行：用户法则""{0}""修改完毕！参数数量：{3}。", nodes(0).名字, 节点.名字, 行, 参数.Length)
                     End If
                 Case "delfunction", "delfun", "删除法则"
-                    If targetString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：删除用户法则语句""{0}""过短。", targetString, 节点.名字, 行)
+                    If nodesString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：删除用户法则语句""{0}""过短。", targetString, 节点.名字, 行)
                     If 节点.父域.用户法则.ContainsKey(nodes(0).内容) Then
                         节点.父域.用户法则.Remove(nodes(0).内容)
                         Return String.Format("函数节点[{1}]第{2}行：用户法则""{0}""已移除。", nodes(0).名字, 节点.名字, 行)
@@ -977,7 +977,7 @@ Public Class 节点脚本类
                         Return String.Format("函数节点[{1}]第{2}行：用户法则""{0}""不存在。", nodes(0).名字, 节点.名字, 行)
                     End If
                 Case "downloadstring", "下载字符串", "下载文本"
-                    If targetString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：下载字符串语句""{0}""过短。", targetString, 节点.名字, 行)
+                    If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：下载字符串语句""{0}""过短。", targetString, 节点.名字, 行)
                     Dim wc As New WebClient
                     Try
                         WebClient头写入(wc, nodes(2).内容)
@@ -987,16 +987,27 @@ Public Class 节点脚本类
                         Return String.Format("函数节点[{1}]第{2}行：下载字符串出错：{0}", ex.Message, 节点.名字, 行)
                     End Try
                     wc.Dispose()
+                Case "uploadstring", "POST数据", "上载字符串", "上载文本"
+                    If nodesString.Length < 5 Then Return String.Format("函数节点[{1}]第{2}行：上载字符串语句""{0}""过短。", targetString, 节点.名字, 行)
+                    Dim wc As New WebClient
+                    Try
+                        WebClient头写入(wc, nodes(3).内容)
+                        nodes(0).内容 = wc.UploadString(nodes(1).内容, nodes(2).内容)
+                        nodes(3).内容 = WebClient头导出(wc)
+                    Catch ex As Exception
+                        Return String.Format("函数节点[{1}]第{2}行：下载字符串出错：{0}", ex.Message, 节点.名字, 行)
+                    End Try
+                    wc.Dispose()
                 Case "replace", "替换"
-                    If targetString.Length < 5 Then Return String.Format("函数节点[{1}]第{2}行：替换语句""{0}""过短。", targetString, 节点.名字, 行)
+                    If nodesString.Length < 5 Then Return String.Format("函数节点[{1}]第{2}行：替换语句""{0}""过短。", targetString, 节点.名字, 行)
                     nodes(0).内容 = Replace(nodes(1).内容, nodes(2).内容, nodes(3).内容)
                 Case "visible", "显示"
-                    If targetString.Length < 6 Then Return String.Format("函数节点[{1}]第{2}行：显示语句""{0}""过短。", targetString, 节点.名字, 行)
+                    If nodesString.Length < 6 Then Return String.Format("函数节点[{1}]第{2}行：显示语句""{0}""过短。", targetString, 节点.名字, 行)
                     主界面.显示(nodes(0).内容)
                     控制台.显示(nodes(1).内容)
                     主界面.托盘显示(nodes(2).内容, nodes(3).内容, nodes(4).内容)
                 Case "re-matches-for", "re-ms-for", "正则匹配遍历"
-                    If targetString.Length < 6 Then Return String.Format("函数节点[{1}]第{2}行：正则匹配遍历语句""{0}""过短。", targetString, 节点.名字, 行)
+                    If nodesString.Length < 6 Then Return String.Format("函数节点[{1}]第{2}行：正则匹配遍历语句""{0}""过短。", targetString, 节点.名字, 行)
                     Dim reResult = Regex.Matches(nodes(0).内容, nodes(1).内容)
                     For Each m As Match In reResult
                         nodes(2).内容 = m.Value
@@ -1004,21 +1015,32 @@ Public Class 节点脚本类
                         函数解释(nodes(4))
                     Next
                 Case "re-match", "re-m", "正则捕获"
-                    If targetString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：正则捕获语句""{0}""过短。", targetString, 节点.名字, 行)
+                    If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：正则捕获语句""{0}""过短。", targetString, 节点.名字, 行)
                     Dim reResult = Regex.Match(nodes(0).内容, nodes(1).内容)
                     nodes(2).内容 = 获得正则有效捕获(reResult)
                 Case "debug-append", "debug-a", "调试追加写入"
-                    If targetString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：调试追加写入语句""{0}""过短。", targetString, 节点.名字, 行)
+                    If nodesString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：调试追加写入语句""{0}""过短。", targetString, 节点.名字, 行)
                     控制台.添加消息(nodes(0).内容)
                 Case "debug-write", "debug-w", "调试覆盖写入"
-                    If targetString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：调试覆盖写入语句""{0}""过短。", targetString, 节点.名字, 行)
+                    If nodesString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：调试覆盖写入语句""{0}""过短。", targetString, 节点.名字, 行)
                     控制台.设定消息(nodes(0).内容)
                 Case "asc", "ord", "编码"
-                    If targetString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：获得字符编码语句""{0}""过短。", targetString, 节点.名字, 行)
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：获得字符编码语句""{0}""过短。", targetString, 节点.名字, 行)
                     nodes(0).内容 = 获得ASCII码(nodes(1).内容)
                 Case "chr", "字符"
-                    If targetString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：获得对应字符语句""{0}""过短。", targetString, 节点.名字, 行)
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：获得对应字符语句""{0}""过短。", targetString, 节点.名字, 行)
                     nodes(0).内容 = 获得字符(nodes(1).内容)
+                Case "sentence", "造句", "句"
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：造句语句""{0}""过短。", targetString, 节点.名字, 行)
+                    For i As Long = 1 To nodes.Count - 1
+                        nodes(0).内容 &= nodes(i).内容
+                    Next
+                Case "urlencode", "链接编码"
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：链接编码语句""{0}""过短。", targetString, 节点.名字, 行)
+                    nodes(0).内容 = Web.HttpUtility.UrlEncode(nodes(1).内容)
+                Case "urlencode", "链接解码"
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：链接解码语句""{0}""过短。", targetString, 节点.名字, 行)
+                    nodes(0).内容 = Web.HttpUtility.UrlDecode(nodes(1).内容)
                 Case Else
                     Return 用户法则解释(节点, nodes, nodesString(0).ToLower, 行)
             End Select

@@ -13,6 +13,8 @@ Public Class 节点平面类
         Private 接口数据缓存节点 As 节点类
         Private 接口大小控制节点 As 节点类
         Private 接口进入触发节点 As 节点类
+        Private 接收数据解码方式 As Encoding
+        Private 发送数据编码方式 As Encoding
         Private 接口线程 As Thread = Nothing
         Private ReadOnly 待连接 As New List(Of String)
 
@@ -87,6 +89,11 @@ Public Class 节点平面类
                         接口释放()
                         网络接口 = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
                         Try
+                            If s.Length > 5 Then
+                                接收数据解码方式 = Encoding.GetEncoding(s(5))
+                            Else
+                                接收数据解码方式 = Encoding.UTF8
+                            End If
                             网络接口.Bind(New IPEndPoint(IPAddress.Parse("0.0.0.0"), Val(接口端口控制节点.内容)))
                             网络接口.Listen()
                             接口线程 = New Thread(AddressOf 接口过程)
@@ -95,10 +102,21 @@ Public Class 节点平面类
                         Catch ex As Exception
                             网络接口 = Nothing
                             接口线程 = Nothing
+                            发送数据编码方式 = Encoding.UTF8
                             控制台.添加消息(String.Format("接口节点[{0}]：接口初始化错误：{1}。", name, ex.Message))
                         End Try
                     Case "send", "接出", "出口", "发送"
                         接口类型 = "网络出口"
+                        Try
+                            If s.Length > 1 Then
+                                发送数据编码方式 = Encoding.GetEncoding(s(1))
+                            Else
+                                发送数据编码方式 = Encoding.UTF8
+                            End If
+                        Catch ex As Exception
+                            发送数据编码方式 = Encoding.UTF8
+                            控制台.添加消息(String.Format("接口节点[{0}]：接口初始化错误：{1}。", name, ex.Message))
+                        End Try
                     Case Else
                         控制台.添加消息(String.Format("接口节点[{0}]：未知的接口类型""{1}""。", name, s(0)))
                 End Select
@@ -108,7 +126,7 @@ Public Class 节点平面类
             接口释放()
             网络接口 = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
             网络接口.Connect(rIP, port)
-            网络接口.Send(Encoding.UTF8.GetBytes(内容))
+            网络接口.Send(发送数据编码方式.GetBytes(内容))
         End Sub
         Private Sub 接口过程()
             Dim clients As New List(Of Socket)
@@ -132,10 +150,13 @@ Public Class 节点平面类
             Try
                 While type = "接口" And 接口开启 And Not 父域.结束标识
                     Dim bSize As Integer = Val(接口大小控制节点.内容)
+                    接口大小控制节点.激活 = 180
                     Dim b(bSize) As Byte
                     s.Receive(b)
-                    接口数据缓存节点.内容 = Replace(Encoding.UTF8.GetString(b), vbNullChar, "")
+                    接口数据缓存节点.内容 = Replace(接收数据解码方式.GetString(b), vbNullChar, "")
+                    激活 = 180
                     父域.脚本.解释(接口进入触发节点)
+                    Thread.Sleep(10)
                 End While
             Catch ex As Exception
 
@@ -145,11 +166,9 @@ Public Class 节点平面类
         Public Sub 接口释放()
             On Error Resume Next
             接口开启 = False
-            If 网络接口 IsNot Nothing Then
-                网络接口.Shutdown(SocketShutdown.Both)
-                网络接口.Close()
-                网络接口 = Nothing
-            End If
+            If 网络接口 IsNot Nothing Then 网络接口.Shutdown(SocketShutdown.Both)
+            If 网络接口 IsNot Nothing Then 网络接口.Close()
+            If 网络接口 IsNot Nothing Then 网络接口 = Nothing
         End Sub
         Public Function 获得子节点(节点名 As String) As 节点类
             For i As Integer = 0 To 连接.Count - 1

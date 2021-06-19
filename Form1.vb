@@ -271,6 +271,9 @@ Public Class Form1
     Private Sub 重载平面_Click(sender As Object, e As EventArgs) Handles 重载平面.Click
         Dim filePath As String = 主域.获得平面路径
         If File.Exists(filePath) Then
+            If 主域.主窗体.控制台每次运行时清空.Checked Then
+                控制台.控制输出.Text = ""
+            End If
             主域.结束()
             主域 = New 节点平面类(Me, 绘制空间)
             主域.加载(filePath)
