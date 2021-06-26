@@ -305,6 +305,9 @@ Public Class Form1
         FontD.Font = Font
         If FontD.ShowDialog = DialogResult.OK Then
             Font = FontD.Font
+            If 主域 IsNot Nothing Then
+                主域.标题字体 = New Font(Font, FontStyle.Bold)
+            End If
         End If
     End Sub
 

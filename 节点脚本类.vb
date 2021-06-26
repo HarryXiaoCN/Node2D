@@ -1041,6 +1041,44 @@ Public Class 节点脚本类
                 Case "urldecode", "链接解码"
                     If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：链接解码语句""{0}""过短。", targetString, 节点.名字, 行)
                     nodes(0).内容 = Web.HttpUtility.UrlDecode(nodes(1).内容)
+                Case "inputbox", "输入框"
+                    Select Case nodesString.Length
+                        Case 4
+                            nodes(0).内容 = InputBox(nodes(1).内容)
+                            解释(nodes(2))
+                        Case 5
+                            nodes(0).内容 = InputBox(nodes(1).内容, nodes(2).内容)
+                            解释(nodes(3))
+                        Case 6
+                            nodes(0).内容 = InputBox(nodes(1).内容, nodes(2).内容, nodes(3).内容)
+                            解释(nodes(4))
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：输入框语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
+                    End Select
+                Case "msgbox", "提示框", "弹窗"
+                    Select Case nodesString.Length
+                        Case 2
+                            MsgBox(nodes(0).内容)
+                        Case 3
+                            MsgBox(nodes(0).内容, nodes(1).内容)
+                        Case 4
+                            MsgBox(nodes(0).内容, nodes(1).内容, nodes(2).内容)
+                        Case 5
+                            If MsgBox(nodes(0).内容, nodes(1).内容, nodes(2).内容) = MsgBoxResult.Yes Then
+                                解释(nodes(3))
+                            End If
+                        Case 6
+                            If MsgBox(nodes(0).内容, nodes(1).内容, nodes(2).内容) = MsgBoxResult.Yes Then
+                                解释(nodes(3))
+                            Else
+                                解释(nodes(4))
+                            End If
+                        Case Else
+                            Return String.Format("函数节点[{1}]第{2}行：提示框语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
+                    End Select
+                Case "re-replace", "正则替换"
+                    If nodesString.Length < 5 Then Return String.Format("函数节点[{1}]第{2}行：正则替换语句""{0}""过短。", targetString, 节点.名字, 行)
+                    nodes(0).内容 = Regex.Replace(nodes(1).内容, nodes(2).内容, nodes(3).内容)
                 Case Else
                     Return 用户法则解释(节点, nodes, nodesString(0).ToLower, 行)
             End Select

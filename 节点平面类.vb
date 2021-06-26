@@ -354,6 +354,7 @@ Public Class 节点平面类
     Public 路径 As String = Application.StartupPath
     Public 平面名 As String = ""
     Public 脚本 As New 节点脚本类
+    Public 标题字体 As Font
 
     Private 视角拖拽起点 As Point
     Private 视角拖拽 As Boolean
@@ -368,6 +369,7 @@ Public Class 节点平面类
     End Sub
     Public Sub New(ByRef mainForm As Form1, ByRef drawSpace As PictureBox, Optional mainNode2D As Boolean = True)
         主窗体 = mainForm
+        标题字体 = New Font(主窗体.Font, FontStyle.Bold)
         初始化颜色()
         绘制空间 = drawSpace
         主平面 = mainNode2D
@@ -920,20 +922,30 @@ Public Class 节点平面类
         End Select
         Dim printStr As String
         If 主窗体.主窗体显示内容.Checked Then
-            printStr = String.Format("{0}:{1}{2}", node.名字, vbCrLf, node.内容)
+            printStr = node.内容
         Else
             If node.行内容.Length > 1 Then
-                printStr = String.Format("{0}:{1}...({2})", node.名字, node.行内容(0), node.行内容.Length)
+                printStr = String.Format("{0}...({1})", node.行内容(0), node.行内容.Length)
             Else
-                printStr = String.Format("{0}:{1}", node.名字, node.内容)
+                printStr = node.内容
             End If
         End If
+        Dim title As String = node.名字 & ":"
+        Dim s2 As SizeF = g.MeasureString(title, 标题字体)
         If 主窗体.主窗体文字居中.Checked Then
-            Dim s As SizeF = g.MeasureString(printStr, 主窗体.Font)
+            Dim s As SizeF
+            If printStr = "" Then
+                s = s2
+                s.Width = 0
+            Else
+                s = g.MeasureString(printStr, 主窗体.Font)
+            End If
             'g.DrawRectangle(Pens.Red, New Rectangle(node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数, s.Width, s.Height))
-            g.DrawString(printStr, 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数 + (缩放倍数 \ 2) - (s.Width \ 2), node.位置.Y * 缩放倍数 + (缩放倍数 \ 2) - (s.Height \ 2))
+            g.DrawString(printStr, 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数 + (缩放倍数 \ 2) - ((s.Width + s2.Width) \ 2) + s2.Width, node.位置.Y * 缩放倍数 + (缩放倍数 \ 2) - (s.Height \ 2))
+            g.DrawString(title, 标题字体, Brushes.Black, node.位置.X * 缩放倍数 + (缩放倍数 \ 2) - ((s.Width + s2.Width) \ 2), node.位置.Y * 缩放倍数 + (缩放倍数 \ 2) - (s.Height \ 2))
         Else
-            g.DrawString(printStr, 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数)
+            g.DrawString(printStr, 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数 + s2.Height)
+            g.DrawString(title, 标题字体, Brushes.Black, node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数)
         End If
     End Sub
     Private Function 获得六边形点集(左上基点 As Point) As Point()
