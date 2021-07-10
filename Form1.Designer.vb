@@ -47,6 +47,7 @@ Partial Class Form1
         Me.控制台输出时间戳 = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator3 = New System.Windows.Forms.ToolStripSeparator()
         Me.打开全局引用窗体 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.启动时执行主节点 = New System.Windows.Forms.ToolStripMenuItem()
         Me.视图菜单 = New System.Windows.Forms.ToolStripMenuItem()
         Me.主窗体字体设置 = New System.Windows.Forms.ToolStripMenuItem()
         Me.主窗体文字居中 = New System.Windows.Forms.ToolStripMenuItem()
@@ -71,6 +72,7 @@ Partial Class Form1
         Me.托盘菜单 = New System.Windows.Forms.ContextMenuStrip(Me.components)
         Me.托盘打开平面 = New System.Windows.Forms.ToolStripMenuItem()
         Me.托盘退出平面 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.设置法则字体 = New System.Windows.Forms.ToolStripMenuItem()
         CType(Me.绘制空间, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.菜单栏.SuspendLayout()
         Me.托盘菜单.SuspendLayout()
@@ -159,7 +161,7 @@ Partial Class Form1
         '
         Me.编辑启用菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.编辑右键点击创建值节点, Me.编辑右键点击创建引用点, Me.编辑右键点击创建函数点, Me.编辑右键点击创建接口点})
         Me.编辑启用菜单.Name = "编辑启用菜单"
-        Me.编辑启用菜单.Size = New System.Drawing.Size(180, 22)
+        Me.编辑启用菜单.Size = New System.Drawing.Size(124, 22)
         Me.编辑启用菜单.Text = "右键点击"
         '
         '编辑右键点击创建值节点
@@ -190,7 +192,7 @@ Partial Class Form1
         '
         '运行菜单
         '
-        Me.运行菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.运行菜单执行当前节点, Me.ToolStripSeparator2, Me.控制台每次运行时清空, Me.控制台输出时间戳, Me.ToolStripSeparator3, Me.打开全局引用窗体})
+        Me.运行菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.运行菜单执行当前节点, Me.ToolStripSeparator2, Me.控制台每次运行时清空, Me.控制台输出时间戳, Me.ToolStripSeparator3, Me.打开全局引用窗体, Me.启动时执行主节点})
         Me.运行菜单.Name = "运行菜单"
         Me.运行菜单.Size = New System.Drawing.Size(60, 21)
         Me.运行菜单.Text = "运行(&R)"
@@ -199,42 +201,50 @@ Partial Class Form1
         '
         Me.运行菜单执行当前节点.Name = "运行菜单执行当前节点"
         Me.运行菜单执行当前节点.ShortcutKeys = System.Windows.Forms.Keys.F5
-        Me.运行菜单执行当前节点.Size = New System.Drawing.Size(180, 22)
+        Me.运行菜单执行当前节点.Size = New System.Drawing.Size(192, 22)
         Me.运行菜单执行当前节点.Text = "执行选中节点"
         '
         'ToolStripSeparator2
         '
         Me.ToolStripSeparator2.Name = "ToolStripSeparator2"
-        Me.ToolStripSeparator2.Size = New System.Drawing.Size(177, 6)
+        Me.ToolStripSeparator2.Size = New System.Drawing.Size(189, 6)
         '
         '控制台每次运行时清空
         '
         Me.控制台每次运行时清空.Name = "控制台每次运行时清空"
-        Me.控制台每次运行时清空.Size = New System.Drawing.Size(180, 22)
+        Me.控制台每次运行时清空.Size = New System.Drawing.Size(192, 22)
         Me.控制台每次运行时清空.Text = "控制台自动清空(&C)"
         Me.控制台每次运行时清空.ToolTipText = "每次函数节点执行时清空"
         '
         '控制台输出时间戳
         '
         Me.控制台输出时间戳.Name = "控制台输出时间戳"
-        Me.控制台输出时间戳.Size = New System.Drawing.Size(180, 22)
+        Me.控制台输出时间戳.Size = New System.Drawing.Size(192, 22)
         Me.控制台输出时间戳.Text = "控制台消息时间(&T)"
         '
         'ToolStripSeparator3
         '
         Me.ToolStripSeparator3.Name = "ToolStripSeparator3"
-        Me.ToolStripSeparator3.Size = New System.Drawing.Size(177, 6)
+        Me.ToolStripSeparator3.Size = New System.Drawing.Size(189, 6)
         '
         '打开全局引用窗体
         '
         Me.打开全局引用窗体.Name = "打开全局引用窗体"
         Me.打开全局引用窗体.ShortcutKeys = CType((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.I), System.Windows.Forms.Keys)
-        Me.打开全局引用窗体.Size = New System.Drawing.Size(180, 22)
+        Me.打开全局引用窗体.Size = New System.Drawing.Size(192, 22)
         Me.打开全局引用窗体.Text = "全局引用(&I)"
+        '
+        '启动时执行主节点
+        '
+        Me.启动时执行主节点.Checked = True
+        Me.启动时执行主节点.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.启动时执行主节点.Name = "启动时执行主节点"
+        Me.启动时执行主节点.Size = New System.Drawing.Size(192, 22)
+        Me.启动时执行主节点.Text = "载入时执行主节点(&M)"
         '
         '视图菜单
         '
-        Me.视图菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.主窗体字体设置, Me.主窗体文字居中, Me.主窗体显示内容, Me.默认节点颜色, Me.激活节点变色})
+        Me.视图菜单.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.主窗体字体设置, Me.设置法则字体, Me.主窗体文字居中, Me.主窗体显示内容, Me.默认节点颜色, Me.激活节点变色})
         Me.视图菜单.Name = "视图菜单"
         Me.视图菜单.Size = New System.Drawing.Size(60, 21)
         Me.视图菜单.Text = "视图(&V)"
@@ -243,7 +253,7 @@ Partial Class Form1
         '
         Me.主窗体字体设置.Name = "主窗体字体设置"
         Me.主窗体字体设置.Size = New System.Drawing.Size(180, 22)
-        Me.主窗体字体设置.Text = "设置字体(&F)"
+        Me.主窗体字体设置.Text = "节点字体(&F)"
         '
         '主窗体文字居中
         '
@@ -380,6 +390,12 @@ Partial Class Form1
         Me.托盘退出平面.Size = New System.Drawing.Size(142, 22)
         Me.托盘退出平面.Text = "退出平面(&Q)"
         '
+        '设置法则字体
+        '
+        Me.设置法则字体.Name = "设置法则字体"
+        Me.设置法则字体.Size = New System.Drawing.Size(180, 22)
+        Me.设置法则字体.Text = "法则字体(&Z)"
+        '
         'Form1
         '
         Me.AllowDrop = True
@@ -453,4 +469,6 @@ Partial Class Form1
     Friend WithEvents 托盘打开平面 As ToolStripMenuItem
     Friend WithEvents 托盘退出平面 As ToolStripMenuItem
     Friend WithEvents 激活节点变色 As ToolStripMenuItem
+    Friend WithEvents 启动时执行主节点 As ToolStripMenuItem
+    Friend WithEvents 设置法则字体 As ToolStripMenuItem
 End Class

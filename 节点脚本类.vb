@@ -8,15 +8,53 @@ Imports System.Text
 Public Module 节点全局
     Public 主界面 As Form1
     Public 控制台 As NodeConsole
+    Public ReadOnly 法则集 As New List(Of String)
+    Public ReadOnly 法则索引 As New Dictionary(Of String, List(Of Integer))
+    Public ReadOnly 精简法则集 As New List(Of String)
 
     Public Structure 文本定位类
-        Public 前缀 As String, 行 As Long, 列 As Long
-        Public Sub New(beforeStr As String, row As Long, col As Long)
+        Public 前缀 As String, 行首 As String, 行 As Long, 列 As Long
+        Public Sub New(beforeStr As String, rowFrist As String, row As Long, col As Long)
             前缀 = beforeStr
+            行首 = rowFrist
             行 = row
             列 = col
         End Sub
     End Structure
+    Public Function 获得法则解释(f As String) As String
+        Dim r As New List(Of String)
+        If 法则索引.ContainsKey(f) Then
+            For i As Integer = 0 To 法则索引(f).Count - 1
+                r.Add(法则集(法则索引(f)(i)))
+            Next
+        End If
+        If 主界面.主域.用户法则.ContainsKey(f) Then
+            Dim fL As New List(Of String)
+            fL.Add("·" & f)
+            For i As Integer = 1 To 主界面.主域.用户法则(f).Count - 1
+                fL.Add("参数" & i)
+            Next
+            r.Add(Join(fL.ToArray, " "))
+        End If
+        Return Join(r.ToArray, vbCrLf & vbCrLf)
+    End Function
+    Public Sub 建立法则索引(f As String, index As Integer)
+        Dim fName As String = Split(f, " ")(0)
+        Dim fn() As String = Split(fName, "；")
+        For i As Integer = 0 To UBound(fn)
+            If fn(i) <> "" Then
+                If Not 法则索引.ContainsKey(fn(i)) Then
+                    法则索引.Add(fn(i), New List(Of Integer))
+                End If
+                法则索引(fn(i)).Add(index)
+            End If
+        Next
+    End Sub
+    Public Function 首行替换(s As String, f As String, n As String) As String
+        Dim sT() As String = Split(s, vbCrLf)
+        sT(0) = "·" & Replace(sT(0), f, n)
+        Return Join(sT, vbCrLf)
+    End Function
     Public Function 获得字符(s As String) As String
         If s = "" Then Return ""
         Dim r As New List(Of String)
@@ -124,7 +162,7 @@ Public Module 节点全局
     End Sub
     Public Function 获得前缀(文本域 As TextBox) As 文本定位类
         Dim s() As String = Split(文本域.Text, vbCrLf)
-        Dim 已长 As Long, 前缀 As String = "", 句首长 As Long, 句内已长 As Long, 行 As Long, 列 As Long
+        Dim 已长 As Long, 前缀 As String = "", 句首长 As Long, 句内已长 As Long, 行 As Long, 列 As Long, 行文 As String = ""
         For i As Long = 0 To UBound(s)
             句首长 = 已长
             已长 += s(i).Length
@@ -133,6 +171,7 @@ Public Module 节点全局
             End If
             If 已长 >= 文本域.SelectionStart Then
                 行 = i
+                行文 = s(i)
                 Dim s2() As String = Split(s(i), " ")
                 If i > 0 Then
                     句内已长 += 2
@@ -152,7 +191,10 @@ Public Module 节点全局
             End If
         Next
         'Debug.WriteLine(String.Format("{0}，{1}，{2}", 前缀, 行, 列))
-        Return New 文本定位类(前缀, 行, 列)
+        If 行文.IndexOf(" ") <> -1 Then
+            行文 = Split(行文, " ")(0)
+        End If
+        Return New 文本定位类(前缀, 行文, 行, 列)
     End Function
     Public Function BoolToInt(b As Boolean) As Integer
         If b Then
@@ -1043,32 +1085,29 @@ Public Class 节点脚本类
                     nodes(0).内容 = Web.HttpUtility.UrlDecode(nodes(1).内容)
                 Case "inputbox", "输入框"
                     Select Case nodesString.Length
+                        Case 3
+                            nodes(0).内容 = InputBox(nodes(1).内容, 节点.名字)
                         Case 4
-                            nodes(0).内容 = InputBox(nodes(1).内容)
-                            解释(nodes(2))
-                        Case 5
                             nodes(0).内容 = InputBox(nodes(1).内容, nodes(2).内容)
-                            解释(nodes(3))
-                        Case 6
+                        Case 5
                             nodes(0).内容 = InputBox(nodes(1).内容, nodes(2).内容, nodes(3).内容)
-                            解释(nodes(4))
                         Case Else
                             Return String.Format("函数节点[{1}]第{2}行：输入框语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
                     End Select
                 Case "msgbox", "提示框", "弹窗"
                     Select Case nodesString.Length
                         Case 2
-                            MsgBox(nodes(0).内容)
+                            MsgBox(nodes(0).内容, Title:=节点.名字)
                         Case 3
-                            MsgBox(nodes(0).内容, nodes(1).内容)
+                            MsgBox(nodes(0).内容, Val(nodes(1).内容), nodes(0).名字)
                         Case 4
-                            MsgBox(nodes(0).内容, nodes(1).内容, nodes(2).内容)
+                            MsgBox(nodes(0).内容, Val(nodes(1).内容), nodes(2).内容)
                         Case 5
-                            If MsgBox(nodes(0).内容, nodes(1).内容, nodes(2).内容) = MsgBoxResult.Yes Then
+                            If MsgBox(nodes(0).内容, Val(nodes(1).内容), nodes(2).内容) = MsgBoxResult.Yes Then
                                 解释(nodes(3))
                             End If
                         Case 6
-                            If MsgBox(nodes(0).内容, nodes(1).内容, nodes(2).内容) = MsgBoxResult.Yes Then
+                            If MsgBox(nodes(0).内容, Val(nodes(1).内容), nodes(2).内容) = MsgBoxResult.Yes Then
                                 解释(nodes(3))
                             Else
                                 解释(nodes(4))

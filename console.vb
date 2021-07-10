@@ -109,7 +109,7 @@ Public Class NodeConsole
     End Sub
 
     Private Sub NodeConsole_Load(sender As Object, e As EventArgs) Handles Me.Load
-        Top = Screen.PrimaryScreen.Bounds.Height - Height
+        Top = Screen.PrimaryScreen.Bounds.Height - Height - 35
         Left = (Screen.PrimaryScreen.Bounds.Width - Width) \ 2
     End Sub
 End Class

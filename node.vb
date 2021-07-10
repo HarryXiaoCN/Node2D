@@ -166,4 +166,11 @@
             Top += e.Location.Y - 按住坐标.Y
         End If
     End Sub
+
+    Private Sub Node_VisibleChanged(sender As Object, e As EventArgs) Handles Me.VisibleChanged
+        If Visible = False Then
+            主域.法则提示窗口.Visible = False
+            主域.候选窗体.Visible = False
+        End If
+    End Sub
 End Class

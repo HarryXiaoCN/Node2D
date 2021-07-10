@@ -13,16 +13,19 @@ Public Class 节点平面类
         Private 接口数据缓存节点 As 节点类
         Private 接口大小控制节点 As 节点类
         Private 接口进入触发节点 As 节点类
+        Private 接口解码方式节点 As 节点类
         Private 接收数据解码方式 As Encoding
         Private 发送数据编码方式 As Encoding
         Private 接口线程 As Thread = Nothing
         Private ReadOnly 待连接 As New List(Of String)
 
         Public 行内容() As String
-        Public 网络接口 As Socket = Nothing
+        'Public 网络接口 As Socket = Nothing
+        Public 网络接口 As UdpClient
         Public 接口类型 As String = ""
         Public 接口开启 As Boolean
         Public 高亮 As Boolean
+        Public 候选 As Boolean
         Public 激活 As Integer
         Public 位置 As Point
         Public 父域 As 节点平面类
@@ -62,7 +65,7 @@ Public Class 节点平面类
                 Select Case s(0).ToLower
                     Case "listen", "接入", "入口", "监听"
                         接口类型 = "网络入口"
-                        If s.Length < 5 Then
+                        If s.Length < 4 Then
                             控制台.添加消息(String.Format("接口节点[{0}]：内容过短。", name))
                             Exit Sub
                         End If
@@ -71,31 +74,37 @@ Public Class 节点平面类
                             控制台.添加消息(String.Format("接口节点[{0}]：端口控制节点[{1}]未找到。", name, s(1)))
                             Exit Sub
                         End If
-                        接口大小控制节点 = 获得节点(s(2), Me)
-                        If 接口大小控制节点 Is Nothing Then
-                            控制台.添加消息(String.Format("接口节点[{0}]：缓存大小控制节点[{1}]未找到。", name, s(2)))
-                            Exit Sub
-                        End If
-                        接口数据缓存节点 = 获得节点(s(3), Me)
+                        '接口大小控制节点 = 获得节点(s(2), Me)
+                        'If 接口大小控制节点 Is Nothing Then
+                        '    控制台.添加消息(String.Format("接口节点[{0}]：缓存大小控制节点[{1}]未找到。", name, s(2)))
+                        '    Exit Sub
+                        'End If
+                        接口数据缓存节点 = 获得节点(s(2), Me)
                         If 接口数据缓存节点 Is Nothing Then
-                            控制台.添加消息(String.Format("接口节点[{0}]：数据缓存节点[{1}]未找到。", name, s(3)))
+                            控制台.添加消息(String.Format("接口节点[{0}]：数据缓存节点[{1}]未找到。", name, s(2)))
                             Exit Sub
                         End If
-                        接口进入触发节点 = 获得节点(s(4), Me)
+                        接口进入触发节点 = 获得节点(s(3), Me)
                         If 接口进入触发节点 Is Nothing Then
-                            控制台.添加消息(String.Format("接口节点[{0}]：进入触发节点[{1}]未找到。", name, s(4)))
+                            控制台.添加消息(String.Format("接口节点[{0}]：进入触发节点[{1}]未找到。", name, s(3)))
                             Exit Sub
                         End If
                         接口释放()
-                        网络接口 = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+                        '网络接口 = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
                         Try
-                            If s.Length > 5 Then
-                                接收数据解码方式 = Encoding.GetEncoding(s(5))
+                            网络接口 = New UdpClient(CInt(接口端口控制节点.内容))
+                            If s.Length > 4 Then
+                                接口解码方式节点 = 获得节点(s(4), Me)
+                                If 接口进入触发节点 Is Nothing Then
+                                    控制台.添加消息(String.Format("接口节点[{0}]：接口解码方式节点[{1}]未找到。", name, s(4)))
+                                    Exit Sub
+                                End If
+                                接收数据解码方式 = Encoding.GetEncoding(接口解码方式节点.内容)
                             Else
                                 接收数据解码方式 = Encoding.UTF8
                             End If
-                            网络接口.Bind(New IPEndPoint(IPAddress.Parse("0.0.0.0"), Val(接口端口控制节点.内容)))
-                            网络接口.Listen()
+                            '网络接口.Bind(New IPEndPoint(IPAddress.Parse("0.0.0.0"), Val(接口端口控制节点.内容)))
+                            '网络接口.Listen()
                             接口线程 = New Thread(AddressOf 接口过程)
                             父域.线程集.Add(接口线程)
                             接口线程.Start()
@@ -109,7 +118,13 @@ Public Class 节点平面类
                         接口类型 = "网络出口"
                         Try
                             If s.Length > 1 Then
-                                发送数据编码方式 = Encoding.GetEncoding(s(1))
+                                接口解码方式节点 = 获得节点(s(1), Me)
+                                If 接口解码方式节点 Is Nothing Then
+                                    控制台.添加消息(String.Format("接口节点[{0}]：接口解码方式节点[{1}]未找到。", name, s(1)))
+                                    Exit Sub
+                                End If
+                                发送数据编码方式 = Encoding.GetEncoding(接口解码方式节点.内容)
+                                网络接口 = New UdpClient
                             Else
                                 发送数据编码方式 = Encoding.UTF8
                             End If
@@ -123,21 +138,21 @@ Public Class 节点平面类
             End If
         End Sub
         Public Sub 发送数据(rIP As String, port As String, 内容 As String)
-            接口释放()
-            网络接口 = New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
-            网络接口.Connect(rIP, port)
-            网络接口.Send(发送数据编码方式.GetBytes(内容))
+            '接口释放()
+            Dim b() As Byte = 发送数据编码方式.GetBytes(内容)
+            网络接口.Send(b, b.Length, rIP, port)
         End Sub
         Private Sub 接口过程()
             Dim clients As New List(Of Socket)
+            Dim rIP As New IPEndPoint(IPAddress.Parse("0.0.0.0"), CInt(接口端口控制节点.内容))
             接口开启 = True
             Try
                 While type = "接口" And 接口开启 And Not 父域.结束标识
-                    Dim s As Socket = 网络接口.Accept
-                    clients.Add(s)
-                    Dim t As New Thread(AddressOf 接收数据)
-                    父域.线程集.Add(t)
-                    t.Start(s)
+                    Dim b() As Byte = 网络接口.Receive(rIP)
+                    接口数据缓存节点.内容 = 接收数据解码方式.GetString(b)
+                    激活 = 180
+                    父域.脚本.解释(接口进入触发节点)
+                    Thread.Sleep(10)
                 End While
             Catch ex As Exception
                 控制台.添加消息(String.Format("接口节点[{0}]：接口线程终止，原因：{1}。", name, ex.Message))
@@ -146,27 +161,27 @@ Public Class 节点平面类
                 关闭套接字(s)
             Next
         End Sub
-        Private Sub 接收数据(s As Socket)
-            Try
-                While type = "接口" And 接口开启 And Not 父域.结束标识
-                    Dim bSize As Integer = Val(接口大小控制节点.内容)
-                    接口大小控制节点.激活 = 180
-                    Dim b(bSize) As Byte
-                    s.Receive(b)
-                    接口数据缓存节点.内容 = Replace(接收数据解码方式.GetString(b), vbNullChar, "")
-                    激活 = 180
-                    父域.脚本.解释(接口进入触发节点)
-                    Thread.Sleep(10)
-                End While
-            Catch ex As Exception
+        'Private Sub 接收数据(s As Socket)
+        '    Try
+        '        While type = "接口" And 接口开启 And Not 父域.结束标识
+        '            Dim bSize As Integer = Val(接口大小控制节点.内容)
+        '            接口大小控制节点.激活 = 180
+        '            Dim b(bSize) As Byte
+        '            s.Receive(b)
+        '            接口数据缓存节点.内容 = Replace(接收数据解码方式.GetString(b), vbNullChar, "")
+        '            激活 = 180
+        '            父域.脚本.解释(接口进入触发节点)
+        '            Thread.Sleep(10)
+        '        End While
+        '    Catch ex As Exception
 
-            End Try
-            关闭套接字(s)
-        End Sub
+        '    End Try
+        '    关闭套接字(s)
+        'End Sub
         Public Sub 接口释放()
             On Error Resume Next
             接口开启 = False
-            If 网络接口 IsNot Nothing Then 网络接口.Shutdown(SocketShutdown.Both)
+            'If 网络接口 IsNot Nothing Then 网络接口.Shutdown(SocketShutdown.Both)
             If 网络接口 IsNot Nothing Then 网络接口.Close()
             If 网络接口 IsNot Nothing Then 网络接口 = Nothing
         End Sub
@@ -323,6 +338,7 @@ Public Class 节点平面类
     Public 节点编辑窗体 As New Node
     Public 全局窗体 As New GlobalImportForm(Me)
     Public 候选窗体 As New Alternative(Me)
+    Public 法则提示窗口 As New FunctionPrompt(Me)
     Public 鼠标移动选中节点 As 节点类
     Public 当前编辑节点 As 节点类
     Public 当前按住节点 As 节点类
@@ -340,6 +356,7 @@ Public Class 节点平面类
     Public 连接颜色_待定 As New Pen(Color.FromArgb(180, Color.Gray), 10)
     Public 连接颜色_无效 As New Pen(Color.FromArgb(180, Color.OrangeRed), 10)
     Public 节点高亮色 As Color = Color.LightPink
+    Public 节点候选色 As Color = Color.Crimson
     Public 函数节点填充色 As Color = Color.LimeGreen
     Public 引用节点填充色 As Color = Color.DeepSkyBlue
     Public 值节点填充颜色 As Color = Color.Gold
@@ -358,6 +375,7 @@ Public Class 节点平面类
 
     Private 视角拖拽起点 As Point
     Private 视角拖拽 As Boolean
+    Private 绘制集(9) As List(Of 绘制类)
     Private ReadOnly 节点删除列表 As New List(Of 节点类)
     Private ReadOnly 绘制线程 As Thread
     Private Delegate Sub 绘制更新委托(ByRef 帧 As Image)
@@ -378,6 +396,9 @@ Public Class 节点平面类
         '节点编辑窗体.Hide()
         If 主平面 Then
             主窗体.Text = "节点平面 - " & 路径
+            For i As Integer = 0 To UBound(绘制集)
+                绘制集(i) = New List(Of 绘制类)
+            Next
             绘制线程 = New Thread(AddressOf 绘制)
             线程集.Add(绘制线程)
             绘制线程.Start()
@@ -468,13 +489,15 @@ Public Class 节点平面类
         ElseIf f = "" Then
             路径赋予(filePath)
         End If
-        If 本域节点.ContainsKey("主节点") Then
-            If 本域节点("主节点").类型 = "函数" Then
-                脚本.解释(本域节点("主节点"))
-            End If
-        ElseIf 本域节点.ContainsKey("Main") Then
-            If 本域节点("Main").类型 = "函数" Then
-                脚本.解释(本域节点("Main"))
+        If 主界面.启动时执行主节点.Checked Then
+            If 本域节点.ContainsKey("主节点") Then
+                If 本域节点("主节点").类型 = "函数" Then
+                    脚本.解释(本域节点("主节点"))
+                End If
+            ElseIf 本域节点.ContainsKey("Main") Then
+                If 本域节点("Main").类型 = "函数" Then
+                    脚本.解释(本域节点("Main"))
+                End If
             End If
         End If
     End Sub
@@ -715,23 +738,23 @@ Public Class 节点平面类
                     Select Case 本域节点.Values(i).类型
                         Case "函数"
                             For Each targetNode As 节点类 In 本域节点.Values(i).连接
-                                绘制线段(g, 函数节点连接色, 本域节点.Values(i)， targetNode)
+                                绘制线段(函数节点连接色, 本域节点.Values(i)， targetNode)
                                 If targetNode.激活 > 0 And 本域节点.Values(i).激活 > 0 Then
-                                    绘制线段(g, New Pen(Color.FromArgb((targetNode.激活 + 本域节点.Values(i).激活) \ 2, 激活色), 函数节点连接色.Width), 本域节点.Values(i)， targetNode)
+                                    绘制线段(New Pen(Color.FromArgb((targetNode.激活 + 本域节点.Values(i).激活) \ 2, 激活色), 函数节点连接色.Width), 本域节点.Values(i)， targetNode)
                                 End If
                             Next
                         Case "引用"
                             For Each targetNode As 节点类 In 本域节点.Values(i).连接
-                                绘制线段(g, 引用节点连接色, 本域节点.Values(i)， targetNode)
+                                绘制线段(引用节点连接色, 本域节点.Values(i)， targetNode)
                                 If targetNode.激活 > 0 And 本域节点.Values(i).激活 > 0 Then
-                                    绘制线段(g, New Pen(Color.FromArgb((targetNode.激活 + 本域节点.Values(i).激活) \ 2, 激活色), 函数节点连接色.Width), 本域节点.Values(i)， targetNode)
+                                    绘制线段(New Pen(Color.FromArgb((targetNode.激活 + 本域节点.Values(i).激活) \ 2, 激活色), 函数节点连接色.Width), 本域节点.Values(i)， targetNode)
                                 End If
                             Next
                         Case "接口"
                             For Each targetNode As 节点类 In 本域节点.Values(i).连接
-                                绘制线段(g, 接口节点连接色, 本域节点.Values(i)， targetNode)
+                                绘制线段(接口节点连接色, 本域节点.Values(i)， targetNode)
                                 If targetNode.激活 > 0 And 本域节点.Values(i).激活 > 0 Then
-                                    绘制线段(g, New Pen(Color.FromArgb((targetNode.激活 + 本域节点.Values(i).激活) \ 2, 激活色), 函数节点连接色.Width), 本域节点.Values(i)， targetNode)
+                                    绘制线段(New Pen(Color.FromArgb((targetNode.激活 + 本域节点.Values(i).激活) \ 2, 激活色), 函数节点连接色.Width), 本域节点.Values(i)， targetNode)
                                 End If
                             Next
                     End Select
@@ -740,23 +763,23 @@ Public Class 节点平面类
                     绘制节点(g, 本域节点.Values(i))
                 Next
                 If 鼠标移动选中节点 IsNot Nothing Then
-                    绘制节点边缘(g, 鼠标移动选中节点, Color.Red)
+                    绘制节点边缘(鼠标移动选中节点, Color.Red)
                     If 连接发起节点 IsNot Nothing Then
-                        绘制节点边缘(g, 连接发起节点, 连接起点颜色)
+                        绘制节点边缘(连接发起节点, 连接起点颜色)
                         If 连接有效性判断(连接发起节点, 鼠标移动选中节点) Then
-                            绘制线段(g, 连接颜色_有效, 连接发起节点.位置, 鼠标实际位置)
+                            绘制线段(连接颜色_有效, 连接发起节点.位置, 鼠标实际位置)
                         Else
-                            绘制线段(g, 连接颜色_无效, 连接发起节点.位置, 鼠标实际位置)
+                            绘制线段(连接颜色_无效, 连接发起节点.位置, 鼠标实际位置)
                         End If
                     End If
                 Else
                     If 连接发起节点 IsNot Nothing Then
-                        绘制节点边缘(g, 连接发起节点, 连接起点颜色)
-                        绘制线段(g, 连接颜色_待定, 连接发起节点.位置, 鼠标实际位置)
+                        绘制节点边缘(连接发起节点, 连接起点颜色)
+                        绘制线段(连接颜色_待定, 连接发起节点.位置, 鼠标实际位置)
                     End If
                 End If
                 If 当前编辑节点 IsNot Nothing And 节点编辑窗体.Visible Then
-                    绘制节点边缘(g, 当前编辑节点, Color.Lime, 3)
+                    绘制节点边缘(当前编辑节点, Color.Lime, 3)
                 End If
                 If 当前按住节点 IsNot Nothing Then
                     If 空间限制.ContainsKey(鼠标当前位置) Then
@@ -765,9 +788,15 @@ Public Class 节点平面类
                         End If
                     Else
                         绘制节点(g, 当前按住节点, 鼠标实际位置, 节点移动填充色_安全, 节点移动边缘色)
-                        绘制节点边缘(g, 当前按住节点, 鼠标当前位置, Color.Lime, 3)
+                        绘制节点边缘(当前按住节点, 鼠标当前位置, Color.Lime, 3)
                     End If
                 End If
+                For ceng As Integer = 0 To UBound(绘制集)
+                    For Each drawObj As 绘制类 In 绘制集(ceng)
+                        drawObj.绘制(g)
+                    Next
+                    绘制集(ceng).Clear()
+                Next
                 g.Dispose()
                 绘制更新(缓存帧.Clone)
             End If
@@ -796,6 +825,9 @@ Public Class 节点平面类
                     本域节点.Values(i).接口释放()
             End Select
         Next
+        'For i As Integer = 0 To UBound(绘制集)
+        '    绘制集(i).Clear()
+        'Next
         本域节点.Clear()
         节点编辑窗体.Close()
         全局窗体.Close()
@@ -810,40 +842,50 @@ Public Class 节点平面类
         绘制空间.Image = 帧
     End Sub
 
-    Private Sub 绘制线段(ByRef g As Graphics, 笔 As Pen, 位置1 As Point, 位置2 As Point)
-        g.DrawLine(笔, 位置1.X * 缩放倍数 + 缩放倍数 \ 2, 位置1.Y * 缩放倍数 + 缩放倍数 \ 2, 位置2.X, 位置2.Y)
+    Private Sub 绘制线段(笔 As Pen, 位置1 As Point, 位置2 As Point)
+        绘制集(0).Add(New 绘制类(笔, 位置1.X * 缩放倍数 + 缩放倍数 \ 2, 位置1.Y * 缩放倍数 + 缩放倍数 \ 2, 位置2.X, 位置2.Y))
+        'g.DrawLine(笔, 位置1.X * 缩放倍数 + 缩放倍数 \ 2, 位置1.Y * 缩放倍数 + 缩放倍数 \ 2, 位置2.X, 位置2.Y)
     End Sub
 
-    Private Sub 绘制线段(ByRef g As Graphics, 笔 As Pen, n1 As 节点类, n2 As 节点类)
+    Private Sub 绘制线段(笔 As Pen, n1 As 节点类, n2 As 节点类)
         Dim 半缩放 As Integer = 缩放倍数 \ 2
-        g.DrawLine(笔, n1.位置.X * 缩放倍数 + 半缩放, n1.位置.Y * 缩放倍数 + 半缩放, n2.位置.X * 缩放倍数 + 半缩放, n2.位置.Y * 缩放倍数 + 半缩放)
+        绘制集(0).Add(New 绘制类(笔, n1.位置.X * 缩放倍数 + 半缩放, n1.位置.Y * 缩放倍数 + 半缩放, n2.位置.X * 缩放倍数 + 半缩放, n2.位置.Y * 缩放倍数 + 半缩放))
+        'g.DrawLine(笔, n1.位置.X * 缩放倍数 + 半缩放, n1.位置.Y * 缩放倍数 + 半缩放, n2.位置.X * 缩放倍数 + 半缩放, n2.位置.Y * 缩放倍数 + 半缩放)
     End Sub
 
-    Private Sub 绘制节点边缘(ByRef g As Graphics, node As 节点类, 颜色 As Color, Optional 线宽 As Integer = 2)
+    Private Sub 绘制节点边缘(node As 节点类, 颜色 As Color, Optional 线宽 As Integer = 2)
         Dim r As New Rectangle(node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数, 缩放倍数, 缩放倍数)
         Select Case node.类型
             Case "值"
-                g.DrawRectangle(New Pen(颜色, 线宽), r)
+                绘制集(4).Add(New 绘制类(New Pen(颜色, 线宽), r))
+                'g.DrawRectangle(New Pen(颜色, 线宽), r)
             Case "引用"
-                g.DrawPolygon(New Pen(颜色, 线宽), 获得三角形点集(node.位置))
+                绘制集(4).Add(New 绘制类(New Pen(颜色, 线宽), 获得三角形点集(node.位置)))
+                'g.DrawPolygon(New Pen(颜色, 线宽), 获得三角形点集(node.位置))
             Case "函数"
-                g.DrawEllipse(New Pen(颜色, 线宽), r)
+                绘制集(4).Add(New 绘制类(New Pen(颜色, 线宽), r, "DE"))
+                'g.DrawEllipse(New Pen(颜色, 线宽), r)
             Case "接口"
-                g.DrawPolygon(New Pen(颜色, 线宽), 获得六边形点集(node.位置))
+                绘制集(4).Add(New 绘制类(New Pen(颜色, 线宽), 获得六边形点集(node.位置)))
+                'g.DrawPolygon(New Pen(颜色, 线宽), 获得六边形点集(node.位置))
         End Select
     End Sub
-    Private Sub 绘制节点边缘(ByRef g As Graphics, node As 节点类, 位置 As Point, 颜色 As Color, Optional 线宽 As Integer = 2)
+    Private Sub 绘制节点边缘(node As 节点类, 位置 As Point, 颜色 As Color, Optional 线宽 As Integer = 2)
         If node Is Nothing Then Exit Sub
         Dim r As New Rectangle(位置.X * 缩放倍数, 位置.Y * 缩放倍数, 缩放倍数, 缩放倍数)
         Select Case node.类型
             Case "值"
-                g.DrawRectangle(New Pen(颜色, 线宽), r)
+                绘制集(4).Add(New 绘制类(New Pen(颜色, 线宽), r))
+                'g.DrawRectangle(New Pen(颜色, 线宽), r)
             Case "引用"
-                g.DrawPolygon(New Pen(颜色, 线宽), 获得三角形点集(位置))
+                绘制集(4).Add(New 绘制类(New Pen(颜色, 线宽), 获得三角形点集(位置)))
+                'g.DrawPolygon(New Pen(颜色, 线宽), 获得三角形点集(位置))
             Case "函数"
-                g.DrawEllipse(New Pen(颜色, 线宽), r)
+                绘制集(4).Add(New 绘制类(New Pen(颜色, 线宽), r, "DE"))
+                'g.DrawEllipse(New Pen(颜色, 线宽), r)
             Case "接口"
-                g.DrawPolygon(New Pen(颜色, 线宽), 获得六边形点集(位置))
+                绘制集(4).Add(New 绘制类(New Pen(颜色, 线宽), 获得六边形点集(位置)))
+                'g.DrawPolygon(New Pen(颜色, 线宽), 获得六边形点集(位置))
         End Select
     End Sub
     Private Sub 绘制节点(ByRef g As Graphics, node As 节点类, 位置 As Point, 填充笔刷 As Brush, 图形边缘 As Pen)
@@ -851,72 +893,111 @@ Public Class 节点平面类
         Dim r As New Rectangle(位置.X, 位置.Y, 缩放倍数, 缩放倍数)
         Select Case node.类型
             Case "值"
-                g.FillRectangle(填充笔刷, r)
-                g.DrawRectangle(图形边缘, r)
+                绘制集(1).Add(New 绘制类(填充笔刷, r))
+                'g.FillRectangle(填充笔刷, r)
+                绘制集(2).Add(New 绘制类(图形边缘, r))
+                'g.DrawRectangle(图形边缘, r)
             Case "引用"
                 Dim 三角形路径() As Point = 获得三角形点集_无缩放(位置)
-                g.FillPolygon(填充笔刷, 三角形路径)
-                g.DrawPolygon(图形边缘, 三角形路径)
+                绘制集(1).Add(New 绘制类(填充笔刷, 三角形路径))
+                'g.FillPolygon(填充笔刷, 三角形路径)
+                绘制集(2).Add(New 绘制类(图形边缘, 三角形路径))
+                'g.DrawPolygon(图形边缘, 三角形路径)
             Case "函数"
-                g.FillEllipse(填充笔刷, r)
-                g.DrawEllipse(图形边缘, r)
+                绘制集(1).Add(New 绘制类(填充笔刷, r, "FE"))
+                'g.FillEllipse(填充笔刷, r)
+                绘制集(2).Add(New 绘制类(图形边缘, r, "DE"))
+                'g.DrawEllipse(图形边缘, r)
             Case "接口"
                 Dim 六边形路径() As Point = 获得六边形点集_无缩放(位置)
-                g.FillPolygon(填充笔刷, 六边形路径)
-                g.DrawPolygon(图形边缘, 六边形路径)
+                绘制集(1).Add(New 绘制类(填充笔刷, 六边形路径))
+                'g.FillPolygon(填充笔刷, 六边形路径)
+                绘制集(2).Add(New 绘制类(图形边缘, 六边形路径))
+                'g.DrawPolygon(图形边缘, 六边形路径)
         End Select
         Dim printStr As String
         If 主窗体.主窗体显示内容.Checked Then
-            printStr = String.Format("{0}:{1}{2}", node.名字, vbCrLf, node.内容)
+            printStr = node.内容
         Else
             If node.行内容.Length > 1 Then
-                printStr = String.Format("{0}:{1}...({2})", node.名字, node.行内容(0), node.行内容.Length)
+                printStr = String.Format("{0}...({1})", node.行内容(0), node.行内容.Length)
             Else
-                printStr = String.Format("{0}:{1}", node.名字, node.内容)
+                printStr = node.内容
             End If
         End If
+        Dim title As String = node.名字 & ":"
+        Dim s2 As SizeF = g.MeasureString(title, 标题字体)
         If 主窗体.主窗体文字居中.Checked Then
-            Dim s As SizeF = g.MeasureString(printStr, 主窗体.Font)
-            g.DrawString(printStr, 主窗体.Font, Brushes.Black, 位置.X + (缩放倍数 \ 2) - (s.Width \ 2), 位置.Y + (缩放倍数 \ 2) - (s.Height \ 2))
+            Dim s As SizeF
+            If printStr = "" Then
+                s = s2
+                s.Width = 0
+            Else
+                s = g.MeasureString(printStr, 主窗体.Font)
+            End If
+            绘制集(8).Add(New 绘制类(printStr, 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数 + (缩放倍数 \ 2) - ((s.Width + s2.Width) \ 2) + s2.Width, node.位置.Y * 缩放倍数 + (缩放倍数 \ 2) - (s.Height \ 2)))
+            'g.DrawString(printStr, 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数 + (缩放倍数 \ 2) - ((s.Width + s2.Width) \ 2) + s2.Width, node.位置.Y * 缩放倍数 + (缩放倍数 \ 2) - (s.Height \ 2))
+            绘制集(8).Add(New 绘制类(title, 标题字体, Brushes.Black, node.位置.X * 缩放倍数 + (缩放倍数 \ 2) - ((s.Width + s2.Width) \ 2), node.位置.Y * 缩放倍数 + (缩放倍数 \ 2) - (s.Height \ 2)))
+            'g.DrawString(title, 标题字体, Brushes.Black, node.位置.X * 缩放倍数 + (缩放倍数 \ 2) - ((s.Width + s2.Width) \ 2), node.位置.Y * 缩放倍数 + (缩放倍数 \ 2) - (s.Height \ 2))
         Else
-            g.DrawString(printStr, 主窗体.Font, Brushes.Black, 位置.X, 位置.Y)
+            绘制集(8).Add(New 绘制类(printStr, 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数 + s2.Height))
+            'g.DrawString(printStr, 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数 + s2.Height)
+            绘制集(8).Add(New 绘制类(title, 标题字体, Brushes.Black, node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数))
+            'g.DrawString(title, 标题字体, Brushes.Black, node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数)
         End If
     End Sub
     Private Sub 绘制节点(ByRef g As Graphics, node As 节点类)
         Dim r As New Rectangle(node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数, 缩放倍数, 缩放倍数)
-        Dim 边缘色 As New Pen(Color.White, 3)
+        Dim 边缘色 As New Pen(Color.White, 3), 边缘图层 As Integer = 2
         If node.高亮 Then
             边缘色 = New Pen(节点高亮色, 3)
+            边缘图层 = 3
+        End If
+        If node.候选 Then
+            边缘色 = New Pen(节点候选色, 3)
+            边缘图层 = 3
         End If
         Select Case node.类型
             Case "值"
-                g.FillRectangle(New SolidBrush(值节点填充颜色), r)
-                g.DrawRectangle(边缘色, r)
+                绘制集(1).Add(New 绘制类(New SolidBrush(值节点填充颜色), r))
+                'g.FillRectangle(New SolidBrush(值节点填充颜色), r)
+                绘制集(边缘图层).Add(New 绘制类(边缘色, r))
+                'g.DrawRectangle(边缘色, r)
                 If node.激活 > 0 Then
-                    g.FillRectangle(New SolidBrush(Color.FromArgb(node.激活, 激活色)), r)
+                    绘制集(3).Add(New 绘制类(New SolidBrush(Color.FromArgb(node.激活, 激活色)), r))
+                    'g.FillRectangle(New SolidBrush(Color.FromArgb(node.激活, 激活色)), r)
                     node.激活 -= 10
                 End If
             Case "引用"
                 Dim 三角形路径() As Point = 获得三角形点集(node.位置)
-                g.FillPolygon(New SolidBrush(引用节点填充色), 三角形路径)
-                g.DrawPolygon(边缘色, 三角形路径)
+                绘制集(1).Add(New 绘制类(New SolidBrush(引用节点填充色), 三角形路径))
+                'g.FillPolygon(New SolidBrush(引用节点填充色), 三角形路径)
+                绘制集(边缘图层).Add(New 绘制类(边缘色, 三角形路径))
+                'g.DrawPolygon(边缘色, 三角形路径)
                 If node.激活 > 0 Then
-                    g.FillPolygon(New SolidBrush(Color.FromArgb(node.激活, 激活色)), 三角形路径)
+                    绘制集(3).Add(New 绘制类(New SolidBrush(Color.FromArgb(node.激活, 激活色)), 三角形路径))
+                    'g.FillPolygon(New SolidBrush(Color.FromArgb(node.激活, 激活色)), 三角形路径)
                     node.激活 -= 10
                 End If
             Case "函数"
-                g.FillEllipse(New SolidBrush(函数节点填充色), r)
-                g.DrawEllipse(边缘色, r)
+                绘制集(1).Add(New 绘制类(New SolidBrush(函数节点填充色), r, "FE"))
+                'g.FillEllipse(New SolidBrush(函数节点填充色), r)
+                绘制集(边缘图层).Add(New 绘制类(边缘色, r, "DE"))
+                'g.DrawEllipse(边缘色, r)
                 If node.激活 > 0 Then
-                    g.FillEllipse(New SolidBrush(Color.FromArgb(node.激活, 激活色)), r)
+                    绘制集(3).Add(New 绘制类(New SolidBrush(Color.FromArgb(node.激活, 激活色)), r, "FE"))
+                    'g.FillEllipse(New SolidBrush(Color.FromArgb(node.激活, 激活色)), r)
                     node.激活 -= 10
                 End If
             Case "接口"
                 Dim 六边形路径() As Point = 获得六边形点集(node.位置)
-                g.FillPolygon(New SolidBrush(接口点填充颜色), 六边形路径)
-                g.DrawPolygon(边缘色, 六边形路径)
+                绘制集(1).Add(New 绘制类(New SolidBrush(接口点填充颜色), 六边形路径))
+                'g.FillPolygon(New SolidBrush(接口点填充颜色), 六边形路径)
+                绘制集(边缘图层).Add(New 绘制类(边缘色, 六边形路径))
+                'g.DrawPolygon(边缘色, 六边形路径)
                 If node.激活 > 0 Then
-                    g.FillPolygon(New SolidBrush(Color.FromArgb(node.激活, 激活色)), 六边形路径)
+                    绘制集(3).Add(New 绘制类(New SolidBrush(Color.FromArgb(node.激活, 激活色)), 六边形路径))
+                    'g.FillPolygon(New SolidBrush(Color.FromArgb(node.激活, 激活色)), 六边形路径)
                     node.激活 -= 10
                 End If
         End Select
@@ -940,12 +1021,15 @@ Public Class 节点平面类
             Else
                 s = g.MeasureString(printStr, 主窗体.Font)
             End If
-            'g.DrawRectangle(Pens.Red, New Rectangle(node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数, s.Width, s.Height))
-            g.DrawString(printStr, 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数 + (缩放倍数 \ 2) - ((s.Width + s2.Width) \ 2) + s2.Width, node.位置.Y * 缩放倍数 + (缩放倍数 \ 2) - (s.Height \ 2))
-            g.DrawString(title, 标题字体, Brushes.Black, node.位置.X * 缩放倍数 + (缩放倍数 \ 2) - ((s.Width + s2.Width) \ 2), node.位置.Y * 缩放倍数 + (缩放倍数 \ 2) - (s.Height \ 2))
+            绘制集(8).Add(New 绘制类(printStr, 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数 + (缩放倍数 \ 2) - ((s.Width + s2.Width) \ 2) + s2.Width, node.位置.Y * 缩放倍数 + (缩放倍数 \ 2) - (s.Height \ 2)))
+            'g.DrawString(printStr, 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数 + (缩放倍数 \ 2) - ((s.Width + s2.Width) \ 2) + s2.Width, node.位置.Y * 缩放倍数 + (缩放倍数 \ 2) - (s.Height \ 2))
+            绘制集(8).Add(New 绘制类(title, 标题字体, Brushes.Black, node.位置.X * 缩放倍数 + (缩放倍数 \ 2) - ((s.Width + s2.Width) \ 2), node.位置.Y * 缩放倍数 + (缩放倍数 \ 2) - (s.Height \ 2)))
+            'g.DrawString(title, 标题字体, Brushes.Black, node.位置.X * 缩放倍数 + (缩放倍数 \ 2) - ((s.Width + s2.Width) \ 2), node.位置.Y * 缩放倍数 + (缩放倍数 \ 2) - (s.Height \ 2))
         Else
-            g.DrawString(printStr, 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数 + s2.Height)
-            g.DrawString(title, 标题字体, Brushes.Black, node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数)
+            绘制集(8).Add(New 绘制类(printStr, 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数 + s2.Height))
+            'g.DrawString(printStr, 主窗体.Font, Brushes.Black, node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数 + s2.Height)
+            绘制集(8).Add(New 绘制类(title, 标题字体, Brushes.Black, node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数))
+            'g.DrawString(title, 标题字体, Brushes.Black, node.位置.X * 缩放倍数, node.位置.Y * 缩放倍数)
         End If
     End Sub
     Private Function 获得六边形点集(左上基点 As Point) As Point()

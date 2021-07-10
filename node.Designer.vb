@@ -175,9 +175,9 @@ Partial Class Node
     Friend WithEvents 节点类型 As ComboBox
     Friend WithEvents Label3 As Label
     Friend WithEvents TextBox2 As TextBox
-    Friend WithEvents 节点内容 As TextBox
     Friend WithEvents 大小控制_中 As Label
     Friend WithEvents Label4 As Label
     Friend WithEvents 大小控制_小 As Label
     Friend WithEvents 大小控制_大 As Label
+    Friend WithEvents 节点内容 As TextBox
 End Class

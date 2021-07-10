@@ -3,6 +3,7 @@ Imports System.IO
 
 Public Class Form1
     Public 主域 As 节点平面类
+    Public 法则字体 As Font
     Private 已注册 As Boolean
 
     Private Delegate Sub 显示委托(v As String)
@@ -99,7 +100,30 @@ Public Class Form1
             End If
         End If
     End Sub
+    Private Sub 加载法则用法()
+        On Error Resume Next
+        Dim fName As String = Application.StartupPath & "\" & Application.ProductVersion & ".f"
+        If Not File.Exists(fName) Then
+            Dim wb As New Net.WebClient
+            wb.DownloadFile("http://harryxiao.cn/node2d/function/" & Application.ProductVersion & ".f", fName)
+        End If
+        Dim fText As String = File.ReadAllText(fName)
+        Dim f() As String = Split(fText, vbCrLf & vbCrLf)
+        For i As Integer = 0 To UBound(f)
+            法则集.Add(首行替换(f(i), "；", "/"))
+            Dim funName As String = Split(f(i), "；")(0)
+            If Not 精简法则集.Contains(funName) Then
+                精简法则集.Add(funName)
+            End If
+            'Debug.WriteLine(f(i))
+            'Debug.WriteLine(法则集.Count - 1)
+            建立法则索引(f(i), 法则集.Count - 1)
+        Next
+    End Sub
+
     Private Sub 加载设置文件()
+        Dim t As New Threading.Thread(AddressOf 加载法则用法)
+        t.Start()
         Dim configPath As String = Application.StartupPath & "程序设置.ini"
         If File.Exists(configPath) Then
             Dim 设置() As String = Split(File.ReadAllText(configPath), vbCrLf)
@@ -123,11 +147,14 @@ Public Class Form1
             "函数点背景色=" & 函数点背景色.BackColor.ToArgb,
             "接口点背景色=" & 接口点背景色.BackColor.ToArgb,
             "已注册=" & 已注册,
-            "激活节点变色=" & 激活节点变色.Checked
+            "激活节点变色=" & 激活节点变色.Checked,
+            "启动时执行主节点=" & 启动时执行主节点.Checked,
+            "法则字体=" & 主域.法则提示窗口.Font.Name & "," & 主域.法则提示窗口.Font.Size
         }
         File.WriteAllText(Application.StartupPath & "程序设置.ini", Join(设置.ToArray, vbCrLf))
     End Sub
     Private Sub 设置解释(s As String)
+        'On Error Resume Next
         If s.IndexOf("=") <> -1 Then
             Dim sT() As String = Split(s, "=")
             Dim sBool As Boolean
@@ -160,6 +187,11 @@ Public Class Form1
                     已注册 = sBool
                 Case "激活节点变色"
                     激活节点变色.Checked = sBool
+                Case "启动时执行主节点"
+                    启动时执行主节点.Checked = sBool
+                Case "法则字体"
+                    Dim p() As String = Split(sT(1), ",")
+                    法则字体 = New Font(p(0), Val(p(1)))
             End Select
         End If
     End Sub
@@ -355,5 +387,18 @@ Public Class Form1
 
     Private Sub 激活节点变色_Click(sender As Object, e As EventArgs) Handles 激活节点变色.Click
         激活节点变色.Checked = Not 激活节点变色.Checked
+    End Sub
+
+    Private Sub 启动时执行主节点_Click(sender As Object, e As EventArgs) Handles 启动时执行主节点.Click
+        启动时执行主节点.Checked = Not 启动时执行主节点.Checked
+    End Sub
+
+    Private Sub 设置法则字体_Click(sender As Object, e As EventArgs) Handles 设置法则字体.Click
+        If 主域 IsNot Nothing Then
+            FontD.Font = 主域.法则提示窗口.Font
+            If FontD.ShowDialog = DialogResult.OK Then
+                主域.法则提示窗口.字体设置(FontD.Font)
+            End If
+        End If
     End Sub
 End Class
