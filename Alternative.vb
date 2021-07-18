@@ -260,7 +260,7 @@
     End Property
     Public Sub 编辑窗体内容键盘弹起(sender As Object, e As KeyEventArgs) Handles 节点内容.KeyUp, Me.KeyUp
         Select Case e.KeyCode
-            Case Keys.Tab, Keys.Decimal, Keys.Enter, Keys.Space, Keys.Up, Keys.Down
+            Case Keys.Tab, Keys.Decimal, Keys.Enter, Keys.Space, Keys.Up, Keys.Down, Keys.Escape
 
             Case Else
                 候选内容准备(编辑面.节点内容)

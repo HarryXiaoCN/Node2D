@@ -52,7 +52,7 @@
                 法则域.Image.Dispose()
             End If
             法则域.Image = img
-            If 父域.节点编辑窗体.Left + 父域.节点编辑窗体.Width + Width <= Screen.PrimaryScreen.Bounds.Width Or 父域.节点编辑窗体.Left * 2 > Screen.PrimaryScreen.Bounds.Width - 父域.节点编辑窗体.Width Then
+            If 父域.节点编辑窗体.Left + 父域.节点编辑窗体.Width + Width <= Screen.PrimaryScreen.Bounds.Width Or Screen.PrimaryScreen.Bounds.Width - (父域.节点编辑窗体.Left + 父域.节点编辑窗体.Width) >= 父域.节点编辑窗体.Left Then
                 Left = 父域.节点编辑窗体.Left + 父域.节点编辑窗体.Width
             Else
                 Left = 父域.节点编辑窗体.Left - Width

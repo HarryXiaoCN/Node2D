@@ -38,4 +38,16 @@ Public Class GlobalImportForm
             全局节点列表.Items.RemoveAt(全局节点列表.SelectedIndex)
         End If
     End Sub
+
+    Private Sub 新全局平面路径_KeyDown(sender As Object, e As KeyEventArgs) Handles 新全局平面路径.KeyDown
+        If e.KeyCode = Keys.Enter Then
+            添加全局平面_Click(Nothing, Nothing)
+        End If
+    End Sub
+
+    Private Sub 新全局节点路径_KeyDown(sender As Object, e As KeyEventArgs) Handles 新全局节点路径.KeyDown
+        If e.KeyCode = Keys.Enter Then
+            添加全局节点_Click(Nothing, Nothing)
+        End If
+    End Sub
 End Class

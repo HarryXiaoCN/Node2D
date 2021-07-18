@@ -1104,13 +1104,13 @@ Public Class 节点脚本类
                             MsgBox(nodes(0).内容, Val(nodes(1).内容), nodes(2).内容)
                         Case 5
                             If MsgBox(nodes(0).内容, Val(nodes(1).内容), nodes(2).内容) = MsgBoxResult.Yes Then
-                                解释(nodes(3))
+                                函数解释(nodes(3))
                             End If
                         Case 6
                             If MsgBox(nodes(0).内容, Val(nodes(1).内容), nodes(2).内容) = MsgBoxResult.Yes Then
-                                解释(nodes(3))
+                                函数解释(nodes(3))
                             Else
-                                解释(nodes(4))
+                                函数解释(nodes(4))
                             End If
                         Case Else
                             Return String.Format("函数节点[{1}]第{2}行：提示框语句""{0}""参数数量不对。", targetString, 节点.名字, 行)
@@ -1118,6 +1118,15 @@ Public Class 节点脚本类
                 Case "re-replace", "正则替换"
                     If nodesString.Length < 5 Then Return String.Format("函数节点[{1}]第{2}行：正则替换语句""{0}""过短。", targetString, 节点.名字, 行)
                     nodes(0).内容 = Regex.Replace(nodes(1).内容, nodes(2).内容, nodes(3).内容)
+                Case "end", "结束"
+                    End
+                Case "dir-for", "遍历目录", "目录"
+                    If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：遍历目录语句""{0}""过短。", targetString, 节点.名字, 行)
+                    Dim fs() As String = Directory.GetFiles(nodes(0).内容)
+                    For Each f As String In fs
+                        nodes(1).内容 = f
+                        函数解释(nodes(2))
+                    Next
                 Case Else
                     Return 用户法则解释(节点, nodes, nodesString(0).ToLower, 行)
             End Select

@@ -50,6 +50,7 @@ Public Class 节点平面类
             name = s(0)
             type = s(1)
             content = Replace(s(2), Chr(2), vbCrLf)
+            If content Is Nothing Then content = ""
             行内容 = Split(content, vbCrLf)
             位置 = New Point(Val(s(3)), Val(s(4)))
             If s(5) <> "" Then
@@ -335,10 +336,10 @@ Public Class 节点平面类
     Public 绘制间隔 As Long = 15
     Public 缩放倍数 As Integer = 50
     Public 主窗体 As Form1
-    Public 节点编辑窗体 As New Node
+    Public 节点编辑窗体 As Node
     Public 全局窗体 As New GlobalImportForm(Me)
-    Public 候选窗体 As New Alternative(Me)
-    Public 法则提示窗口 As New FunctionPrompt(Me)
+    Public 候选窗体 As Alternative
+    Public 法则提示窗口 As FunctionPrompt
     Public 鼠标移动选中节点 As 节点类
     Public 当前编辑节点 As 节点类
     Public 当前按住节点 As 节点类
@@ -391,10 +392,13 @@ Public Class 节点平面类
         初始化颜色()
         绘制空间 = drawSpace
         主平面 = mainNode2D
-        节点编辑窗体.主域 = Me
         '节点编辑窗体.Show()
         '节点编辑窗体.Hide()
         If 主平面 Then
+            节点编辑窗体 = New Node
+            节点编辑窗体.主域 = Me
+            候选窗体 = New Alternative(Me)
+            法则提示窗口 = New FunctionPrompt(Me)
             主窗体.Text = "节点平面 - " & 路径
             For i As Integer = 0 To UBound(绘制集)
                 绘制集(i) = New List(Of 绘制类)
@@ -829,7 +833,7 @@ Public Class 节点平面类
         '    绘制集(i).Clear()
         'Next
         本域节点.Clear()
-        节点编辑窗体.Close()
+        If 节点编辑窗体 IsNot Nothing Then 节点编辑窗体.Close()
         全局窗体.Close()
     End Sub
     Private Sub 绘制更新(ByRef 帧 As Image)
