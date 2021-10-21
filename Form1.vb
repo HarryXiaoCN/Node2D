@@ -8,6 +8,15 @@ Public Class Form1
 
     Private Delegate Sub 显示委托(v As String)
     Private Delegate Sub 托盘显示委托(v As String, t As String, i As String)
+    Private Delegate Sub 键盘发送委托(值 As String)
+
+    Public Sub 键盘发送值(值 As String)
+        Dim d As New 键盘发送委托(AddressOf 键盘发送值执行)
+        Invoke(d, 值)
+    End Sub
+    Private Sub 键盘发送值执行(值 As String)
+        SendKeys.Send(值)
+    End Sub
 
     Public Sub 托盘显示(v As String, t As String, i As String)
         Dim d As New 托盘显示委托(AddressOf 托盘显示执行)

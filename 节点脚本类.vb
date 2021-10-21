@@ -837,9 +837,12 @@ Public Class 节点脚本类
                         Thread.Sleep(10)
                     Loop
                     控制台.热键卸载(控制台.获得窗体句柄(), tid)
+                Case "sendkeyswait", "发送按键2"
+                    If nodesString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：发送按键2语句""{0}""过短。", targetString, 节点.名字, 行)
+                    SendKeys.SendWait(nodes(0).内容)
                 Case "sendkeys", "发送按键"
                     If nodesString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：发送按键语句""{0}""过短。", targetString, 节点.名字, 行)
-                    SendKeys.SendWait(nodes(0).内容)
+                    主界面.键盘发送值(nodes(0).内容)
                 Case "like", "像", "相似"
                     If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：判断相似语句""{0}""过短。", targetString, 节点.名字, 行)
                     nodes(0).内容 = BoolToInt(nodes(1).内容 Like nodes(2).内容)
