@@ -11,7 +11,46 @@ Public Module 节点全局
     Public ReadOnly 法则集 As New List(Of String)
     Public ReadOnly 法则索引 As New Dictionary(Of String, List(Of Integer))
     Public ReadOnly 精简法则集 As New List(Of String)
-
+    Public Declare Function GetForegroundWindow Lib "user32" () As Long
+    Declare Function GetWindowThreadProcessId Lib "user32" (ByVal hWnd As Integer, ByRef lpdwProcessId As Integer) As Integer
+    Declare Function GetFocus Lib "user32" () As Long
+    Declare Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Integer
+    Declare Function PostMessage Lib "user32" Alias "PostMessageA" (ByVal hwnd As IntPtr, ByVal wMsg As UInteger, ByVal wParam As IntPtr, lParam As IntPtr) As Long
+    Declare Function MapVirtualKey Lib "user32" Alias "MapVirtualKeyA" (ByVal wCode As Integer, ByVal wMapType As Integer) As Integer
+    Declare Function AttachThreadInput Lib "user32" (ByVal idAttach As Long, ByVal idAttachTo As Long, ByVal fAttach As Long) As Long
+    Declare Function GetCurrentThreadId Lib "kernel32" Alias "GetCurrentThreadId" () As Long
+    Declare Sub keybd_event Lib "user32" (ByVal bVk As Byte, ByVal bScan As Byte, ByVal dwFlags As Long, ByVal dwExtraInfo As Long)
+    Public Sub 模拟全局键盘事件(按键类型 As Integer, 键值 As Integer)
+        Dim keyeventkey As Integer
+        If 按键类型 = &H101 Then
+            keyeventkey = 2
+        Else
+            keyeventkey = 0
+        End If
+        keybd_event(键值, MapVirtualKey(键值, 按键类型), keyeventkey, 0)
+    End Sub
+    Public Function 获得焦点控件句柄() As Integer
+        Dim focusFormHandle As Integer = GetForegroundWindow
+        Dim pid As Integer, tid As Integer, rHandle As Integer = -1
+        If focusFormHandle Then
+            tid = GetWindowThreadProcessId(focusFormHandle, pid)
+            Dim myTID As Integer = GetCurrentThreadId
+            If tid <> myTID Then
+                AttachThreadInput(myTID, tid, True)
+                rHandle = GetFocus
+                AttachThreadInput(myTID, tid, False)
+            Else
+                rHandle = GetFocus
+            End If
+        End If
+        Return rHandle
+    End Function
+    Public Function 查找窗口句柄(窗口名 As String) As Integer
+        Return FindWindow(vbNullString, 窗口名)
+    End Function
+    Public Sub 模拟键盘事件(目标句柄 As IntPtr, 按键类型 As Integer, 键值 As Integer)
+        PostMessage(目标句柄, 按键类型, 键值, MapVirtualKey(键值, 按键类型))
+    End Sub
     Public Structure 文本定位类
         Public 前缀 As String, 行首 As String, 行 As Long, 列 As Long
         Public Sub New(beforeStr As String, rowFrist As String, row As Long, col As Long)
@@ -91,7 +130,6 @@ Public Module 节点全局
             s = Nothing
         End If
     End Sub
-
     Public Function 删除连接(ByRef n1 As 节点类, ByRef n2 As 节点类) As Integer
         If n1.父域.Equals(n2.父域) Then
             If n1.连接.Contains(n2) And n2.连接.Contains(n1) Then
@@ -328,7 +366,6 @@ Public Class 节点脚本类
             End If
         Next
     End Sub
-
     Public Function 赋值式运算(ByRef 节点 As 节点类, targetString As String, 行 As Long) As String
         '禁用：空格 + . = 换行
         Dim nodesString() As String = Split(targetString, " ")
@@ -1130,6 +1167,21 @@ Public Class 节点脚本类
                         nodes(1).内容 = f
                         函数解释(nodes(2))
                     Next
+                Case "local-simulatekeyboardevents", "local-sk-event", "模拟局部键盘事件", "局部键盘事件"
+                    If nodesString.Length < 4 Then Return String.Format("函数节点[{1}]第{2}行：模拟局部键盘事件语句""{0}""过短。", targetString, 节点.名字, 行)
+                    模拟键盘事件(Val(nodes(0).内容), Val(nodes(1).内容), Val(nodes(2).内容))
+                Case "findwindowhandle", "查找窗口句柄"
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：查找窗口句柄语句""{0}""过短。", targetString, 节点.名字, 行)
+                    nodes(0).内容 = 查找窗口句柄(nodes(1).内容)
+                Case "getfocuswindowhandle", "获得焦点窗口句柄"
+                    If nodesString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：获得焦点窗口句柄语句""{0}""过短。", targetString, 节点.名字, 行)
+                    nodes(0).内容 = GetForegroundWindow()
+                Case "getfocuscontrolhandle", "获得焦点控件句柄"
+                    If nodesString.Length < 2 Then Return String.Format("函数节点[{1}]第{2}行：获得焦点窗口句柄语句""{0}""过短。", targetString, 节点.名字, 行)
+                    nodes(0).内容 = 获得焦点控件句柄()
+                Case "global-simulatekeyboardevents", "global-sk-event", "模拟全局键盘事件", "全局键盘事件"
+                    If nodesString.Length < 3 Then Return String.Format("函数节点[{1}]第{2}行：模拟全局键盘事件语句""{0}""过短。", targetString, 节点.名字, 行)
+                    模拟全局键盘事件(nodes(0).内容, nodes(1).内容)
                 Case Else
                     Return 用户法则解释(节点, nodes, nodesString(0).ToLower, 行)
             End Select
